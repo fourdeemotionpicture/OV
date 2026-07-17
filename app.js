@@ -156,6 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
   try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { updateCartBadge(); } catch(e) { console.error(e); }
   try { updateWishlistBadge(); } catch(e) { console.error(e); }
+
+  // SPA Route Path check on boot
+  try {
+    const path = window.location.pathname.replace(/^\/|\/$/g, '');
+    if (path === 'admin') {
+      setTimeout(() => navigateTo('admin'), 500);
+    } else if (path === 'shop') {
+      setTimeout(() => navigateTo('shop'), 500);
+    }
+  } catch(e) {
+    console.error("Routing Error: ", e);
+  }
 });
 
 /* ==========================================================================
