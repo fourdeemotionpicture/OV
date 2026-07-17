@@ -684,9 +684,9 @@ header.hide {
   font-weight: 300;
 }
 .logo-svg text.logo-subtext {
-  font-family: 'Montserrat', sans-serif !important;
-  font-weight: 600;
-  letter-spacing: 0.45em;
+  font-family: 'Cormorant Garamond', 'Didot', 'Georgia', serif !important;
+  font-weight: 500;
+  letter-spacing: 0.35em;
 }
 
 /* ===== Split Slide Layout ===== */
@@ -749,9 +749,9 @@ header.hide {
   font-weight: 300;
 }
 .logo-svg-large text.logo-subtext {
-  font-family: 'Montserrat', sans-serif !important;
-  font-weight: 600;
-  letter-spacing: 0.45em;
+  font-family: 'Cormorant Garamond', 'Didot', 'Georgia', serif !important;
+  font-weight: 500;
+  letter-spacing: 0.35em;
 }
 
 .slide-editorial-desc {
