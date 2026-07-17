@@ -80,26 +80,26 @@ const SVGS = {
 document.addEventListener('DOMContentLoaded', () => {
   STATE.activeProduct = STATE.products[0];
 
-  setupOpeningLoader();
-  setupCustomCursor();
-  setupNavigation();
-  setupAnnouncements();
-  setupThreeJSReveal();
-  setupLenisScroll();
-  setupGSAPAnimations();
-  setupEcommerce();
-  setupSizeGuide();
-  setupProductZoom();
-  setupAccordions();
-  setupHeroSlider();
-  setupPincodeChecker();
-  setupCatalogSearchAndFilters();
+  try { setupOpeningLoader(); } catch(e) { console.error("Loader Error: ", e); }
+  try { setupCustomCursor(); } catch(e) { console.error("Cursor Error: ", e); }
+  try { setupNavigation(); } catch(e) { console.error("Nav Error: ", e); }
+  try { setupAnnouncements(); } catch(e) { console.error("Announce Error: ", e); }
+  try { setupThreeJSReveal(); } catch(e) { console.error("ThreeJS Error: ", e); }
+  try { setupLenisScroll(); } catch(e) { console.error("Lenis Error: ", e); }
+  try { setupGSAPAnimations(); } catch(e) { console.error("GSAP Error: ", e); }
+  try { setupEcommerce(); } catch(e) { console.error("Ecommerce Error: ", e); }
+  try { setupSizeGuide(); } catch(e) { console.error("SizeGuide Error: ", e); }
+  try { setupProductZoom(); } catch(e) { console.error("Zoom Error: ", e); }
+  try { setupAccordions(); } catch(e) { console.error("Accordions Error: ", e); }
+  try { setupHeroSlider(); } catch(e) { console.error("Slider Error: ", e); }
+  try { setupPincodeChecker(); } catch(e) { console.error("Pincode Error: ", e); }
+  try { setupCatalogSearchAndFilters(); } catch(e) { console.error("Filters Error: ", e); }
 
   // Render initial feeds
-  renderProductGrid('plp-products-grid', STATE.products);
-  renderFeaturedGrid('featured-products-grid', STATE.products);
-  updateCartBadge();
-  updateWishlistBadge();
+  try { renderProductGrid('plp-products-grid', STATE.products); } catch(e) { console.error(e); }
+  try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
+  try { updateCartBadge(); } catch(e) { console.error(e); }
+  try { updateWishlistBadge(); } catch(e) { console.error(e); }
 });
 
 /* ==========================================================================
@@ -200,6 +200,9 @@ function navigateTo(route, productId = null) {
   routes.forEach(r => r.classList.remove('active'));
 
   window.scrollTo({ top: 0, behavior: 'instant' });
+  if (lenis) {
+    lenis.scrollTo(0, { immediate: true });
+  }
 
   if (route === 'home') {
     document.getElementById('home-page').classList.add('active');
@@ -277,6 +280,15 @@ function setupHeroSlider() {
     
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
+
+    // Slide transition motion for luxury editorial overlay texts
+    const activeContent = slides[currentSlide].querySelector('.hero-slide-content');
+    if (activeContent) {
+      gsap.fromTo(activeContent, 
+        { opacity: 0, y: 30 }, 
+        { opacity: 1, y: 0, duration: 1.2, ease: "power4.out" }
+      );
+    }
   }
 
   // Next / Prev triggers
@@ -563,6 +575,34 @@ function setupGSAPAnimations() {
         updateTimelineProgress(index - 1);
       }
     });
+  });
+
+  // Staggered fade-ins for brands grid
+  gsap.from('.brand-card', {
+    scrollTrigger: {
+      trigger: '.brands-section',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    },
+    opacity: 0,
+    y: 40,
+    stagger: 0.1,
+    duration: 0.8,
+    ease: "power3.out"
+  });
+
+  // Staggered fade-ins for offers portal cards
+  gsap.from('.promo-card', {
+    scrollTrigger: {
+      trigger: '.promo-portal-section',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    },
+    opacity: 0,
+    y: 40,
+    stagger: 0.12,
+    duration: 0.8,
+    ease: "power3.out"
   });
 }
 
@@ -1683,6 +1723,16 @@ function renderProductDetailPage(product) {
   if (pincodeResult) pincodeResult.style.display = 'none';
   if (pincodeInput) pincodeInput.value = '';
 
+  // PDP Entrance motion
+  gsap.fromTo('.product-gallery', 
+    { opacity: 0, x: -30 }, 
+    { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" }
+  );
+  gsap.fromTo('.product-info-column > *', 
+    { opacity: 0, y: 15 }, 
+    { opacity: 1, y: 0, stagger: 0.06, duration: 0.8, ease: "power2.out" }
+  );
+
   renderFbtBundle(product);
   renderReviewsSection(product);
 }
@@ -1786,4 +1836,25 @@ function showNotification(message) {
       notification.remove();
     }, 500);
   }, 3500);
+}
+
+/* ==========================================================================
+   21. Active Promotions & Offers Portal
+   ========================================================================== */
+function copyAndApplyPromo(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    STATE.appliedCoupon = (code === 'WELCOME500') 
+      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
+    updateCartSummary();
+    renderCheckoutSummary();
+    showNotification(`COUPON ${code} COPIED & APPLIED!`);
+  }).catch(() => {
+    STATE.appliedCoupon = (code === 'WELCOME500') 
+      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
+    updateCartSummary();
+    renderCheckoutSummary();
+    showNotification(`COUPON ${code} APPLIED!`);
+  });
 }
