@@ -317,37 +317,41 @@ function setupHeroSlider() {
 
   if (slides.length === 0) return;
 
-  // Render Dot Indicators
-  slides.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
-    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-    dot.addEventListener('click', () => {
-      changeSlide(i);
-      resetAutoPlay();
+  if (dotsContainer) {
+    dotsContainer.innerHTML = '';
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => {
+        changeSlide(i);
+        resetAutoPlay();
+      });
+      dotsContainer.appendChild(dot);
     });
-    dotsContainer.appendChild(dot);
-  });
+  }
 
   const dots = document.querySelectorAll('.slider-dot');
 
   // Change Slide Action
   function changeSlide(index) {
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
+    if (slides[currentSlide]) slides[currentSlide].classList.remove('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
     
     currentSlide = (index + slides.length) % slides.length;
     
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
+    if (slides[currentSlide]) slides[currentSlide].classList.add('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.add('active');
 
     // Slide transition motion for luxury editorial overlay texts
-    const activeContent = slides[currentSlide].querySelector('.hero-slide-content');
-    if (activeContent) {
-      gsap.fromTo(activeContent, 
-        { opacity: 0, y: 30 }, 
-        { opacity: 1, y: 0, duration: 1.2, ease: "power4.out" }
-      );
+    if (slides[currentSlide]) {
+      const activeContent = slides[currentSlide].querySelector('.hero-slide-content');
+      if (activeContent) {
+        gsap.fromTo(activeContent, 
+          { opacity: 0, y: 30 }, 
+          { opacity: 1, y: 0, duration: 1.2, ease: "power4.out" }
+        );
+      }
     }
   }
 
@@ -1881,6 +1885,22 @@ function showNotification(message) {
 /* ==========================================================================
    21. Active Promotions & Offers Portal
    ========================================================================== */
+function copyAndApplyPromo(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    STATE.appliedCoupon = (code === 'WELCOME500') 
+      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : (code === 'DIWALI20')
+      ? { code: 'DIWALI20', type: 'percent', value: 20 }
+      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
+    updateCartSummary();
+    renderCheckoutSummary();
+    showNotification(`COUPON ${code} COPIED & APPLIED!`);
+  }).catch(() => {
+    STATE.appliedCoupon = (code === 'WELCOME500') 
+      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : (code === 'DIWALI20')
+      ? { code: 'DIWALI20', type: 'percent', value: 20 }
+      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
     updateCartSummary();
     renderCheckoutSummary();
     showNotification(`COUPON ${code} APPLIED!`);
