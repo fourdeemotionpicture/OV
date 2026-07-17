@@ -9,7 +9,7 @@
   --black: #000000;
   --white: #ffffff;
   --dark-gray: #111111;
-  --medium-gray: #777777;
+  --medium-gray: #555555; /* Darkened from #777777 for higher contrast */
   --light-gray: #f5f5f5;
   --border-color: rgba(0, 0, 0, 0.08);
   --border-light: rgba(255, 255, 255, 0.15);
@@ -49,7 +49,7 @@ html, body {
   background-color: var(--white);
   color: var(--black);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px; /* Increased from 14px for enhanced visibility */
   line-height: 1.6;
   overflow-x: hidden;
 }
@@ -95,12 +95,39 @@ a:hover {
 }
 
 .eyebrow {
-  font-size: 0.75rem;
+  font-size: 0.8rem; /* Increased from 0.75rem */
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--medium-gray);
+  color: #444444; /* Darkened from var(--medium-gray) for readability */
   margin-bottom: 1rem;
   display: block;
+  font-weight: 600; /* Made slightly bolder */
+}
+
+/* ===== SVG Logo Layout Classes ===== */
+.logo-svg {
+  height: 42px;
+  width: auto;
+  color: currentColor;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.logo-container .logo-svg {
+  height: 48px;
+}
+
+.loader-logo-container .logo-svg {
+  height: 110px;
+  animation: logoReveal 3s var(--ease-premium) forwards;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+footer .logo-svg {
+  height: 52px;
+  margin-bottom: 25px;
+  color: var(--white);
 }
 
 /* ===== Custom Cursor ===== */
@@ -168,22 +195,12 @@ a:hover {
 
 .loader-logo-container {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 250px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
-}
-
-.loader-logo {
-  font-family: var(--font-heading);
-  font-size: 6rem;
-  font-weight: 300;
-  letter-spacing: 0.1em;
-  opacity: 0;
-  transform: scale(0.8);
-  animation: logoReveal 3s var(--ease-premium) forwards;
 }
 
 .loader-bar-bg {
@@ -313,15 +330,6 @@ header.hide {
   text-align: center;
 }
 
-.logo {
-  font-family: var(--font-heading);
-  font-size: 2.2rem;
-  font-weight: 300;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--black);
-}
-
 /* Mega Menu Dropdown Setup */
 .nav-menu {
   display: flex;
@@ -331,7 +339,7 @@ header.hide {
 }
 
 .nav-item {
-  position: static; /* Required for full-width mega menu */
+  position: static;
 }
 
 .nav-link {
@@ -565,7 +573,8 @@ header.hide {
 .hero-slide-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+  /* Darkened overlay for higher text legibility */
+  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.7) 100%);
 }
 
 .hero-slide-content {
@@ -599,7 +608,7 @@ header.hide {
   letter-spacing: 0.25em;
   text-transform: uppercase;
   margin-bottom: 40px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /* Slider Controls */
@@ -714,7 +723,7 @@ header.hide {
   color: var(--medium-gray);
 }
 
-/* ===== Luxury Product Cards (With sizes overlay & discounts) ===== */
+/* ===== Luxury Product Cards ===== */
 .collection-card {
   flex: 0 0 380px;
   scroll-snap-align: start;
@@ -839,10 +848,11 @@ header.hide {
 }
 
 .card-label-type {
-  font-size: 0.7rem;
+  font-size: 0.75rem; /* Increased from 0.7rem for readability */
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--medium-gray);
+  color: #444444; /* Darkened from var(--medium-gray) for contrast */
+  font-weight: 600;
 }
 
 .card-title-heading {
@@ -909,7 +919,7 @@ header.hide {
 }
 
 .pincode-input {
-  max-width: 200px;
+  max-width: 280px;
   padding: 12px 15px;
   border: 1px solid var(--border-color);
   font-family: inherit;
@@ -2048,12 +2058,6 @@ footer {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 60px;
   margin-bottom: 40px;
-}
-
-.footer-brand h3 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  letter-spacing: 0.1em;
 }
 
 .footer-brand p {
