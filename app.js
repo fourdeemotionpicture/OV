@@ -157,12 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
   try { updateCartBadge(); } catch(e) { console.error(e); }
   try { updateWishlistBadge(); } catch(e) { console.error(e); }
 
-  // SPA Route Path check on boot
+  // SPA Route Path/Hash check on boot
   try {
     const path = window.location.pathname.replace(/^\/|\/$/g, '');
-    if (path === 'admin') {
+    const hash = window.location.hash.replace('#', '');
+    if (path === 'admin' || hash === 'admin') {
       setTimeout(() => navigateTo('admin'), 500);
-    } else if (path === 'shop') {
+    } else if (path === 'shop' || hash === 'shop') {
       setTimeout(() => navigateTo('shop'), 500);
     }
   } catch(e) {
