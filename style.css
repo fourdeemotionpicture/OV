@@ -3245,7 +3245,66 @@ footer {
     width: 100%;
   }
   
-  .checkout-grid {
-    grid-template-columns: 1fr;
+}
+
+/* ==========================================================================
+   Admin Portal Dashboard Styles
+   ========================================================================== */
+.admin-tab-btn:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+  color: var(--black) !important;
+}
+
+.admin-list-item {
+  transition: transform 0.2s var(--ease-premium), box-shadow 0.2s var(--ease-premium);
+  background-color: var(--white);
+}
+
+.admin-list-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.admin-input-style {
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  font-family: inherit;
+  width: 100%;
+}
+
+.admin-input-style:focus {
+  border-color: var(--gold-accent);
+  outline: none;
+}
+
+.admin-form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 900px) {
+  .admin-dashboard-wrapper {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+  .admin-tabs-nav {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color);
+    padding-right: 0 !important;
+    padding-bottom: 20px !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .admin-tab-btn {
+    border-left: none !important;
+    border-bottom: 2px solid transparent;
+  }
+  .admin-tab-btn.active {
+    border-bottom: 2px solid var(--black) !important;
   }
 }

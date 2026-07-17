@@ -3,8 +3,9 @@
    ========================================================================== */
 
 // Global State
+// Global State
 const STATE = {
-  products: [
+  products: JSON.parse(localStorage.getItem('ov_custom_products')) || [
     { id: 'tee-01', name: 'OV™ Heavyweight Tee - Onyx', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 3, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8, image: 'images/model1.jpg' },
     { id: 'tee-02', name: 'OV™ Heavyweight Tee - Ivory', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2499, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 8, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.7, image: 'images/model2.jpg' },
     { id: 'hoodie-01', name: 'OV™ Boxy Fit Hoodie - Slate', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: 'SALE', stock: 2, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.9, image: 'images/model3.jpg' },
@@ -15,6 +16,60 @@ const STATE = {
     { id: 'cap-02', name: 'OV™ Premium Cap - Sand', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', brand: 'OV™ ACTIVE', badge: null, stock: 15, sizes: ['O/S'], reviews: [], rating: 4.3, image: 'images/model3.jpg' },
     { id: 'bag-01', name: 'OV™ Studio Canvas Tote - Cream', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', brand: 'OV™ STUDIO', badge: 'SALE', stock: 3, sizes: ['O/S'], reviews: [], rating: 4.6, image: 'images/model4.jpg' }
   ],
+  slides: JSON.parse(localStorage.getItem('ov_custom_slides')) || [
+    {
+      image: 'images/model_sunglasses.jpg',
+      position: 'right 20% top 0%',
+      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+      eyebrow: 'FESTIVE SPECIFICATION',
+      title: 'DIWALI DROP',
+      desc: 'Discover statement pieces that blend elegance with individuality. Designed for the modern muse.',
+      btnText: 'SHOP NOW',
+      btnAction: 'shop',
+      layout: 'layout-split',
+      isLogoGraphic: true,
+      scriptTitle: ''
+    },
+    {
+      image: 'images/model2.jpg',
+      position: 'right 20% top 0%',
+      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+      eyebrow: 'FESTIVE SPECIFICATION',
+      title: 'ELEVATE YOUR STYLE',
+      scriptTitle: 'Define Your Story',
+      desc: 'Timeless elegance. Modern sophistication. Crafted for the woman who inspires.',
+      btnText: 'EXPLORE COLLECTION',
+      btnAction: 'shop',
+      layout: 'layout-split',
+      isLogoGraphic: false,
+      vFeatures: [
+        { num: '01', title: 'PREMIUM QUALITY', desc: 'Double-combed heavy cotton' },
+        { num: '02', title: 'MODERN DESIGNS', desc: 'Designed for the modern muse' },
+        { num: '03', title: 'TIMELESS ELEGANCE', desc: 'Crafted to outlast trends' }
+      ]
+    },
+    {
+      image: 'images/model3.jpg',
+      position: 'right 30% center',
+      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+      eyebrow: 'ORIGINAL FIT',
+      title: 'BLACK LABEL',
+      scriptTitle: 'Original Never Copies',
+      desc: 'French Terry Sweats & Heavyweight Hoodies Engineered to Outlast Trends.',
+      btnText: 'VIEW ESSENTIALS',
+      btnAction: 'shop',
+      layout: 'layout-split',
+      isLogoGraphic: false,
+      vFeatures: [
+        { num: '04', title: 'HEAVY WEIGHT', desc: '450 GSM Organic French Terry' },
+        { num: '05', title: 'MINIMAL LUXURY', desc: 'Designed for daily comfort' }
+      ]
+    }
+  ],
+  logo: JSON.parse(localStorage.getItem('ov_custom_logo')) || {
+    letters: 'OV',
+    subtext: 'ORIGINAL VERSION'
+  },
   cart: JSON.parse(localStorage.getItem('ov_cart')) || [],
   wishlist: JSON.parse(localStorage.getItem('ov_wishlist')) || [],
   user: JSON.parse(localStorage.getItem('ov_user')) || null,
@@ -91,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
   try { setupSizeGuide(); } catch(e) { console.error("SizeGuide Error: ", e); }
   try { setupProductZoom(); } catch(e) { console.error("Zoom Error: ", e); }
   try { setupAccordions(); } catch(e) { console.error("Accordions Error: ", e); }
-  try { setupHeroSlider(); } catch(e) { console.error("Slider Error: ", e); }
+  try { renderHeroSlider(); } catch(e) { console.error("Slider Render Error: ", e); }
+  try { renderLogoMarks(); } catch(e) { console.error("Logo Render Error: ", e); }
   try { setupPincodeChecker(); } catch(e) { console.error("Pincode Error: ", e); }
   try { setupCatalogSearchAndFilters(); } catch(e) { console.error("Filters Error: ", e); }
 
@@ -221,6 +277,10 @@ function navigateTo(route, productId = null) {
         renderProductDetailPage(prod);
       }
     }
+  } else if (route === 'admin') {
+    document.getElementById('admin-page').classList.add('active');
+    STATE.currentRoute = 'admin';
+    renderAdminDashboard();
   }
 
   const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -1821,24 +1881,486 @@ function showNotification(message) {
 /* ==========================================================================
    21. Active Promotions & Offers Portal
    ========================================================================== */
-function copyAndApplyPromo(code) {
-  navigator.clipboard.writeText(code).then(() => {
-    STATE.appliedCoupon = (code === 'WELCOME500') 
-      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
-      : (code === 'DIWALI20')
-      ? { code: 'DIWALI20', type: 'percent', value: 20 }
-      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
-    updateCartSummary();
-    renderCheckoutSummary();
-    showNotification(`COUPON ${code} COPIED & APPLIED!`);
-  }).catch(() => {
-    STATE.appliedCoupon = (code === 'WELCOME500') 
-      ? { code: 'WELCOME500', type: 'fixed', value: 500 }
-      : (code === 'DIWALI20')
-      ? { code: 'DIWALI20', type: 'percent', value: 20 }
-      : { code: 'ORIGINAL10', type: 'percent', value: 10 };
     updateCartSummary();
     renderCheckoutSummary();
     showNotification(`COUPON ${code} APPLIED!`);
   });
+}
+
+/* ==========================================================================
+   22. Dynamic Hero Slider & Logo Rendering
+   ========================================================================== */
+function renderHeroSlider() {
+  const wrapper = document.querySelector('.hero-slider-wrapper');
+  if (!wrapper) return;
+
+  wrapper.innerHTML = '';
+
+  STATE.slides.forEach((slide, i) => {
+    const slideDiv = document.createElement('div');
+    slideDiv.className = `hero-slide ${i === 0 ? 'active' : ''}`;
+
+    let innerHTML = `
+      <div class="hero-slide-bg" style="background-image: url('${slide.image}'); background-position: ${slide.position || 'center center'};"></div>
+      <div class="hero-slide-overlay" style="background: ${slide.overlay || 'rgba(0,0,0,0.5)'};"></div>
+      <div class="hero-slide-content ${slide.layout || ''}">
+    `;
+
+    if (slide.layout === 'layout-split') {
+      innerHTML += `
+        <div class="slide-left-panel">
+      `;
+
+      if (slide.isLogoGraphic) {
+        innerHTML += `
+          <div class="large-logo-graphic">
+            <svg viewBox="0 0 500 350" class="logo-svg-large">
+              <defs>
+                <mask id="logo-cut-mask-large-${i}">
+                  <rect width="500" height="350" fill="white" />
+                  <rect x="0" y="160" width="500" height="30" fill="black" />
+                </mask>
+              </defs>
+              <g mask="url(#logo-cut-mask-large-${i})" fill="currentColor">
+                <text x="60" y="275" class="logo-letters" font-size="250">O</text>
+                <text x="250" y="275" class="logo-letters" font-size="250">V</text>
+              </g>
+              <text x="250" y="180" class="logo-subtext" font-size="14" fill="var(--gold-accent)" text-anchor="middle" letter-spacing="0.45em">ORIGINAL VERSION</text>
+            </svg>
+          </div>
+        `;
+      } else {
+        innerHTML += `
+          <div class="slide-title-wrap">
+            <span class="eyebrow" style="color: var(--gold-accent); margin-bottom: 10px;">${slide.eyebrow || ''}</span>
+            <h1 class="slide-large-title">${slide.title || ''}</h1>
+            ${slide.scriptTitle ? `<h2 class="slide-script-title">${slide.scriptTitle}</h2>` : ''}
+          </div>
+        `;
+      }
+
+      innerHTML += `
+          <p class="slide-editorial-desc">${slide.desc || ''}</p>
+          <button class="luxury-btn ${slide.isLogoGraphic ? 'gold-btn' : 'outline-gold-btn'}" onclick="navigateTo('${slide.btnAction || 'shop'}')">${slide.btnText || 'SHOP COLLECTION'} <span style="margin-left: 10px;">→</span></button>
+          
+          ${slide.isLogoGraphic ? `
+            <div class="slide-features-row">
+              <div class="feature-icon-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span>PREMIUM QUALITY</span>
+              </div>
+              <div class="feature-icon-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>TIMELESS DESIGNS</span>
+              </div>
+              <div class="feature-icon-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span>MADE FOR YOU</span>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        
+        <div class="slide-right-panel ${!slide.isLogoGraphic ? 'justify-end' : ''}">
+          ${slide.isLogoGraphic ? `
+            <div class="watch-collection-btn" onclick="navigateTo('shop')">
+              <div class="play-icon-circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <span>WATCH COLLECTION</span>
+            </div>
+          ` : `
+            <div class="vertical-features-list">
+              ${(slide.vFeatures || []).map(f => `
+                <div class="v-feature-item">
+                  <div class="v-feature-num">${f.num}</div>
+                  <div class="v-feature-text">
+                    <h4>${f.title}</h4>
+                    <p>${f.desc}</p>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    } else {
+      innerHTML += `
+        <h1 class="hero-slide-title">${slide.title || ''}</h1>
+        <p class="hero-slide-desc">${slide.desc || ''}</p>
+        <button class="luxury-btn" onclick="navigateTo('${slide.btnAction || 'shop'}')">${slide.btnText || 'SHOP NOW'}</button>
+      `;
+    }
+
+    innerHTML += `
+      </div>
+    `;
+
+    slideDiv.innerHTML = innerHTML;
+    wrapper.appendChild(slideDiv);
+  });
+
+  setupHeroSlider();
+}
+
+function renderLogoMarks() {
+  const letters = STATE.logo.letters || 'OV';
+  const subtext = STATE.logo.subtext || 'ORIGINAL VERSION';
+  const firstLetter = letters.charAt(0) || 'O';
+  const secondLetter = letters.substring(1) || 'V';
+
+  document.querySelectorAll('.logo-svg').forEach(svg => {
+    const lettersG = svg.querySelector('g');
+    const subtextText = svg.querySelector('.logo-subtext');
+
+    if (lettersG) {
+      const texts = lettersG.querySelectorAll('.logo-letters');
+      if (texts.length >= 2) {
+        texts[0].textContent = firstLetter;
+        texts[1].textContent = secondLetter;
+      }
+    }
+    if (subtextText) {
+      subtextText.textContent = subtext;
+    }
+  });
+
+  document.querySelectorAll('.logo-svg-large').forEach(svg => {
+    const lettersG = svg.querySelector('g');
+    const subtextText = svg.querySelector('.logo-subtext');
+
+    if (lettersG) {
+      const texts = lettersG.querySelectorAll('.logo-letters');
+      if (texts.length >= 2) {
+        texts[0].textContent = firstLetter;
+        texts[1].textContent = secondLetter;
+      }
+    }
+    if (subtextText) {
+      subtextText.textContent = subtext;
+    }
+  });
+}
+
+/* ==========================================================================
+   23. Admin Dashboard & Portal Manager
+   ========================================================================== */
+function switchAdminTab(tabId) {
+  const buttons = document.querySelectorAll('.admin-tab-btn');
+  buttons.forEach(btn => {
+    if (btn.getAttribute('data-tab') === tabId) {
+      btn.classList.add('active');
+      btn.style.borderLeft = '2px solid var(--black)';
+      btn.style.color = 'var(--black)';
+    } else {
+      btn.classList.remove('active');
+      btn.style.borderLeft = '2px solid transparent';
+      btn.style.color = 'var(--medium-gray)';
+    }
+  });
+
+  const panels = document.querySelectorAll('.admin-panel');
+  panels.forEach(panel => {
+    if (panel.id === tabId) {
+      panel.style.display = 'block';
+    } else {
+      panel.style.display = 'none';
+    }
+  });
+}
+
+function renderAdminDashboard() {
+  // Populate Logo Forms
+  document.getElementById('admin-logo-letters-input').value = STATE.logo.letters || 'OV';
+  document.getElementById('admin-logo-subtext-input').value = STATE.logo.subtext || 'ORIGINAL VERSION';
+
+  // Render Slides list
+  const slidesList = document.getElementById('admin-slides-list');
+  slidesList.innerHTML = '';
+  STATE.slides.forEach((slide, idx) => {
+    const item = document.createElement('div');
+    item.className = 'admin-list-item';
+    item.style.display = 'flex';
+    item.style.gap = '20px';
+    item.style.padding = '20px';
+    item.style.border = '1px solid var(--border-color)';
+    item.style.alignItems = 'center';
+
+    item.innerHTML = `
+      <img src="${slide.image}" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--border-color);">
+      <div style="flex: 1;">
+        <h4 style="font-size:0.85rem; letter-spacing:0.1em; text-transform:uppercase;">${slide.title || 'UNTITLED SLIDE'}</h4>
+        <p style="font-size:0.75rem; color:var(--medium-gray); margin-top:3px;">Position: ${slide.position || 'center'}</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="luxury-btn outline-gold-btn" onclick="editSlide(${idx})" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">EDIT</button>
+        <button class="luxury-btn secondary" onclick="deleteSlide(${idx})" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">DELETE</button>
+      </div>
+    `;
+    slidesList.appendChild(item);
+  });
+
+  // Render Products list
+  const productsList = document.getElementById('admin-products-list');
+  productsList.innerHTML = '';
+  STATE.products.forEach(prod => {
+    const item = document.createElement('div');
+    item.className = 'admin-list-item';
+    item.style.display = 'flex';
+    item.style.gap = '20px';
+    item.style.padding = '20px';
+    item.style.border = '1px solid var(--border-color)';
+    item.style.alignItems = 'center';
+
+    item.innerHTML = `
+      <img src="${prod.image}" style="width: 60px; height: 80px; object-fit: cover; border: 1px solid var(--border-color);">
+      <div style="flex: 1;">
+        <h4 style="font-size:0.85rem; letter-spacing:0.1em; text-transform:uppercase;">${prod.name}</h4>
+        <p style="font-size:0.75rem; color:var(--medium-gray); margin-top:3px;">₹${prod.price} | Category: ${prod.type} | Stock: ${prod.stock}</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="luxury-btn outline-gold-btn" onclick="editProduct('${prod.id}')" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">EDIT</button>
+        <button class="luxury-btn secondary" onclick="deleteProduct('${prod.id}')" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">DELETE</button>
+      </div>
+    `;
+    productsList.appendChild(item);
+  });
+}
+
+function handleFileAsBase64(input, previewId, hiddenInputId) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById(previewId);
+    const hidden = document.getElementById(hiddenInputId);
+    if (preview) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    if (hidden) {
+      hidden.value = e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function openAdminModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.add('active');
+}
+
+function closeAdminModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.remove('active');
+}
+
+function openNewSlideForm() {
+  document.getElementById('admin-slide-form').reset();
+  document.getElementById('slide-form-index').value = '';
+  document.getElementById('slide-form-image-data').value = '';
+  document.getElementById('slide-form-img-preview').style.display = 'none';
+  document.getElementById('slide-modal-title').textContent = 'ADD NEW HERO SLIDE';
+  openAdminModal('admin-slide-modal');
+}
+
+function editSlide(idx) {
+  const slide = STATE.slides[idx];
+  if (!slide) return;
+
+  document.getElementById('slide-form-index').value = idx;
+  document.getElementById('slide-form-image-data').value = slide.image;
+  
+  const preview = document.getElementById('slide-form-img-preview');
+  preview.src = slide.image;
+  preview.style.display = 'block';
+
+  document.getElementById('slide-form-position').value = slide.position || 'center center';
+  document.getElementById('slide-form-eyebrow').value = slide.eyebrow || '';
+  document.getElementById('slide-form-title').value = slide.title || '';
+  document.getElementById('slide-form-script').value = slide.scriptTitle || '';
+  document.getElementById('slide-form-desc').value = slide.desc || '';
+  document.getElementById('slide-form-btn-text').value = slide.btnText || 'SHOP NOW';
+  document.getElementById('slide-form-is-logo').checked = !!slide.isLogoGraphic;
+
+  document.getElementById('slide-modal-title').textContent = 'EDIT HERO SLIDE';
+  openAdminModal('admin-slide-modal');
+}
+
+function deleteSlide(idx) {
+  if (confirm('Are you sure you want to delete this banner slide?')) {
+    STATE.slides.splice(idx, 1);
+    localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+    renderHeroSlider();
+    renderAdminDashboard();
+    showNotification('SLIDE REMOVED SUCCESSFUL');
+  }
+}
+
+function saveSlideForm(event) {
+  event.preventDefault();
+  const idx = document.getElementById('slide-form-index').value;
+  const imageData = document.getElementById('slide-form-image-data').value;
+  
+  if (!imageData) {
+    alert('Please upload an image for the slide.');
+    return;
+  }
+
+  const slideData = {
+    image: imageData,
+    position: document.getElementById('slide-form-position').value,
+    overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+    eyebrow: document.getElementById('slide-form-eyebrow').value,
+    title: document.getElementById('slide-form-title').value,
+    scriptTitle: document.getElementById('slide-form-script').value,
+    desc: document.getElementById('slide-form-desc').value,
+    btnText: document.getElementById('slide-form-btn-text').value,
+    btnAction: 'shop',
+    layout: 'layout-split',
+    isLogoGraphic: document.getElementById('slide-form-is-logo').checked,
+    vFeatures: [
+      { num: '01', title: 'PREMIUM QUALITY', desc: 'Double-combed heavy cotton' },
+      { num: '02', title: 'MODERN DESIGNS', desc: 'Designed for the modern muse' },
+      { num: '03', title: 'TIMELESS ELEGANCE', desc: 'Crafted to outlast trends' }
+    ]
+  };
+
+  if (idx !== '') {
+    // Edit existing
+    STATE.slides[parseInt(idx)] = slideData;
+  } else {
+    // Add new
+    STATE.slides.push(slideData);
+  }
+
+  localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+  renderHeroSlider();
+  renderAdminDashboard();
+  closeAdminModal('admin-slide-modal');
+  showNotification('BANNER SLIDE SAVED');
+}
+
+function openNewProductForm() {
+  document.getElementById('admin-product-form').reset();
+  document.getElementById('product-form-id').value = '';
+  document.getElementById('product-form-image-data').value = '';
+  document.getElementById('product-form-img-preview').style.display = 'none';
+  document.getElementById('product-modal-title').textContent = 'ADD NEW CATALOG PRODUCT';
+  openAdminModal('admin-product-modal');
+}
+
+function editProduct(id) {
+  const prod = STATE.products.find(p => p.id === id);
+  if (!prod) return;
+
+  document.getElementById('product-form-id').value = prod.id;
+  document.getElementById('product-form-image-data').value = prod.image;
+  
+  const preview = document.getElementById('product-form-img-preview');
+  preview.src = prod.image;
+  preview.style.display = 'block';
+
+  document.getElementById('product-form-name').value = prod.name;
+  document.getElementById('product-form-basename').value = prod.baseName;
+  document.getElementById('product-form-price').value = prod.price;
+  document.getElementById('product-form-orig-price').value = prod.originalPrice || prod.price;
+  document.getElementById('product-form-type').value = prod.type;
+  document.getElementById('product-form-brand').value = prod.brand;
+  document.getElementById('product-form-stock').value = prod.stock;
+  document.getElementById('product-form-badge').value = prod.badge || '';
+
+  // Set sizes checkboxes
+  const checkboxes = document.querySelectorAll('input[name="product-form-sizes"]');
+  checkboxes.forEach(cb => {
+    cb.checked = prod.sizes.includes(cb.value);
+  });
+
+  document.getElementById('product-modal-title').textContent = 'EDIT CATALOG PRODUCT';
+  openAdminModal('admin-product-modal');
+}
+
+function deleteProduct(id) {
+  if (confirm('Are you sure you want to delete this product?')) {
+    STATE.products = STATE.products.filter(p => p.id !== id);
+    localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+    
+    // Re-render grids
+    renderShopCatalog();
+    renderProductGrid('plp-products-grid', STATE.products);
+    renderFeaturedGrid('featured-products-grid', STATE.products);
+    renderAdminDashboard();
+    showNotification('PRODUCT REMOVED');
+  }
+}
+
+function saveProductForm(event) {
+  event.preventDefault();
+  const id = document.getElementById('product-form-id').value;
+  const imageData = document.getElementById('product-form-image-data').value;
+  
+  if (!imageData) {
+    alert('Please upload a product image.');
+    return;
+  }
+
+  // Get selected sizes
+  const checkboxes = document.querySelectorAll('input[name="product-form-sizes"]:checked');
+  const sizes = Array.from(checkboxes).map(cb => cb.value);
+
+  const productData = {
+    id: id || 'custom-' + Date.now(),
+    name: document.getElementById('product-form-name').value,
+    baseName: document.getElementById('product-form-basename').value,
+    price: parseInt(document.getElementById('product-form-price').value),
+    originalPrice: parseInt(document.getElementById('product-form-orig-price').value),
+    type: document.getElementById('product-form-type').value,
+    brand: document.getElementById('product-form-brand').value,
+    stock: parseInt(document.getElementById('product-form-stock').value),
+    badge: document.getElementById('product-form-badge').value || null,
+    sizes: sizes.length > 0 ? sizes : ['M'],
+    reviews: [],
+    rating: 4.8,
+    image: imageData
+  };
+
+  if (id !== '') {
+    // Edit existing
+    const idx = STATE.products.findIndex(p => p.id === id);
+    if (idx !== -1) STATE.products[idx] = productData;
+  } else {
+    // Add new
+    STATE.products.unshift(productData);
+  }
+
+  localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+  
+  // Re-render grids
+  renderShopCatalog();
+  renderProductGrid('plp-products-grid', STATE.products);
+  renderFeaturedGrid('featured-products-grid', STATE.products);
+  renderAdminDashboard();
+  
+  closeAdminModal('admin-product-modal');
+  showNotification('PRODUCT INVENTORY UPDATED');
+}
+
+function saveAdminLogo() {
+  const letters = document.getElementById('admin-logo-letters-input').value.trim();
+  const subtext = document.getElementById('admin-logo-subtext-input').value.trim();
+
+  if (!letters) {
+    alert('Please input logo letters.');
+    return;
+  }
+
+  STATE.logo = {
+    letters: letters,
+    subtext: subtext || 'ORIGINAL VERSION'
+  };
+
+  localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
+  renderLogoMarks();
+  showNotification('BRAND LOGO STYLING SAVED');
 }

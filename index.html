@@ -831,6 +831,235 @@
     </section>
   </main>
 
+  <!-- ==================== PAGE: ADMIN DASHBOARD ==================== -->
+  <main id="admin-page" class="page-route" style="background-color: var(--white); min-height: 100vh; padding: 120px 40px 80px;">
+    <section class="admin-dashboard-section" style="max-width: 1600px; margin: 0 auto;">
+      <div class="admin-header" style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border-color); padding-bottom:20px; margin-bottom:40px;">
+        <div>
+          <span class="eyebrow" style="color: var(--gold-accent);">OV™ CONTROL BOARD</span>
+          <h2 style="font-size:2.5rem; margin-top:5px;">ADMIN PORTAL</h2>
+        </div>
+        <button class="luxury-btn outline-gold-btn back-home-btn" onclick="navigateTo('home')" style="padding: 12px 24px; font-size:0.7rem; letter-spacing:0.15em;">BACK TO SHOP</button>
+      </div>
+
+      <div class="admin-dashboard-wrapper" style="display:grid; grid-template-columns: 280px 1fr; gap:50px;">
+        <!-- Dashboard Sidebar / Tabs -->
+        <div class="admin-tabs-nav" style="display:flex; flex-direction:column; gap:12px; border-right:1px solid var(--border-color); padding-right:30px;">
+          <button class="admin-tab-btn active" data-tab="slides-tab" onclick="switchAdminTab('slides-tab')" style="background:none; border:none; text-align:left; font-family:var(--font-body); font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; padding:15px; cursor:pointer; border-radius:0px; border-left:2px solid var(--black); transition:all 0.3s;">BANNER SLIDES</button>
+          <button class="admin-tab-btn" data-tab="products-tab" onclick="switchAdminTab('products-tab')" style="background:none; border:none; text-align:left; font-family:var(--font-body); font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; padding:15px; cursor:pointer; border-radius:0px; border-left:2px solid transparent; transition:all 0.3s; color:var(--medium-gray);">CATALOG PRODUCTS</button>
+          <button class="admin-tab-btn" data-tab="logo-tab" onclick="switchAdminTab('logo-tab')" style="background:none; border:none; text-align:left; font-family:var(--font-body); font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; padding:15px; cursor:pointer; border-radius:0px; border-left:2px solid transparent; transition:all 0.3s; color:var(--medium-gray);">BRAND LOGO</button>
+        </div>
+
+        <!-- Dashboard Content Panels -->
+        <div class="admin-tabs-content">
+          
+          <!-- PANEL 1: BANNER SLIDES MANAGER -->
+          <div id="slides-tab" class="admin-panel active" style="display:block;">
+            <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin-bottom:10px;">HERO BANNER SLIDES</h3>
+            <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; line-height:1.6; margin-bottom:30px;">Customize your full-bleed home carousel. Add slides, upload images, specify cropping coordinates, and write editorial captions.</p>
+            
+            <div id="admin-slides-list" class="admin-items-list" style="display:flex; flex-direction:column; gap:20px;">
+              <!-- Dynamically populated by app.js -->
+            </div>
+            
+            <button class="luxury-btn gold-btn" onclick="openNewSlideForm()" style="margin-top:30px;">ADD NEW SLIDE</button>
+          </div>
+
+          <!-- PANEL 2: CATALOG PRODUCTS MANAGER -->
+          <div id="products-tab" class="admin-panel" style="display:none;">
+            <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin-bottom:10px;">CATALOG PRODUCTS</h3>
+            <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; line-height:1.6; margin-bottom:30px;">Manage your inventory. Add, edit, or delete t-shirts, hoodies, pants, caps, and canvas bags. Upload custom base64 images directly.</p>
+            
+            <div id="admin-products-list" class="admin-items-list" style="display:flex; flex-direction:column; gap:20px;">
+              <!-- Dynamically populated by app.js -->
+            </div>
+            
+            <button class="luxury-btn gold-btn" onclick="openNewProductForm()" style="margin-top:30px;">ADD NEW PRODUCT</button>
+          </div>
+
+          <!-- PANEL 3: BRAND LOGO MANAGER -->
+          <div id="logo-tab" class="admin-panel" style="display:none;">
+            <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin-bottom:10px;">BRAND LOGO DESIGN</h3>
+            <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; line-height:1.6; margin-bottom:30px;">Change the logo letters and subtext dynamically across the site (applies to loader, sticky header, home slides, and footer brand mark).</p>
+            
+            <div class="admin-form-group" style="margin-bottom:20px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px;">Logo Letters (e.g. 'OV', 'OV™')</label>
+              <input type="text" id="admin-logo-letters-input" class="auth-input" placeholder="OV" style="border:1px solid var(--border-color); padding:12px; font-family:inherit; width:100%; max-width:400px;">
+            </div>
+            
+            <div class="admin-form-group" style="margin-bottom:20px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px;">Logo Subtext (e.g. 'ORIGINAL VERSION')</label>
+              <input type="text" id="admin-logo-subtext-input" class="auth-input" placeholder="ORIGINAL VERSION" style="border:1px solid var(--border-color); padding:12px; font-family:inherit; width:100%; max-width:400px;">
+            </div>
+            
+            <button class="luxury-btn gold-btn" onclick="saveAdminLogo()" style="margin-top:15px;">SAVE LOGO STYLE</button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN MODAL: ADD/EDIT SLIDE -->
+    <div id="admin-slide-modal" class="modal-overlay">
+      <div class="modal-panel" style="max-width: 650px; background-color:var(--white);">
+        <div class="modal-header" style="padding:20px 30px;">
+          <h3 id="slide-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT HERO SLIDE</h3>
+          <button class="close-drawer-btn" onclick="closeAdminModal('admin-slide-modal')">×</button>
+        </div>
+        <div class="modal-body" style="padding:30px;">
+          <form id="admin-slide-form" onsubmit="saveSlideForm(event)">
+            <input type="hidden" id="slide-form-index">
+            
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Slide Image (Upload Local File)</label>
+              <input type="file" id="slide-form-file" class="auth-input" accept="image/*" onchange="handleFileAsBase64(this, 'slide-form-img-preview', 'slide-form-image-data')" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+              <input type="hidden" id="slide-form-image-data">
+              <img id="slide-form-img-preview" src="" style="width: 100%; max-height: 180px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
+            </div>
+            
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Crop / Background Position (Face alignment)</label>
+              <select id="slide-form-position" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; background-color:var(--white);">
+                <option value="right 20% top 0%">Right 20% Top (Recommended for portrait models)</option>
+                <option value="right top">Right Top</option>
+                <option value="center top">Center Top</option>
+                <option value="center center">Center Center</option>
+                <option value="left center">Left Center</option>
+              </select>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Eyebrow Tag (e.g. 'FESTIVE SPECIFICATION')</label>
+              <input type="text" id="slide-form-eyebrow" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Main Title (e.g. 'DIWALI CELEBRATION')</label>
+              <input type="text" id="slide-form-title" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Cursive Subtitle (e.g. 'Define Your Story')</label>
+              <input type="text" id="slide-form-script" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Editorial Description</label>
+              <textarea id="slide-form-desc" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; height: 60px; resize: none;" required></textarea>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Button Text (e.g. 'SHOP COLLECTION')</label>
+              <input type="text" id="slide-form-btn-text" class="auth-input" value="SHOP NOW" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+              <input type="checkbox" id="slide-form-is-logo" style="width:20px; height:20px; cursor:pointer;">
+              <label for="slide-form-is-logo" style="margin-bottom:0; font-size:0.75rem; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0.02em;">Show Large cut O-V Logo Graphic overlay instead of titles</label>
+            </div>
+
+            <div style="margin-top: 25px; display:flex; gap:10px; justify-content:flex-end;">
+              <button type="button" class="luxury-btn secondary" style="padding:10px 20px; font-size:0.65rem;" onclick="closeAdminModal('admin-slide-modal')">CANCEL</button>
+              <button type="submit" class="luxury-btn gold-btn" style="padding:10px 20px; font-size:0.65rem;">SAVE SLIDE</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN MODAL: ADD/EDIT PRODUCT -->
+    <div id="admin-product-modal" class="modal-overlay">
+      <div class="modal-panel" style="max-width: 650px; background-color:var(--white);">
+        <div class="modal-header" style="padding:20px 30px;">
+          <h3 id="product-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT CATALOG PRODUCT</h3>
+          <button class="close-drawer-btn" onclick="closeAdminModal('admin-product-modal')">×</button>
+        </div>
+        <div class="modal-body" style="padding:30px;">
+          <form id="admin-product-form" onsubmit="saveProductForm(event)">
+            <input type="hidden" id="product-form-id">
+            
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Image (Upload Local File)</label>
+              <input type="file" id="product-form-file" class="auth-input" accept="image/*" onchange="handleFileAsBase64(this, 'product-form-img-preview', 'product-form-image-data')" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+              <input type="hidden" id="product-form-image-data">
+              <img id="product-form-img-preview" src="" style="width: 100px; height: 130px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Name (e.g. 'OV™ Heavyweight Tee - Onyx')</label>
+              <input type="text" id="product-form-name" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Base Name (e.g. 'Heavyweight Tee')</label>
+              <input type="text" id="product-form-basename" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Sale Price (₹)</label>
+                <input type="number" id="product-form-price" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Original Price (₹)</label>
+                <input type="number" id="product-form-orig-price" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+              </div>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Type / Category</label>
+                <select id="product-form-type" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; background-color:var(--white);">
+                  <option value="tee">Tee (T-Shirt)</option>
+                  <option value="hoodie">Hoodie</option>
+                  <option value="pants">Cargo / Pants</option>
+                  <option value="cap">Cap</option>
+                  <option value="bag">Bag</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Collection Line</label>
+                <select id="product-form-brand" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; background-color:var(--white);">
+                  <option value="OV™ BLACK LABEL">OV™ BLACK LABEL</option>
+                  <option value="OV™ ESSENTIALS">OV™ ESSENTIALS</option>
+                  <option value="OV™ STUDIO">OV™ STUDIO</option>
+                  <option value="OV™ ACTIVE">OV™ ACTIVE</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Inventory Stock</label>
+                <input type="number" id="product-form-stock" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" value="5" required>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Badge Highlight (e.g. 'NEW', 'SALE')</label>
+                <input type="text" id="product-form-badge" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" placeholder="None">
+              </div>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:15px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Available Sizes</label>
+              <div style="display:flex; gap:15px; margin-top:5px;">
+                <label style="display:inline-flex; align-items:center; gap:5px; font-weight:500; font-size:0.8rem; cursor:pointer;"><input type="checkbox" name="product-form-sizes" value="S" checked> S</label>
+                <label style="display:inline-flex; align-items:center; gap:5px; font-weight:500; font-size:0.8rem; cursor:pointer;"><input type="checkbox" name="product-form-sizes" value="M" checked> M</label>
+                <label style="display:inline-flex; align-items:center; gap:5px; font-weight:500; font-size:0.8rem; cursor:pointer;"><input type="checkbox" name="product-form-sizes" value="L" checked> L</label>
+                <label style="display:inline-flex; align-items:center; gap:5px; font-weight:500; font-size:0.8rem; cursor:pointer;"><input type="checkbox" name="product-form-sizes" value="XL" checked> XL</label>
+                <label style="display:inline-flex; align-items:center; gap:5px; font-weight:500; font-size:0.8rem; cursor:pointer;"><input type="checkbox" name="product-form-sizes" value="O/S"> O/S</label>
+              </div>
+            </div>
+
+            <div style="margin-top: 25px; display:flex; gap:10px; justify-content:flex-end;">
+              <button type="button" class="luxury-btn secondary" style="padding:10px 20px; font-size:0.65rem;" onclick="closeAdminModal('admin-product-modal')">CANCEL</button>
+              <button type="submit" class="luxury-btn gold-btn" style="padding:10px 20px; font-size:0.65rem;">SAVE PRODUCT</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
   <!-- ===== 4. Luxury Footer ===== -->
   <footer>
     <div class="footer-container">
@@ -868,6 +1097,7 @@
             <li><a href="#" onclick="if(STATE.user) { openModal('profile-modal'); renderProfileDetails(); } else { openModal('auth-modal'); } return false;">Track Your Order</a></li>
             <li><a href="#">Shipping Rates</a></li>
             <li><a href="#">Returns Policy</a></li>
+            <li><a href="#" onclick="navigateTo('admin'); return false;" style="color: var(--gold-accent); font-weight: 600;">ADMIN PORTAL</a></li>
           </ul>
         </div>
         <div>
