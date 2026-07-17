@@ -2039,40 +2039,103 @@ function renderHeroSlider() {
 function renderLogoMarks() {
   const letters = STATE.logo.letters || 'OV';
   const subtext = STATE.logo.subtext || 'ORIGINAL VERSION';
-  const firstLetter = letters.charAt(0) || 'O';
-  const secondLetter = letters.substring(1) || 'V';
+  const image = STATE.logo.image || ''; // base64 string
 
-  document.querySelectorAll('.logo-svg').forEach(svg => {
-    const lettersG = svg.querySelector('g');
-    const subtextText = svg.querySelector('.logo-subtext');
+  // Update all standard logo rendering containers
+  document.querySelectorAll('.logo-container-render').forEach(container => {
+    const svg = container.querySelector('.logo-svg');
+    let img = container.querySelector('.logo-uploaded-img');
 
-    if (lettersG) {
-      const texts = lettersG.querySelectorAll('.logo-letters');
-      if (texts.length >= 2) {
-        texts[0].textContent = firstLetter;
-        texts[1].textContent = secondLetter;
+    if (image) {
+      if (svg) svg.style.display = 'none';
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'logo-uploaded-img';
+        img.style.height = '36px';
+        img.style.width = 'auto';
+        img.style.objectFit = 'contain';
+        
+        // If inside header link, append to link tag
+        const link = container.querySelector('a');
+        if (link) link.appendChild(img);
+        else container.appendChild(img);
       }
-    }
-    if (subtextText) {
-      subtextText.textContent = subtext;
+      img.src = image;
+      img.style.display = 'block';
+    } else {
+      if (svg) svg.style.display = 'block';
+      if (img) img.style.display = 'none';
     }
   });
 
-  document.querySelectorAll('.logo-svg-large').forEach(svg => {
-    const lettersG = svg.querySelector('g');
-    const subtextText = svg.querySelector('.logo-subtext');
-
-    if (lettersG) {
-      const texts = lettersG.querySelectorAll('.logo-letters');
-      if (texts.length >= 2) {
-        texts[0].textContent = firstLetter;
-        texts[1].textContent = secondLetter;
+  // Update loader container specifically (large layout)
+  const loaderContainer = document.querySelector('.loader-logo-container');
+  if (loaderContainer) {
+    const svg = loaderContainer.querySelector('.logo-svg');
+    let img = loaderContainer.querySelector('.logo-uploaded-img');
+    if (image) {
+      if (svg) svg.style.display = 'none';
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'logo-uploaded-img';
+        img.style.maxHeight = '90px';
+        img.style.width = 'auto';
+        img.style.objectFit = 'contain';
+        loaderContainer.appendChild(img);
       }
+      img.src = image;
+      img.style.display = 'block';
+    } else {
+      if (svg) svg.style.display = 'block';
+      if (img) img.style.display = 'none';
     }
-    if (subtextText) {
-      subtextText.textContent = subtext;
+  }
+
+  // Update large hero slide logo graphics
+  document.querySelectorAll('.logo-container-render-large').forEach(container => {
+    const svg = container.querySelector('.logo-svg-large');
+    let img = container.querySelector('.logo-uploaded-img-large');
+
+    if (image) {
+      if (svg) svg.style.display = 'none';
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'logo-uploaded-img-large';
+        img.style.maxHeight = '140px';
+        img.style.width = 'auto';
+        img.style.objectFit = 'contain';
+        img.style.marginBottom = '25px';
+        container.appendChild(img);
+      }
+      img.src = image;
+      img.style.display = 'block';
+    } else {
+      if (svg) svg.style.display = 'block';
+      if (img) img.style.display = 'none';
     }
   });
+
+  // Fallback to updating SVG text nodes if no image is uploaded
+  if (!image) {
+    const firstLetter = letters.charAt(0) || 'O';
+    const secondLetter = letters.substring(1) || 'V';
+    
+    document.querySelectorAll('.logo-svg, .logo-svg-large').forEach(svg => {
+      const lettersG = svg.querySelector('g');
+      const subtextText = svg.querySelector('.logo-subtext');
+
+      if (lettersG) {
+        const texts = lettersG.querySelectorAll('.logo-letters');
+        if (texts.length >= 2) {
+          texts[0].textContent = firstLetter;
+          texts[1].textContent = secondLetter;
+        }
+      }
+      if (subtextText) {
+        subtextText.textContent = subtext;
+      }
+    });
+  }
 }
 
 /* ==========================================================================
@@ -2106,6 +2169,19 @@ function renderAdminDashboard() {
   // Populate Logo Forms
   document.getElementById('admin-logo-letters-input').value = STATE.logo.letters || 'OV';
   document.getElementById('admin-logo-subtext-input').value = STATE.logo.subtext || 'ORIGINAL VERSION';
+  
+  const logoImage = STATE.logo.image || '';
+  document.getElementById('admin-logo-image-data').value = logoImage;
+  const logoPreview = document.getElementById('admin-logo-img-preview');
+  const logoRemoveBtn = document.getElementById('admin-logo-remove-img-btn');
+  if (logoImage) {
+    logoPreview.src = logoImage;
+    logoPreview.style.display = 'block';
+    logoRemoveBtn.style.display = 'block';
+  } else {
+    logoPreview.style.display = 'none';
+    logoRemoveBtn.style.display = 'none';
+  }
 
   // Render Slides list
   const slidesList = document.getElementById('admin-slides-list');
@@ -2379,18 +2455,27 @@ function saveProductForm(event) {
   showNotification('PRODUCT INVENTORY UPDATED');
 }
 
+function removeUploadedLogoImage() {
+  document.getElementById('admin-logo-image-file').value = '';
+  document.getElementById('admin-logo-image-data').value = '';
+  document.getElementById('admin-logo-img-preview').style.display = 'none';
+  document.getElementById('admin-logo-remove-img-btn').style.display = 'none';
+}
+
 function saveAdminLogo() {
   const letters = document.getElementById('admin-logo-letters-input').value.trim();
   const subtext = document.getElementById('admin-logo-subtext-input').value.trim();
+  const imageData = document.getElementById('admin-logo-image-data').value;
 
-  if (!letters) {
-    alert('Please input logo letters.');
+  if (!letters && !imageData) {
+    alert('Please input logo letters or upload a transparent PNG logo image.');
     return;
   }
 
   STATE.logo = {
-    letters: letters,
-    subtext: subtext || 'ORIGINAL VERSION'
+    letters: letters || 'OV',
+    subtext: subtext || 'ORIGINAL VERSION',
+    image: imageData || ''
   };
 
   localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
