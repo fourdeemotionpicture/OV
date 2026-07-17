@@ -2,7 +2,7 @@
    OV™ — ORIGINAL VERSION | MINIMAL LUXURY STREETWEAR DESIGN SYSTEM
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Color Palette */
@@ -24,8 +24,8 @@
   --glass-dark-bg: rgba(0, 0, 0, 0.85);
   
   /* Typography */
-  --font-heading: 'Bodoni Moda', 'Georgia', serif;
-  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body: 'Montserrat', sans-serif;
   
   /* Transitions */
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1); /* easeOutExpo */
@@ -95,13 +95,55 @@ a:hover {
 }
 
 .eyebrow {
-  font-size: 0.8rem; /* Increased from 0.75rem */
+  font-size: 0.8rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #444444; /* Darkened from var(--medium-gray) for readability */
+  color: #444444;
   margin-bottom: 1rem;
   display: block;
-  font-weight: 600; /* Made slightly bolder */
+  font-weight: 600;
+}
+
+/* Unified Luxury Button Style */
+.luxury-btn {
+  background-color: var(--black);
+  color: var(--white);
+  border: 1px solid var(--black);
+  padding: 16px 36px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.4s var(--ease-premium), border-color 0.4s var(--ease-premium), background-color 0.4s var(--ease-premium);
+}
+
+.luxury-btn:hover {
+  background-color: var(--white);
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.luxury-btn.secondary {
+  background-color: var(--white);
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+
+.luxury-btn.secondary:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.collection-card:hover .collection-card-visual img {
+  transform: scale(1.06);
 }
 
 /* ===== SVG Logo Layout Classes ===== */

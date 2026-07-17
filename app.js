@@ -5,15 +5,15 @@
 // Global State
 const STATE = {
   products: [
-    { id: 'tee-01', name: 'OV™ Heavyweight Tee - Onyx', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 3, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8 },
-    { id: 'tee-02', name: 'OV™ Heavyweight Tee - Ivory', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2499, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 8, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.7 },
-    { id: 'hoodie-01', name: 'OV™ Boxy Fit Hoodie - Slate', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: 'SALE', stock: 2, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.9 },
-    { id: 'hoodie-02', name: 'OV™ Boxy Fit Hoodie - Bone', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 4299, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: null, stock: 6, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8 },
-    { id: 'pants-01', name: 'OV™ Signature Cargo - Onyx', baseName: 'Signature Cargo', price: 3799, originalPrice: 4499, type: 'pants', brand: 'OV™ STUDIO', badge: 'SALE', stock: 4, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.6 },
-    { id: 'pants-02', name: 'OV™ Signature Cargo - Slate', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', brand: 'OV™ STUDIO', badge: null, stock: 9, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.5 },
-    { id: 'cap-01', name: 'OV™ Premium Cap - Black', baseName: 'Premium Cap', price: 1599, originalPrice: 1999, type: 'cap', brand: 'OV™ ACTIVE', badge: 'SALE', stock: 11, sizes: ['O/S'], reviews: [], rating: 4.4 },
-    { id: 'cap-02', name: 'OV™ Premium Cap - Sand', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', brand: 'OV™ ACTIVE', badge: null, stock: 15, sizes: ['O/S'], reviews: [], rating: 4.3 },
-    { id: 'bag-01', name: 'OV™ Studio Canvas Tote - Cream', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', brand: 'OV™ STUDIO', badge: 'SALE', stock: 3, sizes: ['O/S'], reviews: [], rating: 4.6 }
+    { id: 'tee-01', name: 'OV™ Heavyweight Tee - Onyx', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 3, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8, image: 'images/model1.jpg' },
+    { id: 'tee-02', name: 'OV™ Heavyweight Tee - Ivory', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2499, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 8, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.7, image: 'images/model2.jpg' },
+    { id: 'hoodie-01', name: 'OV™ Boxy Fit Hoodie - Slate', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: 'SALE', stock: 2, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.9, image: 'images/model3.jpg' },
+    { id: 'hoodie-02', name: 'OV™ Boxy Fit Hoodie - Bone', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 4299, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: null, stock: 6, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8, image: 'images/model4.jpg' },
+    { id: 'pants-01', name: 'OV™ Signature Cargo - Onyx', baseName: 'Signature Cargo', price: 3799, originalPrice: 4499, type: 'pants', brand: 'OV™ STUDIO', badge: 'SALE', stock: 4, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.6, image: 'images/model5.jpg' },
+    { id: 'pants-02', name: 'OV™ Signature Cargo - Slate', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', brand: 'OV™ STUDIO', badge: null, stock: 9, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.5, image: 'images/model1.jpg' },
+    { id: 'cap-01', name: 'OV™ Premium Cap - Black', baseName: 'Premium Cap', price: 1599, originalPrice: 1999, type: 'cap', brand: 'OV™ ACTIVE', badge: 'SALE', stock: 11, sizes: ['O/S'], reviews: [], rating: 4.4, image: 'images/model2.jpg' },
+    { id: 'cap-02', name: 'OV™ Premium Cap - Sand', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', brand: 'OV™ ACTIVE', badge: null, stock: 15, sizes: ['O/S'], reviews: [], rating: 4.3, image: 'images/model3.jpg' },
+    { id: 'bag-01', name: 'OV™ Studio Canvas Tote - Cream', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', brand: 'OV™ STUDIO', badge: 'SALE', stock: 3, sizes: ['O/S'], reviews: [], rating: 4.6, image: 'images/model4.jpg' }
   ],
   cart: JSON.parse(localStorage.getItem('ov_cart')) || [],
   wishlist: JSON.parse(localStorage.getItem('ov_wishlist')) || [],
@@ -709,9 +709,11 @@ function renderCartDrawer() {
   STATE.cart.forEach(item => {
     const itemCard = document.createElement('div');
     itemCard.className = 'cart-item';
+    const productObj = STATE.products.find(p => p.id === item.id);
+    const imgUrl = productObj ? productObj.image : 'images/model1.jpg';
     itemCard.innerHTML = `
-      <div class="cart-item-visual">
-        ${SVGS[item.type]('#e5e5e5', '#333')}
+      <div class="cart-item-visual" style="padding:0;">
+        <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <div class="cart-item-details">
         <div class="cart-item-name">${item.name}</div>
@@ -782,8 +784,8 @@ function renderWishlistDrawer() {
     const itemCard = document.createElement('div');
     itemCard.className = 'cart-item';
     itemCard.innerHTML = `
-      <div class="cart-item-visual">
-        ${SVGS[item.type]('#f0f0f0', '#333')}
+      <div class="cart-item-visual" style="padding:0;">
+        <img src="${item.image}" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <div class="cart-item-details">
         <div class="cart-item-name">${item.name}</div>
@@ -1543,8 +1545,8 @@ function renderProductGrid(containerId, productList) {
 
     card.innerHTML = `
       <div class="card-badge-container">${badgeHTML}</div>
-      <div class="collection-card-visual">
-        ${SVGS[p.type]('#f9f9f9', '#111')}
+      <div class="collection-card-visual" style="padding:0;">
+        <img src="${p.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.8s var(--ease-premium);">
         <div class="card-sizes-overlay" onclick="event.stopPropagation();">
           <span class="card-size-label">SIZES:</span>
           <div class="card-sizes-row">${sizesRowStr}</div>
@@ -1579,7 +1581,7 @@ function renderFeaturedGrid(containerId, productList) {
 
     gridItem.innerHTML = `
       <div style="background-color: var(--light-gray); aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); position: relative; overflow: hidden; margin-bottom: 15px;">
-        ${SVGS[p.type]('#e5e5e5', '#222')}
+        <img src="${p.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <div style="font-size:0.7rem; letter-spacing:0.1em; color:#777; text-transform:uppercase; margin-bottom:3px;">${p.brand}</div>
       <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
@@ -1619,21 +1621,28 @@ function renderProductDetailPage(product) {
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = SVGS[product.type]('#f9f9f9', '#111');
+    mainImageContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover;" id="pdp-main-image-el">`;
+  }
+
+  const zoomOverlay = document.querySelector('.zoom-overlay');
+  if (zoomOverlay) {
+    zoomOverlay.style.backgroundImage = `url('${product.image}')`;
   }
 
   // Render Thumbnails
   const thumbsContainer = document.getElementById('pdp-thumbs-container');
   if (thumbsContainer) {
+    const otherImg1 = `images/model${product.id === 'tee-01' ? '2' : '1'}.jpg`;
+    const otherImg2 = `images/model${product.id === 'tee-01' ? '3' : '3'}.jpg`;
     thumbsContainer.innerHTML = `
-      <div class="thumb-item active" onclick="switchPdpThumb(this, '${product.type}', '#f9f9f9')">
-        ${SVGS[product.type]('#f9f9f9', '#444')}
+      <div class="thumb-item active" onclick="switchPdpThumb(this, '${product.image}')">
+        <img src="${product.image}" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <div class="thumb-item" onclick="switchPdpThumb(this, '${product.type}', '#111111')">
-        ${SVGS[product.type]('#111111', '#555')}
+      <div class="thumb-item" onclick="switchPdpThumb(this, '${otherImg1}')">
+        <img src="${otherImg1}" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <div class="thumb-item" onclick="switchPdpThumb(this, '${product.type}', '#f3efe0')">
-        ${SVGS[product.type]('#f3efe0', '#444')}
+      <div class="thumb-item" onclick="switchPdpThumb(this, '${otherImg2}')">
+        <img src="${otherImg2}" style="width:100%; height:100%; object-fit:cover;">
       </div>
     `;
   }
@@ -1678,21 +1687,21 @@ function renderProductDetailPage(product) {
   renderReviewsSection(product);
 }
 
-function switchPdpThumb(element, type, colorHex) {
+function switchPdpThumb(element, imageSrc) {
   document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
   element.classList.add('active');
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = SVGS[type](colorHex, '#111');
+    mainImageContainer.innerHTML = `<img src="${imageSrc}" style="width:100%; height:100%; object-fit:cover;" id="pdp-main-image-el">`;
   }
 
-  const colorNames = {
-    '#f9f9f9': 'White',
-    '#111111': 'Black',
-    '#f3efe0': 'Cream'
-  };
-  STATE.activeColor = colorNames[colorHex] || 'White';
+  const zoomOverlay = document.querySelector('.zoom-overlay');
+  if (zoomOverlay) {
+    zoomOverlay.style.backgroundImage = `url('${imageSrc}')`;
+  }
+
+  STATE.activeColor = 'Custom';
 }
 
 function renderFbtBundle(product) {
@@ -1705,13 +1714,17 @@ function renderFbtBundle(product) {
   container.innerHTML = `
     <div class="fbt-products">
       <div class="fbt-item">
-        <div class="fbt-item-visual">${SVGS[product.type]('#eaeaea', '#111')}</div>
+        <div class="fbt-item-visual" style="padding:0;">
+          <img src="${product.image}" style="width:100%; height:100%; object-fit:cover;">
+        </div>
         <div class="fbt-item-name">${product.name}</div>
         <div class="fbt-item-price">₹${product.price.toLocaleString('en-IN')}</div>
       </div>
       <div class="fbt-plus">+</div>
       <div class="fbt-item">
-        <div class="fbt-item-visual">${SVGS[companion.type]('#eaeaea', '#111')}</div>
+        <div class="fbt-item-visual" style="padding:0;">
+          <img src="${companion.image}" style="width:100%; height:100%; object-fit:cover;">
+        </div>
         <div class="fbt-item-name">${companion.name}</div>
         <div class="fbt-item-price">₹${companion.price.toLocaleString('en-IN')}</div>
       </div>
