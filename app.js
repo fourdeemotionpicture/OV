@@ -320,6 +320,7 @@ function setupHeroSlider() {
     startAutoPlay();
   }
 
+  changeSlide(0);
   startAutoPlay();
 }
 
@@ -1824,6 +1825,8 @@ function copyAndApplyPromo(code) {
   navigator.clipboard.writeText(code).then(() => {
     STATE.appliedCoupon = (code === 'WELCOME500') 
       ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : (code === 'DIWALI20')
+      ? { code: 'DIWALI20', type: 'percent', value: 20 }
       : { code: 'ORIGINAL10', type: 'percent', value: 10 };
     updateCartSummary();
     renderCheckoutSummary();
@@ -1831,6 +1834,8 @@ function copyAndApplyPromo(code) {
   }).catch(() => {
     STATE.appliedCoupon = (code === 'WELCOME500') 
       ? { code: 'WELCOME500', type: 'fixed', value: 500 }
+      : (code === 'DIWALI20')
+      ? { code: 'DIWALI20', type: 'percent', value: 20 }
       : { code: 'ORIGINAL10', type: 'percent', value: 10 };
     updateCartSummary();
     renderCheckoutSummary();
