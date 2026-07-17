@@ -1,0 +1,1568 @@
+/* ==========================================================================
+   OV™ — ORIGINAL VERSION | MINIMAL LUXURY STREETWEAR INTERACTIVE ENGINE
+   ========================================================================== */
+
+// Global State
+const STATE = {
+  products: [
+    { id: 'tee-01', name: 'OV™ Heavyweight Tee', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', badge: 'NEW', stock: 5, reviews: [], rating: 4.8 },
+    { id: 'hoodie-01', name: 'OV™ Boxy fit Hoodie', baseName: 'Boxy fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', badge: 'SALE', stock: 3, reviews: [], rating: 4.9 },
+    { id: 'pants-01', name: 'OV™ Signature Cargo', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', badge: null, stock: 8, reviews: [], rating: 4.7 },
+    { id: 'cap-01', name: 'OV™ Premium Cap', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', badge: null, stock: 12, reviews: [], rating: 4.5 },
+    { id: 'bag-01', name: 'OV™ Studio Canvas Tote', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', badge: 'SALE', stock: 4, reviews: [], rating: 4.6 }
+  ],
+  cart: JSON.parse(localStorage.getItem('ov_cart')) || [],
+  wishlist: JSON.parse(localStorage.getItem('ov_wishlist')) || [],
+  user: JSON.parse(localStorage.getItem('ov_user')) || null,
+  walletBalance: 1200,
+  loyaltyPoints: 450,
+  appliedCoupon: null,
+  activeColor: 'white',
+  activeSize: 'M',
+  quantity: 1,
+  activeProduct: null,
+  currentRoute: 'home',
+  orders: JSON.parse(localStorage.getItem('ov_orders')) || [
+    {
+      orderId: 'OV-98172',
+      date: '2026-07-10',
+      items: [{ name: 'OV™ Heavyweight Tee', qty: 1, price: 2499, color: 'White', size: 'L' }],
+      total: 2499,
+      status: 'shipped',
+      trackingStep: 2
+    }
+  ]
+};
+
+// SVG templates for icons and garments
+const SVGS = {
+  tee: (color = '#ffffff', stroke = '#000000') => `
+    <svg viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+      <path d="M95 20 L120 8 C130 24 170 24 180 8 L205 20 L235 55 L210 90 L195 78 L195 320 L105 320 L105 78 L90 90 L65 55 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+    </svg>`,
+  hoodie: (color = '#111111', stroke = '#333333') => `
+    <svg viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+      <path d="M150 4 C120 4 100 22 96 42 L70 30 L40 62 L64 96 L84 84 L84 320 L216 320 L216 84 L236 96 L260 62 L230 30 L204 42 C200 22 180 4 150 4 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+      <path d="M118 40 Q150 70 182 40" stroke="${stroke}" stroke-width="1.4" fill="none"/>
+      <circle cx="150" cy="150" r="3" fill="${stroke}"/>
+    </svg>`,
+  pants: (color = '#222222', stroke = '#444444') => `
+    <svg viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+      <path d="M100 10 L200 10 L206 130 L235 320 L190 320 L160 150 L140 150 L110 320 L65 320 L94 130 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+      <path d="M100 10 L200 10 L200 30 L100 30 Z" fill="${stroke}" opacity=".3"/>
+    </svg>`,
+  cap: (color = '#111111', stroke = '#333333') => `
+    <svg viewBox="0 0 300 220" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+      <path d="M60 140 C60 90 100 55 150 55 C200 55 240 90 240 140 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+      <path d="M60 140 C40 145 20 150 4 152 C40 165 60 158 68 150 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+      <path d="M150 55 L150 30" stroke="${stroke}" stroke-width="1.4"/>
+    </svg>`,
+  bag: (color = '#cccccc', stroke = '#888888') => `
+    <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+      <path d="M70 100 L230 100 L245 280 L55 280 Z" fill="${color}" stroke="${stroke}" stroke-width="1.5"/>
+      <path d="M110 100 C110 65 130 45 150 45 C170 45 190 65 190 100" stroke="${stroke}" stroke-width="1.5" fill="none"/>
+    </svg>`
+};
+
+// Initialize Application
+document.addEventListener('DOMContentLoaded', () => {
+  STATE.activeProduct = STATE.products[0]; // Set default active product
+
+  setupOpeningLoader();
+  setupCustomCursor();
+  setupNavigation();
+  setupAnnouncements();
+  setupThreeJSReveal();
+  setupLenisScroll();
+  setupGSAPAnimations();
+  setupEcommerce();
+  setupSizeGuide();
+  setupProductZoom();
+  setupAccordions();
+
+  // Render initial feeds
+  renderProductGrid('plp-products-grid', STATE.products);
+  renderFeaturedGrid('featured-products-grid', STATE.products);
+  updateCartBadge();
+  updateWishlistBadge();
+});
+
+/* ==========================================================================
+   1. Opening Loader Animation
+   ========================================================================== */
+function setupOpeningLoader() {
+  const loader = document.getElementById('opening-loader');
+  const bar = document.querySelector('.loader-bar');
+  const body = document.body;
+
+  body.classList.add('no-scroll');
+
+  // Disable scroll during loading
+  setTimeout(() => {
+    loader.classList.add('loaded');
+    body.classList.remove('no-scroll');
+  }, 3200);
+}
+
+/* ==========================================================================
+   2. Custom Cursor Follower
+   ========================================================================== */
+function setupCustomCursor() {
+  const cursor = document.createElement('div');
+  cursor.className = 'custom-cursor';
+  const follower = document.createElement('div');
+  follower.className = 'custom-cursor-follower';
+
+  document.body.appendChild(cursor);
+  document.body.appendChild(follower);
+
+  document.addEventListener('mousemove', (e) => {
+    gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+    gsap.to(follower, { x: e.clientX, y: e.clientY, duration: 0.12 });
+  });
+
+  // Scale up cursor on interactive elements
+  const interactives = 'a, button, .swatch, .size-btn, input, select, textarea, [onclick], .collection-card';
+  document.addEventListener('mouseover', (e) => {
+    if (e.target.closest(interactives)) {
+      cursor.classList.add('hovered');
+      follower.classList.add('hovered');
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    if (e.target.closest(interactives)) {
+      cursor.classList.remove('hovered');
+      follower.classList.remove('hovered');
+    }
+  });
+}
+
+/* ==========================================================================
+   3. Navigation, Page Switching (SPA router)
+   ========================================================================== */
+function setupNavigation() {
+  // Sticky Header scroll direction detection
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    const header = document.querySelector('header');
+
+    if (currentScroll <= 0) {
+      header.classList.remove('hide');
+      return;
+    }
+
+    if (currentScroll > lastScroll && !header.classList.contains('hide')) {
+      // scrolling down
+      header.classList.add('hide');
+    } else if (currentScroll < lastScroll && header.classList.contains('hide')) {
+      // scrolling up
+      header.classList.remove('hide');
+    }
+    lastScroll = currentScroll;
+  });
+
+  // Mobile Bottom Navigation Bar Action
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  mobileNavItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      mobileNavItems.forEach(n => n.classList.remove('active'));
+      const target = item.getAttribute('data-route');
+      item.classList.add('active');
+
+      if (target === 'home') {
+        navigateTo('home');
+      } else if (target === 'shop') {
+        navigateTo('shop');
+      } else if (target === 'cart') {
+        toggleDrawer('cart-drawer');
+      } else if (target === 'wishlist') {
+        toggleDrawer('wishlist-drawer');
+      } else if (target === 'profile') {
+        if (STATE.user) {
+          openModal('profile-modal');
+          renderProfileDetails();
+        } else {
+          openModal('auth-modal');
+        }
+      }
+    });
+  });
+}
+
+function navigateTo(route, productId = null) {
+  const routes = document.querySelectorAll('.page-route');
+  routes.forEach(r => r.classList.remove('active'));
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  if (route === 'home') {
+    document.getElementById('home-page').classList.add('active');
+    STATE.currentRoute = 'home';
+  } else if (route === 'shop') {
+    document.getElementById('shop-page').classList.add('active');
+    STATE.currentRoute = 'shop';
+  } else if (route === 'product') {
+    document.getElementById('product-page').classList.add('active');
+    STATE.currentRoute = 'product';
+    if (productId) {
+      const prod = STATE.products.find(p => p.id === productId);
+      if (prod) {
+        STATE.activeProduct = prod;
+        renderProductDetailPage(prod);
+      }
+    }
+  }
+
+  // Update mobile bottom nav state
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  mobileNavItems.forEach(n => {
+    if (n.getAttribute('data-route') === route) {
+      n.classList.add('active');
+    } else {
+      n.classList.remove('active');
+    }
+  });
+}
+
+/* ==========================================================================
+   4. Announcement Rotator
+   ========================================================================== */
+function setupAnnouncements() {
+  const slider = document.querySelector('.announcement-slider');
+  const items = document.querySelectorAll('.announcement-item');
+  let current = 0;
+
+  setInterval(() => {
+    current = (current + 1) % items.length;
+    slider.style.transform = `translateY(-${current * 32}px)`;
+  }, 4000);
+}
+
+/* ==========================================================================
+   5. Three.js 3D T-Shirt Reveal Canvas
+   ========================================================================== */
+let scene3D, camera3D, renderer3D, tshirtMesh;
+let lights = {};
+
+function setupThreeJSReveal() {
+  const container = document.getElementById('reveal-canvas-container');
+  if (!container) return;
+
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  // Scene
+  scene3D = new THREE.Scene();
+  scene3D.background = new THREE.Color(0xffffff);
+
+  // Camera
+  camera3D = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+  camera3D.position.set(0, 0, 5);
+
+  // Renderer
+  renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer3D.setSize(width, height);
+  renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer3D.shadowMap.enabled = true;
+  renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer3D.domElement);
+
+  // Controls
+  const controls = new THREE.OrbitControls(camera3D, renderer3D.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.maxPolarAngle = Math.PI / 1.8;
+  controls.minDistance = 3;
+  controls.maxDistance = 8;
+
+  // Lights
+  lights.ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  scene3D.add(lights.ambient);
+
+  lights.mainSpot = new THREE.SpotLight(0xffffff, 0.9);
+  lights.mainSpot.position.set(2, 4, 3);
+  lights.mainSpot.castShadow = true;
+  lights.mainSpot.shadow.mapSize.width = 1024;
+  lights.mainSpot.shadow.mapSize.height = 1024;
+  lights.mainSpot.shadow.bias = -0.001;
+  scene3D.add(lights.mainSpot);
+
+  lights.fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+  lights.fillLight.position.set(-3, -1, -2);
+  scene3D.add(lights.fillLight);
+
+  // Create Custom programmatical 3D T-Shirt shape
+  tshirtMesh = createTShirtMesh();
+  scene3D.add(tshirtMesh);
+
+  // Animation Loop
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    if (tshirtMesh) {
+      // Slow background rotation when not dragging
+      if (!controls.state === -1) {
+        tshirtMesh.rotation.y += 0.004;
+      }
+    }
+
+    renderer3D.render(scene3D, camera3D);
+  }
+  animate();
+
+  // Resize Handler
+  window.addEventListener('resize', () => {
+    if (!container) return;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    camera3D.aspect = w / h;
+    camera3D.updateProjectionMatrix();
+    renderer3D.setSize(w, h);
+  });
+
+  // Shadow wrinkle effect on hover
+  container.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // Move spotlight slightly with cursor to shift shadows dynamically
+    gsap.to(lights.mainSpot.position, {
+      x: 2 + x * 1.5,
+      y: 4 + y * 1.5,
+      duration: 0.8,
+      ease: "power2.out"
+    });
+  });
+}
+
+function createTShirtMesh() {
+  const tshirtGroup = new THREE.Group();
+
+  // T-Shirt Color Material (Matte rough fabric texture simulation)
+  const fabricMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff, // Initial color (White)
+    roughness: 0.85,
+    metalness: 0.1,
+    flatShading: false,
+    side: THREE.DoubleSide
+  });
+
+  // Body: Box with rounded edges or Extruded Shape
+  const bodyGeo = new THREE.CylinderGeometry(0.85, 0.9, 2.0, 32, 1);
+  const body = new THREE.Mesh(bodyGeo, fabricMaterial);
+  body.castShadow = true;
+  body.receiveShadow = true;
+  tshirtGroup.add(body);
+
+  // Sleeves Left
+  const sleeveLGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
+  const sleeveL = new THREE.Mesh(sleeveLGeo, fabricMaterial);
+  sleeveL.position.set(-0.85, 0.7, 0);
+  sleeveL.rotation.z = Math.PI / 4.5;
+  sleeveL.castShadow = true;
+  sleeveL.receiveShadow = true;
+  tshirtGroup.add(sleeveL);
+
+  // Sleeves Right
+  const sleeveRGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
+  const sleeveR = new THREE.Mesh(sleeveRGeo, fabricMaterial);
+  sleeveR.position.set(0.85, 0.7, 0);
+  sleeveR.rotation.z = -Math.PI / 4.5;
+  sleeveR.castShadow = true;
+  sleeveR.receiveShadow = true;
+  tshirtGroup.add(sleeveR);
+
+  // Neck collar ring
+  const collarGeo = new THREE.TorusGeometry(0.32, 0.06, 16, 32);
+  const collar = new THREE.Mesh(collarGeo, fabricMaterial);
+  collar.position.set(0, 1.02, 0);
+  collar.rotation.x = Math.PI / 2;
+  tshirtGroup.add(collar);
+
+  // Center group slightly
+  tshirtGroup.position.y = -0.3;
+
+  return tshirtGroup;
+}
+
+function switch3DColor(colorName, element) {
+  // Update Swatch UI active state
+  const swatches = document.querySelectorAll('.swatch');
+  swatches.forEach(s => s.classList.remove('active'));
+  element.classList.add('active');
+
+  STATE.activeColor = colorName;
+  let targetColor;
+
+  if (colorName === 'white') {
+    targetColor = 0xffffff;
+  } else if (colorName === 'black') {
+    targetColor = 0x111111;
+  } else if (colorName === 'cream') {
+    targetColor = 0xf3efe0;
+  }
+
+  // Smoothly transition material color in Three.js
+  if (tshirtMesh) {
+    tshirtMesh.traverse((child) => {
+      if (child.isMesh) {
+        gsap.to(child.material.color, {
+          r: ((targetColor >> 16) & 255) / 255,
+          g: ((targetColor >> 8) & 255) / 255,
+          b: (targetColor & 255) / 255,
+          duration: 0.6,
+          ease: "power2.out"
+        });
+      }
+    });
+  }
+}
+
+/* ==========================================================================
+   6. Lenis Smooth Scroll Setup
+   ========================================================================== */
+let lenis;
+function setupLenisScroll() {
+  lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutQuart
+    direction: 'vertical',
+    gestureDirection: 'vertical',
+    smooth: true,
+    mouseMultiplier: 1,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  // Connect Lenis to GSAP ScrollTrigger
+  lenis.on('scroll', ScrollTrigger.update);
+
+  gsap.ticker.add((time)=>{
+    lenis.raf(time * 1000);
+  });
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ==========================================================================
+   7. GSAP Scroll Trigger Animations
+   ========================================================================== */
+function setupGSAPAnimations() {
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero Section Animations
+  const tlHero = gsap.timeline({ defaults: { ease: "power4.out" } });
+  tlHero.to('.hero-large-logo', { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.8, delay: 0.5 })
+        .to('.hero-text-block', { opacity: 1, translateY: 0, duration: 1.2 }, "-=1.0");
+
+  // Word-by-word Story Section Reveal
+  const storyHeading = document.querySelector('.story-heading');
+  if (storyHeading) {
+    const text = storyHeading.innerText;
+    storyHeading.innerHTML = '';
+    
+    // Split into words
+    const words = text.split(/\s+/);
+    words.forEach(word => {
+      const span = document.createElement('span');
+      span.className = 'story-word';
+      span.innerText = word + ' ';
+      storyHeading.appendChild(span);
+    });
+
+    gsap.to('.story-word', {
+      scrollTrigger: {
+        trigger: '.story-section',
+        start: 'top 75%',
+        end: 'bottom 50%',
+        scrub: true,
+      },
+      opacity: 1,
+      y: 0,
+      stagger: 0.1,
+      color: '#000000',
+      duration: 1
+    });
+  }
+
+  // Fabric Macro Zoom Scroll
+  const fabricBg = document.querySelector('.fabric-zoom-bg');
+  if (fabricBg) {
+    gsap.to(fabricBg, {
+      scrollTrigger: {
+        trigger: '.fabric-section',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true
+      },
+      scale: 1.05,
+      yPercent: 10,
+      ease: "none"
+    });
+  }
+
+  // Craftsmanship Timeline Scroller
+  const timelineItems = document.querySelectorAll('.timeline-item');
+  timelineItems.forEach((item, index) => {
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 70%',
+      end: 'bottom 40%',
+      onEnter: () => {
+        item.classList.add('active');
+        updateTimelineProgress(index);
+      },
+      onLeaveBack: () => {
+        item.classList.remove('active');
+        updateTimelineProgress(index - 1);
+      }
+    });
+  });
+}
+
+function updateTimelineProgress(activeIndex) {
+  const progressBar = document.querySelector('.timeline-progress');
+  if (!progressBar) return;
+  const items = document.querySelectorAll('.timeline-item');
+  
+  if (activeIndex < 0) {
+    progressBar.style.height = '0%';
+    return;
+  }
+  
+  const percentage = ((activeIndex) / (items.length - 1)) * 100;
+  progressBar.style.height = `${percentage}%`;
+}
+
+/* ==========================================================================
+   8. E-Commerce Functionality (Cart, Wishlist, Coupons, Wallet, Checkout)
+   ========================================================================== */
+function setupEcommerce() {
+  // Add to Cart Button handler
+  const addToCartBtn = document.getElementById('add-to-cart-btn');
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', () => {
+      if (!STATE.activeProduct) return;
+      addToCart(STATE.activeProduct.id, STATE.activeColor, STATE.activeSize, STATE.quantity);
+      toggleDrawer('cart-drawer');
+    });
+  }
+
+  // Wishlist toggle handler on product details
+  const wishlistBtn = document.getElementById('detail-wishlist-btn');
+  if (wishlistBtn) {
+    wishlistBtn.addEventListener('click', () => {
+      if (!STATE.activeProduct) return;
+      toggleWishlist(STATE.activeProduct.id);
+      wishlistBtn.classList.toggle('active');
+    });
+  }
+
+  // Size buttons handler on PDP
+  const sizeBtns = document.querySelectorAll('.size-btn');
+  sizeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sizeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      STATE.activeSize = btn.getAttribute('data-size');
+    });
+  });
+
+  // Quantity control buttons
+  const qtyMinus = document.getElementById('qty-minus');
+  const qtyPlus = document.getElementById('qty-plus');
+  const qtyVal = document.getElementById('qty-value');
+
+  if (qtyMinus && qtyPlus && qtyVal) {
+    qtyMinus.addEventListener('click', () => {
+      if (STATE.quantity > 1) {
+        STATE.quantity--;
+        qtyVal.value = STATE.quantity;
+      }
+    });
+
+    qtyPlus.addEventListener('click', () => {
+      STATE.quantity++;
+      qtyVal.value = STATE.quantity;
+    });
+  }
+}
+
+// Add Item to Cart
+function addToCart(productId, color, size, qty) {
+  const item = STATE.products.find(p => p.id === productId);
+  if (!item) return;
+
+  const existingItemIndex = STATE.cart.findIndex(i => i.id === productId && i.color === color && i.size === size);
+
+  if (existingItemIndex > -1) {
+    STATE.cart[existingItemIndex].qty += qty;
+  } else {
+    STATE.cart.push({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      type: item.type,
+      color: color,
+      size: size,
+      qty: qty
+    });
+  }
+
+  localStorage.setItem('ov_cart', JSON.stringify(STATE.cart));
+  updateCartBadge();
+  renderCartDrawer();
+  showNotification('ADDED TO BAG');
+}
+
+// Remove Item from Cart
+function removeFromCart(productId, color, size) {
+  STATE.cart = STATE.cart.filter(item => !(item.id === productId && item.color === color && item.size === size));
+  localStorage.setItem('ov_cart', JSON.stringify(STATE.cart));
+  updateCartBadge();
+  renderCartDrawer();
+  showNotification('REMOVED FROM BAG');
+}
+
+function updateCartBadge() {
+  const badges = document.querySelectorAll('.bag-count');
+  const totalItems = STATE.cart.reduce((sum, item) => sum + item.qty, 0);
+  badges.forEach(b => {
+    b.textContent = totalItems;
+    b.style.display = totalItems > 0 ? 'flex' : 'none';
+  });
+}
+
+// Toggle Wishlist item
+function toggleWishlist(productId) {
+  const index = STATE.wishlist.indexOf(productId);
+  if (index > -1) {
+    STATE.wishlist.splice(index, 1);
+    showNotification('REMOVED FROM WISHLIST');
+  } else {
+    STATE.wishlist.push(productId);
+    showNotification('ADDED TO WISHLIST');
+  }
+  localStorage.setItem('ov_wishlist', JSON.stringify(STATE.wishlist));
+  updateWishlistBadge();
+  renderWishlistDrawer();
+}
+
+function updateWishlistBadge() {
+  const heartIcon = document.getElementById('wishlist-nav-btn');
+  if (heartIcon) {
+    heartIcon.style.color = STATE.wishlist.length > 0 ? '#b8975a' : 'inherit';
+  }
+}
+
+// Renders the Cart Drawer panel
+function renderCartDrawer() {
+  const container = document.getElementById('cart-items-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+  
+  if (STATE.cart.length === 0) {
+    container.innerHTML = `<div style="text-align: center; margin-top: 80px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.15em;">BAG IS EMPTY</div>`;
+    updateCartSummary();
+    return;
+  }
+
+  STATE.cart.forEach(item => {
+    const itemCard = document.createElement('div');
+    itemCard.className = 'cart-item';
+    itemCard.innerHTML = `
+      <div class="cart-item-visual">
+        ${SVGS[item.type]('#e5e5e5', '#333')}
+      </div>
+      <div class="cart-item-details">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">Size: ${item.size} / Color: ${item.color}</div>
+        <div class="cart-item-price-row">
+          <div class="cart-item-qty">QTY: ${item.qty} × ₹${item.price.toLocaleString('en-IN')}</div>
+          <span class="cart-item-remove" onclick="removeFromCart('${item.id}', '${item.color}', '${item.size}')">REMOVE</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(itemCard);
+  });
+
+  updateCartSummary();
+}
+
+// Updates Subtotals, Taxes, Shipping and Grand Totals
+function updateCartSummary() {
+  const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const tax = Math.round(subtotal * 0.12); // 12% GST simulation
+  const shipping = subtotal > 2999 || subtotal === 0 ? 0 : 150;
+  
+  let discount = 0;
+  if (STATE.appliedCoupon) {
+    if (STATE.appliedCoupon.type === 'percent') {
+      discount = Math.round(subtotal * (STATE.appliedCoupon.value / 100));
+    } else {
+      discount = STATE.appliedCoupon.value;
+    }
+  }
+
+  const grandTotal = subtotal + tax + shipping - discount;
+
+  const rowSubtotal = document.getElementById('cart-subtotal');
+  const rowShipping = document.getElementById('cart-shipping');
+  const rowTax = document.getElementById('cart-tax');
+  const rowDiscount = document.getElementById('cart-discount-row');
+  const txtDiscount = document.getElementById('cart-discount-value');
+  const rowTotal = document.getElementById('cart-total');
+
+  if (rowSubtotal) rowSubtotal.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  if (rowShipping) rowShipping.textContent = shipping === 0 ? 'FREE' : `₹${shipping}`;
+  if (rowTax) rowTax.textContent = `₹${tax.toLocaleString('en-IN')}`;
+  if (rowTotal) rowTotal.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+
+  if (STATE.appliedCoupon && rowDiscount && txtDiscount) {
+    rowDiscount.style.display = 'flex';
+    txtDiscount.textContent = `- ₹${discount.toLocaleString('en-IN')}`;
+  } else if (rowDiscount) {
+    rowDiscount.style.display = 'none';
+  }
+}
+
+// Renders the Wishlist Drawer panel
+function renderWishlistDrawer() {
+  const container = document.getElementById('wishlist-items-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+  
+  if (STATE.wishlist.length === 0) {
+    container.innerHTML = `<div style="text-align: center; margin-top: 80px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.15em;">WISHLIST IS EMPTY</div>`;
+    return;
+  }
+
+  STATE.wishlist.forEach(id => {
+    const item = STATE.products.find(p => p.id === id);
+    if (!item) return;
+
+    const itemCard = document.createElement('div');
+    itemCard.className = 'cart-item';
+    itemCard.innerHTML = `
+      <div class="cart-item-visual">
+        ${SVGS[item.type]('#f0f0f0', '#333')}
+      </div>
+      <div class="cart-item-details">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">₹${item.price.toLocaleString('en-IN')}</div>
+        <div class="cart-item-price-row" style="margin-top: 15px;">
+          <span class="cart-item-remove" style="text-decoration: none; color: black; font-weight: 600;" onclick="wishlistToCart('${item.id}')">ADD TO BAG</span>
+          <span class="cart-item-remove" onclick="toggleWishlist('${item.id}')">REMOVE</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(itemCard);
+  });
+}
+
+function wishlistToCart(productId) {
+  addToCart(productId, 'White', 'M', 1);
+  toggleWishlist(productId);
+}
+
+// Coupon system handler
+function applyPromoCoupon() {
+  const input = document.getElementById('checkout-coupon-input');
+  if (!input) return;
+  const val = input.value.trim().toUpperCase();
+
+  if (val === 'WELCOME500') {
+    STATE.appliedCoupon = { code: 'WELCOME500', type: 'fixed', value: 500 };
+    showNotification('COUPON APPLIED: WELCOME500 (-₹500)');
+  } else if (val === 'ORIGINAL10') {
+    STATE.appliedCoupon = { code: 'ORIGINAL10', type: 'percent', value: 10 };
+    showNotification('COUPON APPLIED: ORIGINAL10 (-10%)');
+  } else {
+    showNotification('INVALID COUPON CODE');
+    STATE.appliedCoupon = null;
+  }
+
+  updateCartSummary();
+  renderCheckoutSummary();
+}
+
+/* ==========================================================================
+   9. Size Guide & Smart Size Recommendation Engine
+   ========================================================================== */
+function setupSizeGuide() {
+  const heightInput = document.getElementById('user-height');
+  const weightInput = document.getElementById('user-weight');
+  const getRecommendBtn = document.getElementById('get-size-recommend');
+  const resultText = document.getElementById('recommend-size-result');
+
+  if (getRecommendBtn && resultText) {
+    getRecommendBtn.addEventListener('click', () => {
+      const height = parseFloat(heightInput.value);
+      const weight = parseFloat(weightInput.value);
+
+      if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+        resultText.style.display = 'block';
+        resultText.style.color = '#a03c3c';
+        resultText.textContent = 'PLEASE ENTER VALID DETAILS';
+        return;
+      }
+
+      let size = 'M';
+      if (height < 165) {
+        size = weight < 60 ? 'XS' : 'S';
+      } else if (height >= 165 && height < 178) {
+        size = weight < 70 ? 'S' : (weight < 82 ? 'M' : 'L');
+      } else {
+        size = weight < 80 ? 'L' : (weight < 95 ? 'XL' : 'XXL');
+      }
+
+      resultText.style.display = 'block';
+      resultText.style.color = '#000';
+      resultText.innerHTML = `WE RECOMMEND SIZE <strong>${size}</strong> FOR A COMFORTABLE BOXY FIT.`;
+    });
+  }
+}
+
+/* ==========================================================================
+   10. PDP Interactive Zoom & Visual controls
+   ========================================================================== */
+function setupProductZoom() {
+  const mainImageContainer = document.querySelector('.gallery-main');
+  const zoomOverlay = document.querySelector('.zoom-overlay');
+
+  if (mainImageContainer && zoomOverlay) {
+    mainImageContainer.addEventListener('mousemove', (e) => {
+      const rect = mainImageContainer.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      zoomOverlay.style.backgroundPosition = `${x}% ${y}%`;
+    });
+  }
+}
+
+/* ==========================================================================
+   11. Product detail accordions
+   ========================================================================== */
+function setupAccordions() {
+  const headers = document.querySelectorAll('.accordion-header');
+  headers.forEach(h => {
+    h.addEventListener('click', () => {
+      const item = h.parentElement;
+      item.classList.toggle('active');
+    });
+  });
+}
+
+/* ==========================================================================
+   12. Profile and Auth Mock Implementation
+   ========================================================================== */
+function simulateOTP() {
+  const emailInput = document.getElementById('auth-email-input');
+  if (!emailInput || !emailInput.value) {
+    showNotification('PLEASE ENTER EMAIL ADDRESS');
+    return;
+  }
+
+  // Display simulated OTP box
+  const otpInput = document.getElementById('auth-otp-input-field');
+  const otpTitle = document.getElementById('auth-otp-title');
+  if (otpInput && otpTitle) {
+    otpInput.style.display = 'block';
+    otpTitle.textContent = 'CHECK YOUR EMAIL FOR 4-DIGIT OTP';
+    showNotification('OTP SENT TO ' + emailInput.value.toUpperCase());
+  }
+}
+
+function handleLoginSubmit() {
+  const emailInput = document.getElementById('auth-email-input');
+  const otpVal = document.getElementById('auth-otp-input');
+  
+  if (!emailInput.value) return;
+
+  // Complete Simulated Auth Session
+  const username = emailInput.value.split('@')[0].toUpperCase();
+  STATE.user = {
+    username: username,
+    email: emailInput.value.toLowerCase(),
+    joinedDate: '2026-07-17'
+  };
+
+  localStorage.setItem('ov_user', JSON.stringify(STATE.user));
+  closeModal('auth-modal');
+  showNotification('WELCOME BACK, ' + username);
+  
+  // Re-render mobile navigation button state
+  renderProfileDetails();
+}
+
+function handleLogout() {
+  STATE.user = null;
+  localStorage.removeItem('ov_user');
+  closeModal('profile-modal');
+  showNotification('LOGGED OUT SUCCESSFUL');
+}
+
+function renderProfileDetails() {
+  if (!STATE.user) return;
+  const userNameText = document.getElementById('profile-name-text');
+  const userEmailText = document.getElementById('profile-email-text');
+  const walletAmountText = document.getElementById('profile-wallet-balance');
+  const loyaltyPointsText = document.getElementById('profile-loyalty-points');
+
+  if (userNameText) userNameText.textContent = STATE.user.username;
+  if (userEmailText) userEmailText.textContent = STATE.user.email;
+  if (walletAmountText) walletAmountText.textContent = `₹${STATE.walletBalance}`;
+  if (loyaltyPointsText) loyaltyPointsText.textContent = `${STATE.loyaltyPoints} PTS`;
+
+  renderOrderHistoryTable();
+}
+
+function renderOrderHistoryTable() {
+  const table = document.getElementById('profile-orders-list');
+  if (!table) return;
+
+  table.innerHTML = '';
+  if (STATE.orders.length === 0) {
+    table.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.5;">NO ORDERS PLACED YET</div>`;
+    return;
+  }
+
+  STATE.orders.forEach(order => {
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.borderBottom = '1px solid rgba(0,0,0,0.06)';
+    row.style.padding = '15px 0';
+    row.innerHTML = `
+      <div>
+        <div style="font-weight:600; font-size: 0.9rem;">${order.orderId}</div>
+        <div style="font-size:0.75rem; color: #777;">${order.date} · ${order.items[0].name}</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-weight:600;">₹${order.total.toLocaleString('en-IN')}</div>
+        <div style="font-size:0.75rem; display: flex; gap: 10px; justify-content: flex-end;">
+          <span style="color:#b8975a; cursor:pointer;" onclick="trackSpecificOrder('${order.orderId}')">TRACK</span>
+          <span style="text-decoration:underline; cursor:pointer;" onclick="downloadPdfInvoice('${order.orderId}')">PDF</span>
+        </div>
+      </div>
+    `;
+    table.appendChild(row);
+  });
+}
+
+/* ==========================================================================
+   13. Checkout flow and Razorpay / Stripe Payment Simulation
+   ========================================================================== */
+function startCheckout() {
+  if (STATE.cart.length === 0) {
+    showNotification('YOUR BAG IS EMPTY');
+    return;
+  }
+  toggleDrawer('cart-drawer');
+  openModal('checkout-modal');
+  renderCheckoutSummary();
+}
+
+function selectPaymentMethod(element, name) {
+  const cards = document.querySelectorAll('.payment-option-card');
+  cards.forEach(c => c.classList.remove('active'));
+  element.classList.add('active');
+  STATE.paymentMethod = name;
+}
+
+function renderCheckoutSummary() {
+  const container = document.getElementById('checkout-items-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  STATE.cart.forEach(item => {
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.marginBottom = '12px';
+    row.innerHTML = `
+      <div style="font-size: 0.85rem;">${item.name} × ${item.qty}</div>
+      <div style="font-size: 0.85rem; font-weight: 500;">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
+    `;
+    container.appendChild(row);
+  });
+
+  const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const tax = Math.round(subtotal * 0.12);
+  const shipping = subtotal > 2999 ? 0 : 150;
+  
+  let discount = 0;
+  if (STATE.appliedCoupon) {
+    if (STATE.appliedCoupon.type === 'percent') {
+      discount = Math.round(subtotal * (STATE.appliedCoupon.value / 100));
+    } else {
+      discount = STATE.appliedCoupon.value;
+    }
+  }
+
+  const grandTotal = subtotal + tax + shipping - discount;
+
+  document.getElementById('checkout-subtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  document.getElementById('checkout-tax').textContent = `₹${tax.toLocaleString('en-IN')}`;
+  document.getElementById('checkout-shipping').textContent = shipping === 0 ? 'FREE' : `₹${shipping}`;
+  document.getElementById('checkout-total').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+
+  const rowDiscount = document.getElementById('checkout-discount-row');
+  const valDiscount = document.getElementById('checkout-discount-value');
+  if (STATE.appliedCoupon && rowDiscount && valDiscount) {
+    rowDiscount.style.display = 'flex';
+    valDiscount.textContent = `- ₹${discount.toLocaleString('en-IN')}`;
+  } else if (rowDiscount) {
+    rowDiscount.style.display = 'none';
+  }
+}
+
+function completeCheckoutOrder() {
+  const address = document.getElementById('checkout-address-input');
+  if (!address || !address.value.trim()) {
+    showNotification('PLEASE PROVIDE DELIVERY ADDRESS');
+    return;
+  }
+
+  // Create placed order
+  const orderId = 'OV-' + Math.floor(10000 + Math.random() * 90000);
+  const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const tax = Math.round(subtotal * 0.12);
+  const shipping = subtotal > 2999 ? 0 : 150;
+  let discount = 0;
+  if (STATE.appliedCoupon) {
+    discount = STATE.appliedCoupon.type === 'percent' ? Math.round(subtotal * (STATE.appliedCoupon.value / 100)) : STATE.appliedCoupon.value;
+  }
+  const grandTotal = subtotal + tax + shipping - discount;
+
+  const newOrder = {
+    orderId: orderId,
+    date: new Date().toISOString().split('T')[0],
+    items: [...STATE.cart],
+    total: grandTotal,
+    status: 'placed',
+    trackingStep: 1,
+    address: address.value
+  };
+
+  STATE.orders.unshift(newOrder);
+  localStorage.setItem('ov_orders', JSON.stringify(STATE.orders));
+
+  // Add loyalty points
+  STATE.loyaltyPoints += Math.round(grandTotal * 0.05);
+
+  // Clear Cart
+  STATE.cart = [];
+  localStorage.removeItem('ov_cart');
+  updateCartBadge();
+  renderCartDrawer();
+  STATE.appliedCoupon = null;
+
+  closeModal('checkout-modal');
+  showNotification('ORDER PLACED SUCCESSFULLY: ' + orderId);
+
+  // Show live tracking immediately
+  setTimeout(() => {
+    trackSpecificOrder(orderId);
+  }, 1000);
+}
+
+/* ==========================================================================
+   14. Order tracking live status
+   ========================================================================== */
+function trackSpecificOrder(orderId) {
+  const order = STATE.orders.find(o => o.orderId === orderId);
+  if (!order) return;
+
+  const container = document.getElementById('track-order-modal-body');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div style="font-size: 1rem; font-weight:600; margin-bottom: 5px;">ORDER ID: ${order.orderId}</div>
+    <div style="font-size: 0.8rem; color:#777; margin-bottom: 25px;">PLACED ON: ${order.date}</div>
+
+    <div class="tracking-steps">
+      <div class="tracking-step-item ${order.trackingStep >= 1 ? 'completed' : ''}">
+        <div class="tracking-step-dot">1</div>
+        <div class="tracking-step-label">Placed</div>
+      </div>
+      <div class="tracking-step-item ${order.trackingStep >= 2 ? 'completed' : ''}">
+        <div class="tracking-step-dot">2</div>
+        <div class="tracking-step-label">Processed</div>
+      </div>
+      <div class="tracking-step-item ${order.trackingStep >= 3 ? 'completed' : ''}">
+        <div class="tracking-step-dot">3</div>
+        <div class="tracking-step-label">Shipped</div>
+      </div>
+      <div class="tracking-step-item ${order.trackingStep >= 4 ? 'completed' : ''}">
+        <div class="tracking-step-dot">4</div>
+        <div class="tracking-step-label">Out Delivery</div>
+      </div>
+      <div class="tracking-step-item ${order.trackingStep >= 5 ? 'completed' : ''}">
+        <div class="tracking-step-dot">5</div>
+        <div class="tracking-step-label">Delivered</div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 40px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 20px;">
+      <div style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 10px;">DELIVERY ADDRESS</div>
+      <div style="font-size: 0.9rem; color: #555;">${order.address || 'OV CUSTOMER LOGISTICS HUB'}</div>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; gap: 15px;">
+      <button class="luxury-btn" style="width: 100%;" onclick="downloadPdfInvoice('${order.orderId}')">DOWNLOAD INVOICE PDF</button>
+    </div>
+  `;
+
+  openModal('track-order-modal');
+}
+
+/* ==========================================================================
+   15. jsPDF Minimal Invoice Generation
+   ========================================================================== */
+function downloadPdfInvoice(orderId) {
+  const order = STATE.orders.find(o => o.orderId === orderId);
+  if (!order) return;
+
+  // jsPDF loaded via CDN
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  // Document Styling Constants
+  const fontHeading = 'Helvetica';
+  const colorDark = '#111111';
+  const colorGray = '#777777';
+
+  // Invoice Title
+  doc.setFont(fontHeading, 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(colorDark);
+  doc.text('OV™ — ORIGINAL VERSION', 20, 25);
+
+  doc.setFontSize(9);
+  doc.setFont(fontHeading, 'normal');
+  doc.setTextColor(colorGray);
+  doc.text('MINIMAL LUXURY STREETWEAR', 20, 30);
+  doc.text('support@ovstreetwear.com', 20, 34);
+
+  // Invoice Details Side Block
+  doc.setFont(fontHeading, 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(colorDark);
+  doc.text('TAX INVOICE', 140, 25);
+
+  doc.setFont(fontHeading, 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(colorGray);
+  doc.text(`INVOICE NO: ${order.orderId}`, 140, 30);
+  doc.text(`DATE: ${order.date}`, 140, 34);
+  doc.text('STATUS: PAID', 140, 38);
+
+  // Draw Horizontal Dividers
+  doc.setDrawColor(220, 220, 220);
+  doc.line(20, 48, 190, 48);
+
+  // Billing Details
+  doc.setFont(fontHeading, 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(colorDark);
+  doc.text('BILLED TO:', 20, 56);
+  
+  doc.setFont(fontHeading, 'normal');
+  doc.setTextColor(colorGray);
+  doc.text(STATE.user ? STATE.user.username : 'GUEST ORIGINAL', 20, 61);
+  doc.text(STATE.user ? STATE.user.email : 'guest@ov.com', 20, 65);
+  doc.text(order.address || 'OV CUSTOMER LOGISTICS CENTRE', 20, 69, { maxWidth: 100 });
+
+  // Grid Header
+  doc.line(20, 80, 190, 80);
+  doc.setFont(fontHeading, 'bold');
+  doc.setTextColor(colorDark);
+  doc.text('PRODUCT DESCRIPTION', 20, 85);
+  doc.text('QTY', 120, 85);
+  doc.text('PRICE', 145, 85);
+  doc.text('TOTAL', 170, 85);
+  doc.line(20, 89, 190, 89);
+
+  // Grid Body
+  let currentY = 96;
+  doc.setFont(fontHeading, 'normal');
+  doc.setTextColor(colorGray);
+
+  order.items.forEach(item => {
+    doc.text(item.name.toUpperCase(), 20, currentY);
+    doc.text(`Size: ${item.size || 'M'} / Color: ${item.color || 'White'}`, 20, currentY + 4);
+    doc.text(`${item.qty}`, 120, currentY);
+    doc.text(`INR ${item.price.toLocaleString('en-IN')}`, 145, currentY);
+    doc.text(`INR ${(item.price * item.qty).toLocaleString('en-IN')}`, 170, currentY);
+    currentY += 15;
+  });
+
+  // Totals calculations positioning
+  doc.line(20, currentY - 5, 190, currentY - 5);
+  
+  doc.text('SUBTOTAL:', 130, currentY + 2);
+  doc.text(`INR ${order.total.toLocaleString('en-IN')}`, 170, currentY + 2);
+
+  doc.setFont(fontHeading, 'bold');
+  doc.setTextColor(colorDark);
+  doc.text('TOTAL AMOUNT PAID:', 110, currentY + 9);
+  doc.text(`INR ${order.total.toLocaleString('en-IN')}`, 170, currentY + 9);
+
+  // Footer Message
+  doc.setFont(fontHeading, 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(colorGray);
+  doc.text('Thank you for being an Original. Crafted to create identity.', 20, 270);
+
+  // Download Output PDF
+  doc.save(`OV-INVOICE-${order.orderId}.pdf`);
+  showNotification('INVOICE PDF DOWNLOADED');
+}
+
+/* ==========================================================================
+   16. Reviews Engine & Form submission
+   ========================================================================== */
+function submitReviewFromUser() {
+  const nameInput = document.getElementById('review-author-name');
+  const titleInput = document.getElementById('review-title-input');
+  const bodyInput = document.getElementById('review-body-input');
+  const ratingInput = document.getElementById('review-star-rating');
+
+  if (!nameInput.value || !bodyInput.value) {
+    showNotification('NAME AND REVIEW CONTENT REQUIRED');
+    return;
+  }
+
+  const rating = parseInt(ratingInput.value) || 5;
+
+  const newReview = {
+    author: nameInput.value,
+    date: 'Just Now',
+    rating: rating,
+    title: titleInput.value || 'Excellent Quality',
+    body: bodyInput.value
+  };
+
+  // Add review to current PDP product
+  if (STATE.activeProduct) {
+    if (!STATE.activeProduct.reviews) STATE.activeProduct.reviews = [];
+    STATE.activeProduct.reviews.unshift(newReview);
+    renderReviewsSection(STATE.activeProduct);
+  }
+
+  // Reset inputs
+  nameInput.value = '';
+  titleInput.value = '';
+  bodyInput.value = '';
+  
+  closeModal('write-review-modal');
+  showNotification('REVIEW SUBMITTED FOR REVIEW');
+}
+
+function renderReviewsSection(product) {
+  const listContainer = document.getElementById('pdp-reviews-list-container');
+  if (!listContainer) return;
+
+  listContainer.innerHTML = '';
+
+  const defaultReviews = [
+    { author: 'ADITHYA K.', date: '12 July 2026', rating: 5, title: 'Unmatched Fabric Quality', body: 'The 280 GSM cotton feels extremely premium. It has weight but is breathable. Best boxy oversized tee in my collection.' },
+    { author: 'SARATH R.', date: '05 July 2026', rating: 5, title: 'Apple-like Design Minimalist Feel', body: 'Love the uppercase design on the tags and packaging. Fits perfectly, definitely recommend sizing down if you want a regular fit.' }
+  ];
+
+  const allReviews = (product.reviews || []).concat(defaultReviews);
+
+  allReviews.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    
+    let starsStr = '';
+    for(let i=0; i<5; i++) {
+      starsStr += i < r.rating ? '★' : '☆';
+    }
+
+    card.innerHTML = `
+      <div class="review-header">
+        <div class="review-author">${r.author.toUpperCase()}</div>
+        <div class="review-date">${r.date}</div>
+      </div>
+      <div class="review-stars">${starsStr}</div>
+      <div class="review-title">${r.title.toUpperCase()}</div>
+      <div class="review-body">${r.body}</div>
+    `;
+    listContainer.appendChild(card);
+  });
+}
+
+/* ==========================================================================
+   17. Helper Utilities (Drawers, Modals, Lists grids, Notifications)
+   ========================================================================== */
+function toggleDrawer(id) {
+  const drawer = document.getElementById(id);
+  const overlay = document.getElementById('drawer-overlay');
+  if (drawer && overlay) {
+    drawer.classList.toggle('active');
+    overlay.classList.toggle('active');
+    document.body.classList.toggle('no-scroll');
+  }
+
+  if (id === 'cart-drawer') renderCartDrawer();
+  if (id === 'wishlist-drawer') renderWishlistDrawer();
+}
+
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.add('active');
+    document.body.classList.add('no-scroll');
+  }
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+  }
+}
+
+function renderProductGrid(containerId, productList) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+  productList.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'collection-card';
+    card.setAttribute('onclick', `navigateTo('product', '${p.id}')`);
+
+    const badgeHTML = p.badge ? `<span class="pc-badge" style="position:absolute; top:20px; left:20px; background:black; color:white; font-size: 0.7rem; padding:4px 8px; letter-spacing:0.1em; text-transform:uppercase; z-index: 10;">${p.badge}</span>` : '';
+
+    card.innerHTML = `
+      ${badgeHTML}
+      <div class="collection-card-visual">
+        ${SVGS[p.type]('#f9f9f9', '#111')}
+      </div>
+      <span class="collection-card-num">${p.type.toUpperCase()} / 0${p.id.split('-')[1] || '1'}</span>
+      <h3 class="collection-card-title">${p.name.toUpperCase()}</h3>
+      <div class="collection-card-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="collection-card-btn">Explore Piece</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderFeaturedGrid(containerId, productList) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+  productList.slice(0, 4).forEach(p => {
+    const gridItem = document.createElement('div');
+    gridItem.style.position = 'relative';
+    gridItem.style.cursor = 'pointer';
+    gridItem.setAttribute('onclick', `navigateTo('product', '${p.id}')`);
+
+    gridItem.innerHTML = `
+      <div style="background-color: var(--light-gray); aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); position: relative; overflow: hidden; margin-bottom: 15px;">
+        ${SVGS[p.type]('#e5e5e5', '#222')}
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;">
+        <div>${p.baseName}</div>
+        <div>₹${p.price.toLocaleString('en-IN')}</div>
+      </div>
+    `;
+    container.appendChild(gridItem);
+  });
+}
+
+function renderProductDetailPage(product) {
+  // Update texts
+  document.getElementById('pdp-brand-text').textContent = 'OV™ — CAP SULE COLLECTION';
+  document.getElementById('pdp-product-name').textContent = product.name;
+  
+  const priceContainer = document.getElementById('pdp-price-container');
+  if (product.originalPrice > product.price) {
+    priceContainer.innerHTML = `
+      <span class="product-price original">₹${product.originalPrice.toLocaleString('en-IN')}</span>
+      <span class="product-price sale">₹${product.price.toLocaleString('en-IN')}</span>
+    `;
+  } else {
+    priceContainer.innerHTML = `<span class="product-price">₹${product.price.toLocaleString('en-IN')}</span>`;
+  }
+
+  // Material and Stock checks
+  document.getElementById('pdp-material-desc').textContent = `${product.type === 'tee' ? '280 GSM Double-Combed Organic Cotton. Boxy fitting drop shoulder pattern. Pre-shrunk fabric with silicone softening finish.' : '450 GSM Heavyweight French Terry cotton. Relaxed silhouette. Double lined hood. Ribbed side panels.'}`;
+  
+  const stockText = document.getElementById('pdp-stock-text');
+  if (product.stock <= 5) {
+    stockText.style.display = 'flex';
+    document.getElementById('pdp-stock-count').textContent = `ONLY ${product.stock} PIECES LEFT IN STOCK`;
+  } else {
+    stockText.style.display = 'none';
+  }
+
+  // Render main detail thumbnail SVG
+  const mainImageContainer = document.getElementById('pdp-main-image-container');
+  if (mainImageContainer) {
+    mainImageContainer.innerHTML = SVGS[product.type]('#f9f9f9', '#111');
+  }
+
+  // Thumbnails render
+  const thumbsContainer = document.getElementById('pdp-thumbs-container');
+  if (thumbsContainer) {
+    thumbsContainer.innerHTML = `
+      <div class="thumb-item active" onclick="switchPdpThumb(this, '${product.type}', '#f9f9f9')">
+        ${SVGS[product.type]('#f9f9f9', '#444')}
+      </div>
+      <div class="thumb-item" onclick="switchPdpThumb(this, '${product.type}', '#111111')">
+        ${SVGS[product.type]('#111111', '#555')}
+      </div>
+      <div class="thumb-item" onclick="switchPdpThumb(this, '${product.type}', '#f3efe0')">
+        ${SVGS[product.type]('#f3efe0', '#444')}
+      </div>
+    `;
+  }
+
+  // Reset Quantity
+  STATE.quantity = 1;
+  document.getElementById('qty-value').value = 1;
+
+  // Set initial PDP color & size
+  STATE.activeColor = 'White';
+  STATE.activeSize = 'M';
+  
+  // Set Wishlist Button state
+  const wishlistBtn = document.getElementById('detail-wishlist-btn');
+  if (wishlistBtn) {
+    if (STATE.wishlist.includes(product.id)) {
+      wishlistBtn.classList.add('active');
+    } else {
+      wishlistBtn.classList.remove('active');
+    }
+  }
+
+  // Frequently bought together bundle calculation
+  renderFbtBundle(product);
+
+  // Render reviews
+  renderReviewsSection(product);
+}
+
+function switchPdpThumb(element, type, colorHex) {
+  document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+  element.classList.add('active');
+
+  const mainImageContainer = document.getElementById('pdp-main-image-container');
+  if (mainImageContainer) {
+    mainImageContainer.innerHTML = SVGS[type](colorHex, '#111');
+  }
+
+  // Update selected color state
+  const colorNames = {
+    '#f9f9f9': 'White',
+    '#111111': 'Black',
+    '#f3efe0': 'Cream'
+  };
+  STATE.activeColor = colorNames[colorHex] || 'White';
+}
+
+function renderFbtBundle(product) {
+  const companion = STATE.products.find(p => p.id !== product.id) || STATE.products[1];
+  const container = document.getElementById('fbt-bundle-container');
+  if (!container) return;
+
+  const bundleTotal = product.price + companion.price;
+
+  container.innerHTML = `
+    <div class="fbt-products">
+      <div class="fbt-item">
+        <div class="fbt-item-visual">${SVGS[product.type]('#eaeaea', '#111')}</div>
+        <div class="fbt-item-name">${product.name}</div>
+        <div class="fbt-item-price">₹${product.price.toLocaleString('en-IN')}</div>
+      </div>
+      <div class="fbt-plus">+</div>
+      <div class="fbt-item">
+        <div class="fbt-item-visual">${SVGS[companion.type]('#eaeaea', '#111')}</div>
+        <div class="fbt-item-name">${companion.name}</div>
+        <div class="fbt-item-price">₹${companion.price.toLocaleString('en-IN')}</div>
+      </div>
+    </div>
+    <div class="fbt-checkout-card">
+      <div style="font-size: 0.85rem; color:#777; text-transform:uppercase; letter-spacing:0.05em;">BUNDLE PRICE:</div>
+      <div class="fbt-total-price">₹${bundleTotal.toLocaleString('en-IN')}</div>
+      <button class="luxury-btn" onclick="addFbtBundleToCart('${product.id}', '${companion.id}')">ADD BUNDLE TO BAG</button>
+    </div>
+  `;
+}
+
+function addFbtBundleToCart(id1, id2) {
+  addToCart(id1, 'White', 'M', 1);
+  addToCart(id2, 'Black', 'M', 1);
+  toggleDrawer('cart-drawer');
+}
+
+function showNotification(message) {
+  let container = document.getElementById('ov-notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'ov-notification-container';
+    container.style.position = 'fixed';
+    container.style.top = '100px';
+    container.style.right = '40px';
+    container.style.zIndex = '9999';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.style.backgroundColor = 'black';
+  notification.style.color = 'white';
+  notification.style.padding = '15px 30px';
+  notification.style.fontSize = '0.75rem';
+  notification.style.letterSpacing = '0.2em';
+  notification.style.textTransform = 'uppercase';
+  notification.style.border = '1px solid rgba(255,255,255,0.2)';
+  notification.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
+  notification.style.transform = 'translateX(100px)';
+  notification.style.opacity = '0';
+  notification.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  // Trigger animation frame
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+    notification.style.opacity = '1';
+  }, 10);
+
+  // Auto remove
+  setTimeout(() => {
+    notification.style.transform = 'translateX(100px)';
+    notification.style.opacity = '0';
+    setTimeout(() => {
+      notification.remove();
+    }, 500);
+  }, 3500);
+}

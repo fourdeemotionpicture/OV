@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OV™ — ORIGINAL VERSION | MINIMAL LUXURY STREETWEAR</title>
+  <meta name="description" content="Minimal luxury streetwear crafted for originals. Explore boxy fits, heavyweight fabric, and premium essentials.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- CDN Scripts for Libraries -->
+  <!-- Three.js (Core WebGL Rendering) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- OrbitControls (Drag to rotate ThreeJS) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- GSAP (GreenSock Animation Platform) + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- Lenis (Buttery-Smooth Scrolling) -->
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.36/dist/lenis.min.js"></script>
+  <!-- jsPDF (Dynamic PDF Invoice compiler) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== 1. Luxury Opening Loader ===== -->
+  <div id="opening-loader">
+    <div class="loader-logo-container">
+      <div class="loader-logo">OV™</div>
+    </div>
+    <div class="loader-bar-bg">
+      <div class="loader-bar"></div>
+    </div>
+    <button class="audio-toggle-loader" onclick="this.textContent='AMBIENT ON ✓'">PLAY AMBIENT</button>
+  </div>
+
+  <!-- ===== 2. Sticky Header & Navigation ===== -->
+  <header>
+    <div class="announcement-bar">
+      <div class="announcement-slider">
+        <div class="announcement-item">FREE SHIPPING OVER ₹2,999 · 15-DAY RETURNS</div>
+        <div class="announcement-item">FORM 02 — THE BOXY CAPSULE IS LIVE</div>
+        <div class="announcement-item">ORIGINAL IS THE ONLY VERSION</div>
+      </div>
+    </div>
+    
+    <div class="nav-container">
+      <div class="nav-left">
+        <ul class="nav-menu">
+          <li><a href="#" class="nav-link" onclick="navigateTo('home'); return false;">Home</a></li>
+          <li><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Shop</a></li>
+          <li><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Oversized</a></li>
+        </ul>
+      </div>
+      
+      <div class="logo-container">
+        <a href="#" class="logo" onclick="navigateTo('home'); return false;">OV™</a>
+      </div>
+      
+      <div class="nav-right">
+        <!-- Account Button -->
+        <button class="icon-button" onclick="if(STATE.user) { openModal('profile-modal'); renderProfileDetails(); } else { openModal('auth-modal'); }">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+        </button>
+        <!-- Wishlist Button -->
+        <button class="icon-button" id="wishlist-nav-btn" onclick="toggleDrawer('wishlist-drawer')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+        </button>
+        <!-- Cart Button -->
+        <button class="icon-button" onclick="toggleDrawer('cart-drawer')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
+          <span class="badge-count bag-count">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== 3. Persistent Mobile Bottom Navigation Bar ===== -->
+  <div class="mobile-nav-bar">
+    <button class="mobile-nav-item active" data-route="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-item" data-route="shop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+      <span>Shop</span>
+    </button>
+    <button class="mobile-nav-item" data-route="wishlist">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+      <span>Saved</span>
+    </button>
+    <button class="mobile-nav-item" data-route="cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+      <span>Bag</span>
+    </button>
+    <button class="mobile-nav-item" data-route="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+      <span>Account</span>
+    </button>
+  </div>
+
+  <!-- ==========================================================================
+       PAGES (SPA VIEWPORTS)
+       ========================================================================== -->
+
+  <!-- ==================== PAGE: HOME ==================== -->
+  <main id="home-page" class="page-route active">
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-large-logo">OV™</h1>
+        <div class="hero-text-block">
+          <h2 class="hero-title">ORIGINAL VERSION</h2>
+          <p class="hero-subtitle">Crafted for Originals.</p>
+          <button class="luxury-btn" onclick="navigateTo('shop')">Discover Collection</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3D T-Shirt Reveal Section -->
+    <section class="reveal-section">
+      <div class="reveal-3d-container" id="reveal-canvas-container">
+        <!-- Three.js Canvas mounts here -->
+        <div class="reveal-canvas-instructions">
+          <span><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Drag to Rotate</span>
+          <span> Pinch to Zoom</span>
+        </div>
+      </div>
+      
+      <div class="reveal-info-panel">
+        <span class="eyebrow">3D INTERACTIVE PREVIEW</span>
+        <h2 class="luxury-heading" style="font-size: 2.2rem; margin-bottom: 20px;">280 GSM BOXY FIT</h2>
+        <p style="color: var(--medium-gray); margin-bottom: 30px; line-height: 1.8;">
+          Experience our double-combed premium cotton in full 3D. Switch colors dynamically to see fabric draping and shadow fall under realistic studio lighting.
+        </p>
+
+        <div class="reveal-features">
+          <div class="feature-badge">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            280 GSM Heavyweight Build
+          </div>
+          <div class="feature-badge">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Premium Matte Weave Finish
+          </div>
+          <div class="feature-badge">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Drop-shoulder Boxy Silhouette
+          </div>
+        </div>
+
+        <div class="color-switch-container">
+          <span class="color-label">SELECT HUE:</span>
+          <div class="color-swatches">
+            <div class="swatch white active" onclick="switch3DColor('white', this)" title="Ivory White"></div>
+            <div class="swatch black" onclick="switch3DColor('black', this)" title="Onyx Black"></div>
+            <div class="swatch cream" onclick="switch3DColor('cream', this)" title="Sand Cream"></div>
+          </div>
+        </div>
+
+        <button class="luxury-btn" style="margin-top: 15px;" onclick="navigateTo('product', 'tee-01')">Customize & Buy</button>
+      </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story-section">
+      <span class="eyebrow">OUR PHILOSOPHY</span>
+      <h2 class="story-heading">WE DON'T SELL TSHIRTS. WE CREATE IDENTITY.</h2>
+      <p class="story-text">
+        Every original version stands alone. We build architecture for the body, engineered to endure. No trends. Just clean canvases.
+      </p>
+    </section>
+
+    <!-- Collection Section (Horizontal Scroll) -->
+    <section class="horizontal-scroll-container">
+      <div class="horizontal-scroll-header">
+        <div>
+          <span class="eyebrow" style="color: rgba(255,255,255,0.4)">CURATED DROPS</span>
+          <h2>THE INITIAL LINEUP</h2>
+        </div>
+        <a href="#" style="color: white; border-bottom: 1px solid white; padding-bottom: 4px; font-size: 0.8rem; letter-spacing: 0.15em;" onclick="navigateTo('shop'); return false;">SHOP CATALOG</a>
+      </div>
+      
+      <div class="collection-slider-wrapper" id="plp-products-grid">
+        <!-- Collection Cards injected dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Fabric Experience (Scroll linked macro zoom) -->
+    <section class="fabric-section">
+      <div class="fabric-zoom-bg" style="background-image: url('https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=1200&q=80')"></div>
+      <div class="fabric-content scroll-reveal">
+        <span class="eyebrow" style="color: rgba(255,255,255,0.6);">MACRO TEXTURE DETAILS</span>
+        <h2 class="fabric-heading luxury-heading">280 GSM CLOSEUP</h2>
+        <p class="fabric-desc">
+          Double-brushed organic fibers. Feel the weight, structure, and pre-shrunk density that defines minimal streetwear luxury.
+        </p>
+      </div>
+    </section>
+
+    <!-- Craftsmanship Timeline -->
+    <section class="crafts-section">
+      <div class="crafts-header">
+        <span class="eyebrow">THE PROCESS</span>
+        <h2>MADE IN SMALL BATCHES</h2>
+      </div>
+      
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+        <div class="timeline-progress"></div>
+        
+        <!-- Step 1 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-item-side">
+            <span class="timeline-step">STEP 01</span>
+            <h3 class="timeline-title">ARCHITECTURAL DESIGN</h3>
+            <p class="timeline-desc">Every fit is drafted individually, balancing shoulder drops with strict vertical sleeve cuts to form the ultimate boxy shape.</p>
+          </div>
+          <div class="timeline-visual">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-item-side">
+            <span class="timeline-step">STEP 02</span>
+            <h3 class="timeline-title">PRECISION CUTTING</h3>
+            <p class="timeline-desc">Double-combed 100% cotton panels are cut with laser precision to prevent warp or sizing variation between batches.</p>
+          </div>
+          <div class="timeline-visual">
+            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="9.8" y1="8.2" x2="21" y2="12.4"/><line x1="9.8" y1="15.8" x2="21" y2="11.6"/></svg>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-item-side">
+            <span class="timeline-step">STEP 03</span>
+            <h3 class="timeline-title">DEEP GARMENT DYE</h3>
+            <p class="timeline-desc">Dyed post-stitch inside specialized high-pressure drums. This ensures washed texture edges and vintage color depths.</p>
+          </div>
+          <div class="timeline-visual">
+            <svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-item-side">
+            <span class="timeline-step">STEP 04</span>
+            <h3 class="timeline-title">HANDPACKED LOGISTICS</h3>
+            <p class="timeline-desc">Pieces are lint-brushed, packed inside raw organic canvas dust bags, and wrapped inside custom matte silver boxes.</p>
+          </div>
+          <div class="timeline-visual">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lifestyle Gallery -->
+    <section class="lifestyle-gallery">
+      <div class="gallery-cell">
+        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80" alt="OV Model 1">
+        <div class="gallery-overlay">LOOSE FITS</div>
+      </div>
+      <div class="gallery-cell">
+        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80" alt="OV Model 2">
+        <div class="gallery-overlay">STUDIO SHOOT</div>
+      </div>
+      <div class="gallery-cell">
+        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80" alt="OV Model 3">
+        <div class="gallery-overlay">EDITORIAL SHAPE</div>
+      </div>
+      <div class="gallery-cell">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80" alt="OV Model 4">
+        <div class="gallery-overlay">BLACK DROP</div>
+      </div>
+    </section>
+
+    <!-- Customer Reviews Grid slider -->
+    <section class="reviews-section">
+      <div class="reviews-grid">
+        <div class="reviews-summary">
+          <span class="eyebrow">FEEDBACK</span>
+          <div class="rating-huge">4.8</div>
+          <div class="stars-row">★★★★★</div>
+          <div class="rating-count">BASED ON 142 VERIFIED COPIES</div>
+          <button class="luxury-btn write-review-btn" onclick="openModal('write-review-modal')">WRITE REVIEW</button>
+        </div>
+        
+        <div class="reviews-list" id="pdp-reviews-list-container">
+          <!-- User feedback cards injected dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Instagram Feed Grid -->
+    <section class="instagram-section">
+      <span class="eyebrow">FOLLOW THE STORY</span>
+      <h2>#BECOMEANORIGINAL</h2>
+      <a href="https://instagram.com" class="instagram-handle" target="_blank">@OV.ORIGINALVERSION</a>
+      
+      <div class="instagram-grid">
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80" alt="Insta 1">
+          <div class="instagram-overlay">View Post</div>
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80" alt="Insta 2">
+          <div class="instagram-overlay">View Reel</div>
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=400&q=80" alt="Insta 3">
+          <div class="instagram-overlay">View Post</div>
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80" alt="Insta 4">
+          <div class="instagram-overlay">View Post</div>
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=400&q=80" alt="Insta 5">
+          <div class="instagram-overlay">View Reel</div>
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80" alt="Insta 6">
+          <div class="instagram-overlay">View Post</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter-section">
+      <h2>BECOME AN ORIGINAL.</h2>
+      <p>Subscribe to secure early access pass codes to future capsules.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); showNotification('Subscribed successfully');">
+        <input type="email" class="newsletter-input" placeholder="ENTER YOUR EMAIL ADDRESS" required>
+        <button type="submit" class="newsletter-submit">JOIN</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ==================== PAGE: SHOP CATALOG ==================== -->
+  <main id="shop-page" class="page-route">
+    <div style="padding: 140px 40px 80px; max-width: 1600px; margin: 0 auto;">
+      <span class="eyebrow"><a href="#" onclick="navigateTo('home'); return false;">Home</a> / Shop Catalog</span>
+      <h1 class="luxury-heading" style="font-size: 3rem; margin-top: 15px; margin-bottom: 40px;">ALL PIECES</h1>
+      
+      <div class="checkout-grid" style="grid-template-columns: 240px 1fr; gap: 40px;">
+        <!-- Left filter sidebar -->
+        <aside style="display:flex; flex-direction:column; gap:30px;">
+          <div>
+            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">CATEGORIES</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" checked> Oversized Tees</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Boxy Hoodies</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Cargo Bottoms</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Premium Caps</label>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">SIZES</h4>
+            <div class="size-buttons" style="flex-wrap:wrap; gap:8px;">
+              <button class="size-btn" style="width:40px; height:40px;">S</button>
+              <button class="size-btn active" style="width:40px; height:40px;">M</button>
+              <button class="size-btn" style="width:40px; height:40px;">L</button>
+              <button class="size-btn" style="width:40px; height:40px;">XL</button>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">PRICE RANGE</h4>
+            <input type="range" min="1000" max="6000" value="4000" style="width:100%;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px; color:#666;">
+              <span>₹1,000</span>
+              <span>₹6,000</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right side grid -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:15px; margin-bottom:30px;">
+            <div style="font-size:0.85rem; color:#777;">5 ORIGINALS FOUND</div>
+            <select style="border:none; background:none; font-family:inherit; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; outline:none; cursor:pointer;">
+              <option>FEATURED SORT</option>
+              <option>PRICE: LOW TO HIGH</option>
+              <option>PRICE: HIGH TO LOW</option>
+            </select>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;" id="shop-catalog-grid">
+            <!-- Programmatically render same collection-cards style products -->
+            <div class="collection-card" onclick="navigateTo('product', 'tee-01')">
+              <div class="collection-card-visual">
+                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M95 20 L120 8 C130 24 170 24 180 8 L205 20 L235 55 L210 90 L195 78 L195 320 L105 320 L105 78 L90 90 L65 55 Z" fill="#fff" stroke-width="1.5"/></svg>
+              </div>
+              <span class="collection-card-num">TEE / 01</span>
+              <h3 class="collection-card-title">OV™ HEAVYWEIGHT TEE</h3>
+              <div class="collection-card-price">₹2,499</div>
+              <div class="collection-card-btn">Explore Piece</div>
+            </div>
+
+            <div class="collection-card" onclick="navigateTo('product', 'hoodie-01')">
+              <div class="collection-card-visual">
+                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M150 4 C120 4 100 22 96 42 L70 30 L40 62 L64 96 L84 84 L84 320 L216 320 L216 84 L236 96 L260 62 L230 30 L204 42 C200 22 180 4 150 4 Z" fill="#111" stroke-width="1.5"/><path d="M118 40 Q150 70 182 40" stroke="#333" stroke-width="1.4" fill="none"/><circle cx="150" cy="150" r="3" fill="#333"/></svg>
+              </div>
+              <span class="collection-card-num">HOODIE / 02</span>
+              <h3 class="collection-card-title">OV™ BOXY FIT HOODIE</h3>
+              <div class="collection-card-price">₹4,299</div>
+              <div class="collection-card-btn">Explore Piece</div>
+            </div>
+
+            <div class="collection-card" onclick="navigateTo('product', 'pants-01')">
+              <div class="collection-card-visual">
+                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M100 10 L200 10 L206 130 L235 320 L190 320 L160 150 L140 150 L110 320 L65 320 L94 130 Z" fill="#222" stroke-dasharray="2" stroke-width="1.5"/></svg>
+              </div>
+              <span class="collection-card-num">PANTS / 03</span>
+              <h3 class="collection-card-title">OV™ SIGNATURE CARGO</h3>
+              <div class="collection-card-price">₹3,799</div>
+              <div class="collection-card-btn">Explore Piece</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== PAGE: PRODUCT DETAIL (PDP) ==================== -->
+  <main id="product-page" class="page-route">
+    <section class="product-detail-section">
+      <!-- Left side gallery -->
+      <div class="product-gallery">
+        <div class="gallery-thumbs" id="pdp-thumbs-container">
+          <!-- Thumbnail buttons injected dynamically -->
+        </div>
+        <div class="gallery-main">
+          <div class="gallery-main-canvas" id="pdp-main-image-container">
+            <!-- Big dynamic SVG injected here -->
+          </div>
+          <div class="zoom-overlay" style="background-image: url('https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=1200&q=80')"></div>
+        </div>
+      </div>
+
+      <!-- Right side information -->
+      <div class="product-info-column">
+        <span class="product-brand" id="pdp-brand-text">OV™ ORIGINAL VERSION</span>
+        <h1 class="product-name" id="pdp-product-name">OV™ Heavyweight Tee</h1>
+        
+        <div class="product-price-row" id="pdp-price-container">
+          <!-- Dynamic price line -->
+        </div>
+
+        <p class="product-meta-desc" id="pdp-material-desc">
+          Heavyweight organic cotton, cut in a relaxed silhouette. Double stitching at neck ribs and cuffs for high durability.
+        </p>
+
+        <!-- Stock Counter Indicator -->
+        <div class="stock-counter" id="pdp-stock-text">
+          <div class="pulse-dot"></div>
+          <span id="pdp-stock-count">ONLY 3 PIECES LEFT IN STOCK</span>
+        </div>
+
+        <!-- Intelligent Size recommendation form -->
+        <div class="size-recommend-box">
+          <div class="size-recommend-title">SMART SIZE RECOMMENDATION</div>
+          <div class="size-recommend-form">
+            <div class="size-input-field">
+              <label for="user-height">Height (cm)</label>
+              <input type="number" id="user-height" placeholder="e.g. 175" min="100" max="250">
+            </div>
+            <div class="size-input-field">
+              <label for="user-weight">Weight (kg)</label>
+              <input type="number" id="user-weight" placeholder="e.g. 70" min="30" max="150">
+            </div>
+            <button class="coupon-btn" id="get-size-recommend" style="height: 38px; align-self: flex-end;">FIND SIZE</button>
+          </div>
+          <div class="size-recommend-result" id="recommend-size-result"></div>
+        </div>
+
+        <!-- Size Selector buttons -->
+        <div class="size-selector-wrap">
+          <div class="size-selector-header">
+            <span class="color-label">SELECT SIZE:</span>
+            <span class="size-guide-btn" onclick="openModal('size-guide-modal')">SIZE GUIDE</span>
+          </div>
+          <div class="size-buttons">
+            <button class="size-btn" data-size="S">S</button>
+            <button class="size-btn active" data-size="M">M</button>
+            <button class="size-btn" data-size="L">L</button>
+            <button class="size-btn" data-size="XL">XL</button>
+          </div>
+        </div>
+
+        <!-- Quantity selector -->
+        <div class="size-selector-wrap">
+          <span class="color-label">QUANTITY:</span>
+          <div class="quantity-selector">
+            <button class="qty-btn" id="qty-minus">—</button>
+            <input type="text" class="qty-input" id="qty-value" value="1" readonly>
+            <button class="qty-btn" id="qty-plus">+</button>
+          </div>
+        </div>
+
+        <!-- Buy / Cart action CTA row -->
+        <div class="action-buttons">
+          <button class="luxury-btn" id="add-to-cart-btn">ADD TO BAG</button>
+          <button class="wishlist-toggle-btn" id="detail-wishlist-btn">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+
+        <!-- Accordions Info -->
+        <div class="product-accordion">
+          <div class="accordion-item active">
+            <div class="accordion-header">MATERIAL & WASH CARE <span class="accordion-icon">+</span></div>
+            <div class="accordion-content">
+              100% Cotton. Double brushed yarn weave. Machine wash cold with similar colors inside out. Do not tumble dry. Do not iron directly over printed patterns.
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-header">SHIPPING & RETURNS <span class="accordion-icon">+</span></div>
+            <div class="accordion-content">
+              Free express shipping all across India on orders over ₹2,999. Deliveries within 3-5 business days. 15-day hassle free return and exchanges.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bundle section: Frequently bought together -->
+    <section class="frequently-bought-section">
+      <div class="frequently-bought-title luxury-heading">FREQUENTLY BOUGHT TOGETHER</div>
+      <div class="fbt-bundle-wrapper" id="fbt-bundle-container">
+        <!-- Bundle items loaded dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Related Products Grid -->
+    <section class="frequently-bought-section" style="border-top:none; padding-top:0;">
+      <div class="frequently-bought-title luxury-heading" style="margin-bottom:30px;">RELATED ITEMS</div>
+      <div class="instagram-grid" id="featured-products-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <!-- Related items injected dynamically -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== 4. Luxury Footer ===== -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h3>OV™</h3>
+          <p>MINIMAL LUXURY STREETWEAR. ORIGINAL NEVER COPIES. DEVELOPED FOR INTENTIONAL WARDROBES.</p>
+        </div>
+        <div>
+          <h4 class="footer-col-title">SHOP</h4>
+          <ul class="footer-col-links">
+            <li><a href="#" onclick="navigateTo('shop'); return false;">New Arrivals</a></li>
+            <li><a href="#" onclick="navigateTo('shop'); return false;">Oversized Fit</a></li>
+            <li><a href="#" onclick="navigateTo('shop'); return false;">French Terry Hoodies</a></li>
+            <li><a href="#" onclick="navigateTo('shop'); return false;">Accessories</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">SUPPORT</h4>
+          <ul class="footer-col-links">
+            <li><a href="#" onclick="openModal('size-guide-modal'); return false;">Size Recommendations</a></li>
+            <li><a href="#" onclick="if(STATE.user) { openModal('profile-modal'); renderProfileDetails(); } else { openModal('auth-modal'); } return false;">Track Your Order</a></li>
+            <li><a href="#">Shipping Rates</a></li>
+            <li><a href="#">Returns Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">JOURNAL</h4>
+          <ul class="footer-col-links">
+            <li><a href="#">About OV™</a></li>
+            <li><a href="#">Fabric Engineering</a></li>
+            <li><a href="#">Visual Lookbooks</a></li>
+            <li><a href="#">Contact Desk</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">LEGAL</h4>
+          <ul class="footer-col-links">
+            <li><a href="#">Privacy Agreement</a></li>
+            <li><a href="#">Terms & Conditions</a></li>
+            <li><a href="#">Exchanges policy</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div>© 2026 OV — ORIGINAL VERSION. ALL RIGHTS RESERVED.</div>
+        <div class="footer-payments">
+          <span>UPI</span>
+          <span>RAZORPAY</span>
+          <span>STRIPE</span>
+          <span>COD</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       DRAWERS (CART AND WISHLIST PANELS)
+       ========================================================================== -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer('cart-drawer'); toggleDrawer('wishlist-drawer');"></div>
+
+  <!-- Cart Drawer -->
+  <div class="drawer-panel" id="cart-drawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title luxury-heading">BAG COPIES</h3>
+      <button class="close-drawer-btn" onclick="toggleDrawer('cart-drawer')">×</button>
+    </div>
+    
+    <div class="drawer-body" id="cart-items-container">
+      <!-- Cart items populated by app.js -->
+    </div>
+    
+    <div class="drawer-footer">
+      <div class="cart-summary-row">
+        <span>SUBTOTAL</span>
+        <span id="cart-subtotal">₹0</span>
+      </div>
+      <div class="cart-summary-row" id="cart-discount-row" style="display:none; color: #a03c3c;">
+        <span>COUPON DISCOUNT</span>
+        <span id="cart-discount-value">-₹0</span>
+      </div>
+      <div class="cart-summary-row">
+        <span>GST TAX (12%)</span>
+        <span id="cart-tax">₹0</span>
+      </div>
+      <div class="cart-summary-row">
+        <span>EXPRESS SHIPPING</span>
+        <span id="cart-shipping">FREE</span>
+      </div>
+      <div class="cart-summary-row total">
+        <span>GRAND TOTAL</span>
+        <span id="cart-total">₹0</span>
+      </div>
+      <button class="luxury-btn" style="width: 100%;" onclick="startCheckout()">SECURE CHECKOUT</button>
+    </div>
+  </div>
+
+  <!-- Wishlist Drawer -->
+  <div class="drawer-panel" id="wishlist-drawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title luxury-heading">WISHLIST COPIES</h3>
+      <button class="close-drawer-btn" onclick="toggleDrawer('wishlist-drawer')">×</button>
+    </div>
+    <div class="drawer-body" id="wishlist-items-container">
+      <!-- Wishlist items populated by app.js -->
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODALS (CHECKOUT, SIZE GUIDE, AUTHENTICATION, PROFILE PORTALS)
+       ========================================================================== -->
+  
+  <!-- Modal: Authentication (Login/OTP) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 class="luxury-heading">SIGN IN TO ORIGINAL</h3>
+        <button class="close-drawer-btn" onclick="closeModal('auth-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-form-group">
+          <label for="auth-email-input">Email Address</label>
+          <input type="email" class="auth-input" id="auth-email-input" placeholder="ENTER YOUR EMAIL" required>
+        </div>
+        
+        <div class="auth-form-group" id="auth-otp-input-field" style="display: none;">
+          <label for="auth-otp-input">Enter OTP Code</label>
+          <input type="text" class="auth-input" id="auth-otp-input" placeholder="ENTER 4-DIGIT CODE" maxlength="4">
+        </div>
+
+        <button class="luxury-btn" style="width: 100%; margin-top: 15px;" id="auth-submit-action" onclick="if(document.getElementById('auth-otp-input-field').style.display === 'none'){ simulateOTP(); } else { handleLoginSubmit(); }">
+          <span id="auth-otp-title">SEND SECURE OTP CODE</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Profile Dashboard -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-panel" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="luxury-heading">ORIGINAL PROFILE</h3>
+        <button class="close-drawer-btn" onclick="closeModal('profile-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="wallet-card">
+          <div>
+            <div class="wallet-balance-title">WALLET CREDITS</div>
+            <div class="wallet-balance-amount" id="profile-wallet-balance">₹1,200</div>
+          </div>
+          <div class="loyalty-badge" id="profile-loyalty-points">450 PTS</div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <div style="font-weight:600; font-size: 0.95rem; text-transform:uppercase; margin-bottom:5px;" id="profile-name-text">ADMIN ORIGINAL</div>
+          <div style="font-size:0.85rem; color:#666;" id="profile-email-text">admin@ov.com</div>
+        </div>
+
+        <div style="border-top:1px solid var(--border-color); padding-top:25px;">
+          <h4 class="luxury-heading" style="font-size: 1rem; margin-bottom: 20px;">ORDERS RECORD HISTORY</h4>
+          <div id="profile-orders-list">
+            <!-- Past order list injected by app.js -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="luxury-btn secondary" style="padding: 10px 25px;" onclick="handleLogout()">LOGOUT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Checkout -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-panel" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 class="luxury-heading">SECURE GATEWAY CHECKOUT</h3>
+        <button class="close-drawer-btn" onclick="closeModal('checkout-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="checkout-grid">
+          <!-- Left side forms -->
+          <div>
+            <h4 class="checkout-section-title">DELIVERY INFORMATION</h4>
+            <div class="auth-form-group">
+              <label for="checkout-address-input">Full shipping address</label>
+              <textarea class="auth-input" id="checkout-address-input" rows="3" placeholder="ENTER ADDRESS WITH PINCODE" style="resize:none;" required></textarea>
+            </div>
+            
+            <h4 class="checkout-section-title">PAYMENT PORTALS</h4>
+            <div class="payment-options">
+              <div class="payment-option-card active" onclick="selectPaymentMethod(this, 'UPI')">
+                <div class="payment-option-radio"></div>
+                <div class="payment-option-info">
+                  <span class="payment-option-name">UPI / SCAN QR (RAZORPAY)</span>
+                </div>
+              </div>
+              <div class="payment-option-card" onclick="selectPaymentMethod(this, 'STRIPE')">
+                <div class="payment-option-radio"></div>
+                <div class="payment-option-info">
+                  <span class="payment-option-name">CREDIT CARD / DEBIT CARD (STRIPE)</span>
+                </div>
+              </div>
+              <div class="payment-option-card" onclick="selectPaymentMethod(this, 'COD')">
+                <div class="payment-option-radio"></div>
+                <div class="payment-option-info">
+                  <span class="payment-option-name">CASH ON DELIVERY (COD)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side pricing totals -->
+          <div style="background-color: var(--light-gray); padding: 30px; border-radius: 4px;">
+            <h4 class="checkout-section-title" style="border-bottom:1px solid rgba(0,0,0,0.1);">ORDER DETAILS</h4>
+            <div id="checkout-items-list" style="margin-bottom: 20px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:15px;">
+              <!-- Items layout list -->
+            </div>
+            
+            <div class="cart-summary-row" style="font-size: 0.85rem;">
+              <span>SUBTOTAL</span>
+              <span id="checkout-subtotal">₹0</span>
+            </div>
+            <div class="cart-summary-row" id="checkout-discount-row" style="display:none; font-size: 0.85rem; color:#a03c3c;">
+              <span>COUPON SAVINGS</span>
+              <span id="checkout-discount-value">-₹0</span>
+            </div>
+            <div class="cart-summary-row" style="font-size: 0.85rem;">
+              <span>ESTIMATED TAX (12%)</span>
+              <span id="checkout-tax">₹0</span>
+            </div>
+            <div class="cart-summary-row" style="font-size: 0.85rem; margin-bottom: 20px;">
+              <span>SHIPPING</span>
+              <span id="checkout-shipping">FREE</span>
+            </div>
+            <div class="cart-summary-row total" style="border-top:1px solid rgba(0,0,0,0.15); padding-top:15px; margin-bottom: 20px;">
+              <span>TOTAL AMT</span>
+              <span id="checkout-total" style="font-size: 1.4rem;">₹0</span>
+            </div>
+
+            <!-- Coupon promo addition -->
+            <div class="coupon-input-wrap">
+              <input type="text" id="checkout-coupon-input" placeholder="ENTER CODE">
+              <button class="coupon-btn" onclick="applyPromoCoupon()">APPLY</button>
+            </div>
+            <div style="font-size: 0.75rem; color: #777; margin-top: 8px;">TRY: WELCOME500 (-₹500) OR ORIGINAL10 (-10%)</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="luxury-btn" style="width: 100%;" onclick="completeCheckoutOrder()">CONFIRM & PLACE ORDER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Order Status Live Tracking -->
+  <div class="modal-overlay" id="track-order-modal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 class="luxury-heading">LIVE ORDER LOGISTICS STATUS</h3>
+        <button class="close-drawer-btn" onclick="closeModal('track-order-modal')">×</button>
+      </div>
+      <div class="modal-body" id="track-order-modal-body">
+        <!-- Order status content loaded dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Size Guide Table -->
+  <div class="modal-overlay" id="size-guide-modal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 class="luxury-heading">SIZE CHART GUIDE</h3>
+        <button class="close-drawer-btn" onclick="closeModal('size-guide-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--medium-gray); margin-bottom: 20px;">All measurements in inches. Fit is oversized boxy shoulder drops.</p>
+        <table class="size-guide-table">
+          <thead>
+            <tr>
+              <th>SIZE</th>
+              <th>CHEST</th>
+              <th>LENGTH</th>
+              <th>SLEEVE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>S</td>
+              <td>44"</td>
+              <td>27.5"</td>
+              <td>8.5"</td>
+            </tr>
+            <tr>
+              <td>M</td>
+              <td>46"</td>
+              <td>28.5"</td>
+              <td>9.0"</td>
+            </tr>
+            <tr>
+              <td>L</td>
+              <td>48"</td>
+              <td>29.5"</td>
+              <td>9.5"</td>
+            </tr>
+            <tr>
+              <td>XL</td>
+              <td>50"</td>
+              <td>30.5"</td>
+              <td>10.0"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Write a Review -->
+  <div class="modal-overlay" id="write-review-modal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 class="luxury-heading">WRITE PRODUCT REVIEW</h3>
+        <button class="close-drawer-btn" onclick="closeModal('write-review-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-form-group">
+          <label for="review-author-name">Your Display Name</label>
+          <input type="text" class="auth-input" id="review-author-name" placeholder="e.g. ADITHYA K." required>
+        </div>
+        <div class="auth-form-group">
+          <label for="review-star-rating">Overall Rating</label>
+          <select class="auth-input" id="review-star-rating" style="cursor:pointer;">
+            <option value="5">★★★★★ (5/5)</option>
+            <option value="4">★★★★☆ (4/5)</option>
+            <option value="3">★★★☆☆ (3/5)</option>
+            <option value="2">★★☆☆☆ (2/5)</option>
+            <option value="1">★☆☆☆☆ (1/5)</option>
+          </select>
+        </div>
+        <div class="auth-form-group">
+          <label for="review-title-input">Review Headline</label>
+          <input type="text" class="auth-input" id="review-title-input" placeholder="e.g. AMAZING STRETCH AND FEEL">
+        </div>
+        <div class="auth-form-group">
+          <label for="review-body-input">Written Review Description</label>
+          <textarea class="auth-input" id="review-body-input" rows="4" placeholder="HOW DOES THE GSM WEIGHT FIT AND HANG ON YOU?" style="resize:none;" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="luxury-btn" onclick="submitReviewFromUser()">SUBMIT FEEDBACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Entry Point -->
+  <script src="app.js"></script>
+</body>
+</html>
