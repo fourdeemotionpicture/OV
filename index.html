@@ -48,9 +48,57 @@
     <div class="nav-container">
       <div class="nav-left">
         <ul class="nav-menu">
-          <li><a href="#" class="nav-link" onclick="navigateTo('home'); return false;">Home</a></li>
-          <li><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Shop</a></li>
-          <li><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Oversized</a></li>
+          <!-- Item 1 with Mega Menu -->
+          <li class="nav-item">
+            <a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Collections</a>
+            <div class="mega-menu-panel">
+              <div class="mega-column">
+                <h4>CLOTHING</h4>
+                <ul>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Heavyweight Tees</a></li>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Boxy Hoodies</a></li>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">French Terry Sweatshirts</a></li>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Cargo Pants</a></li>
+                </ul>
+              </div>
+              <div class="mega-column">
+                <h4>SHOP BY BRAND</h4>
+                <ul>
+                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ BLACK LABEL'); return false;">OV™ Black Label</a></li>
+                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ ESSENTIALS'); return false;">OV™ Essentials</a></li>
+                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ STUDIO'); return false;">OV™ Studio</a></li>
+                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ ACTIVE'); return false;">OV™ Active</a></li>
+                </ul>
+              </div>
+              <div class="mega-column">
+                <h4>ACCESSORIES</h4>
+                <ul>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Premium Caps</a></li>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Studio Tote Bags</a></li>
+                  <li><a href="#" onclick="navigateTo('shop'); return false;">Gift Cards</a></li>
+                </ul>
+              </div>
+              <div class="mega-column">
+                <h4>EXPLORE</h4>
+                <ul>
+                  <li><a href="#">The Journal</a></li>
+                  <li><a href="#">Visual Lookbook</a></li>
+                  <li><a href="#">Our Craftsmanship</a></li>
+                </ul>
+              </div>
+              <div class="mega-promo-banner" style="background-image: url('https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80')">
+                <div class="mega-promo-overlay"></div>
+                <div class="mega-promo-content">
+                  <div class="mega-promo-title">FORM 02 COLLECTION</div>
+                  <a href="#" class="mega-promo-btn" onclick="navigateTo('shop'); return false;">Shop The Drop</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          
+          <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Shop</a></li>
+          <li class="nav-item"><a href="#" class="nav-link" onclick="routeAndFilterByBrand('OV™ BLACK LABEL'); return false;">Black Label</a></li>
+          <li class="nav-item"><a href="#" class="nav-link" onclick="routeAndFilterByBrand('OV™ ESSENTIALS'); return false;">Essentials</a></li>
         </ul>
       </div>
       
@@ -59,15 +107,21 @@
       </div>
       
       <div class="nav-right">
-        <!-- Account Button -->
+        <!-- Search input bar -->
+        <div class="search-container">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="search-icon"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+          <input type="text" placeholder="Search Originals..." class="search-input" onfocus="navigateTo('shop');" id="header-search-bar" oninput="document.getElementById('catalog-search-bar').value = this.value; STATE.filters.search = this.value; filterCatalogProducts();">
+        </div>
+        
+        <!-- Account Profile Dashboard -->
         <button class="icon-button" onclick="if(STATE.user) { openModal('profile-modal'); renderProfileDetails(); } else { openModal('auth-modal'); }">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
         </button>
-        <!-- Wishlist Button -->
+        <!-- Wishlist drawer trigger -->
         <button class="icon-button" id="wishlist-nav-btn" onclick="toggleDrawer('wishlist-drawer')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
         </button>
-        <!-- Cart Button -->
+        <!-- Shopping Cart drawer trigger -->
         <button class="icon-button" onclick="toggleDrawer('cart-drawer')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
           <span class="badge-count bag-count">0</span>
@@ -107,14 +161,78 @@
   <!-- ==================== PAGE: HOME ==================== -->
   <main id="home-page" class="page-route active">
     
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-large-logo">OV™</h1>
-        <div class="hero-text-block">
-          <h2 class="hero-title">ORIGINAL VERSION</h2>
-          <p class="hero-subtitle">Crafted for Originals.</p>
-          <button class="luxury-btn" onclick="navigateTo('shop')">Discover Collection</button>
+    <!-- Full-Bleed Hero Slider Carousel -->
+    <section class="hero-slider-section">
+      <div class="hero-slider-wrapper">
+        <!-- Slide 1 -->
+        <div class="hero-slide active">
+          <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=80')"></div>
+          <div class="hero-slide-overlay"></div>
+          <div class="hero-slide-content">
+            <h1 class="hero-slide-title">THE BOXY FIT</h1>
+            <p class="hero-slide-desc">280 GSM Double-Combed Heavyweight Cotton</p>
+            <button class="luxury-btn" onclick="navigateTo('shop')">Explore Drop</button>
+          </div>
+        </div>
+        
+        <!-- Slide 2 -->
+        <div class="hero-slide">
+          <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=80')"></div>
+          <div class="hero-slide-overlay"></div>
+          <div class="hero-slide-content">
+            <h1 class="hero-slide-title">FORM 02 CAPSULE</h1>
+            <p class="hero-slide-desc">Minimal Luxury Architecture for the Body</p>
+            <button class="luxury-btn" onclick="navigateTo('shop')">Shop Collection</button>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="hero-slide">
+          <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1600&q=80')"></div>
+          <div class="hero-slide-overlay"></div>
+          <div class="hero-slide-content">
+            <h1 class="hero-slide-title">ESSENTIALS LINE</h1>
+            <p class="hero-slide-desc">French Terry Sweats Engineered to Outlast Trends</p>
+            <button class="luxury-btn" onclick="navigateTo('shop')">View Essentials</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carousel Navigation buttons -->
+      <button class="slider-arrow prev" aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6" /></svg>
+      </button>
+      <button class="slider-arrow next" aria-label="Next slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6" /></svg>
+      </button>
+      
+      <!-- Dots Index indicators -->
+      <div class="slider-dots"></div>
+    </section>
+
+    <!-- Brand Segment Grid (Iconic India Style Brand Grids) -->
+    <section class="brands-section">
+      <div class="brands-header">
+        <span class="eyebrow">SHOP BY COLLECTION LINE</span>
+        <h2>THE BRANDS OF OV™</h2>
+      </div>
+      
+      <div class="brands-grid">
+        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ BLACK LABEL')">
+          <div class="brand-card-logo">BLACK LABEL</div>
+          <span class="brand-card-desc">Boxy Heavyweight Tees</span>
+        </div>
+        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ ESSENTIALS')">
+          <div class="brand-card-logo">ESSENTIALS</div>
+          <span class="brand-card-desc">Heavyweight Hoodies</span>
+        </div>
+        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ STUDIO')">
+          <div class="brand-card-logo">STUDIO</div>
+          <span class="brand-card-desc">Cargos & Canvas Totes</span>
+        </div>
+        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ ACTIVE')">
+          <div class="brand-card-logo">ACTIVE</div>
+          <span class="brand-card-desc">Premium Caps & Gear</span>
         </div>
       </div>
     </section>
@@ -122,9 +240,8 @@
     <!-- 3D T-Shirt Reveal Section -->
     <section class="reveal-section">
       <div class="reveal-3d-container" id="reveal-canvas-container">
-        <!-- Three.js Canvas mounts here -->
         <div class="reveal-canvas-instructions">
-          <span><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Drag to Rotate</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Drag to Rotate</span>
           <span> Pinch to Zoom</span>
         </div>
       </div>
@@ -220,7 +337,7 @@
             <p class="timeline-desc">Every fit is drafted individually, balancing shoulder drops with strict vertical sleeve cuts to form the ultimate boxy shape.</p>
           </div>
           <div class="timeline-visual">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           </div>
         </div>
 
@@ -233,7 +350,7 @@
             <p class="timeline-desc">Double-combed 100% cotton panels are cut with laser precision to prevent warp or sizing variation between batches.</p>
           </div>
           <div class="timeline-visual">
-            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="9.8" y1="8.2" x2="21" y2="12.4"/><line x1="9.8" y1="15.8" x2="21" y2="11.6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="9.8" y1="8.2" x2="21" y2="12.4"/><line x1="9.8" y1="15.8" x2="21" y2="11.6"/></svg>
           </div>
         </div>
 
@@ -246,7 +363,7 @@
             <p class="timeline-desc">Dyed post-stitch inside specialized high-pressure drums. This ensures washed texture edges and vintage color depths.</p>
           </div>
           <div class="timeline-visual">
-            <svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
           </div>
         </div>
 
@@ -259,7 +376,7 @@
             <p class="timeline-desc">Pieces are lint-brushed, packed inside raw organic canvas dust bags, and wrapped inside custom matte silver boxes.</p>
           </div>
           <div class="timeline-visual">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
         </div>
       </div>
@@ -285,7 +402,7 @@
       </div>
     </section>
 
-    <!-- Customer Reviews Grid slider -->
+    <!-- Customer Reviews Grid -->
     <section class="reviews-section">
       <div class="reviews-grid">
         <div class="reviews-summary">
@@ -352,37 +469,51 @@
   <main id="shop-page" class="page-route">
     <div style="padding: 140px 40px 80px; max-width: 1600px; margin: 0 auto;">
       <span class="eyebrow"><a href="#" onclick="navigateTo('home'); return false;">Home</a> / Shop Catalog</span>
-      <h1 class="luxury-heading" style="font-size: 3rem; margin-top: 15px; margin-bottom: 40px;">ALL PIECES</h1>
       
+      <!-- Brand indicators -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 30px;">
+        <h1 class="luxury-heading" style="font-size: 3rem; margin-top: 15px; margin-bottom: 0px;">ALL PIECES</h1>
+        <div id="catalog-brand-indicator-wrapper" style="display:none; align-items:center; gap:10px; background-color:var(--black); color:white; padding:8px 16px; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase;">
+          <span>BRAND: <strong id="catalog-active-brand-indicator">OV™ BLACK LABEL</strong></span>
+          <button style="background:none; border:none; color:white; font-size:1.1rem; cursor:pointer;" onclick="clearBrandFilter()">×</button>
+        </div>
+      </div>
+
       <div class="checkout-grid" style="grid-template-columns: 240px 1fr; gap: 40px;">
         <!-- Left filter sidebar -->
         <aside style="display:flex; flex-direction:column; gap:30px;">
           <div>
+            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">SEARCH</h4>
+            <input type="text" id="catalog-search-bar" placeholder="SEARCH TEXT..." style="width:100%; padding:10px; border:1px solid var(--border-color); outline:none; font-family:inherit; font-size:0.8rem; text-transform:uppercase;">
+          </div>
+
+          <div>
             <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">CATEGORIES</h4>
             <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" checked> Oversized Tees</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Boxy Hoodies</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Cargo Bottoms</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox"> Premium Caps</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'tee')"> Oversized Tees</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'hoodie')"> Boxy Hoodies</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'pants')"> Cargo Bottoms</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'cap')"> Premium Caps</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'bag')"> Canvas Totes</label>
             </div>
           </div>
 
           <div>
             <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">SIZES</h4>
             <div class="size-buttons" style="flex-wrap:wrap; gap:8px;">
-              <button class="size-btn" style="width:40px; height:40px;">S</button>
-              <button class="size-btn active" style="width:40px; height:40px;">M</button>
-              <button class="size-btn" style="width:40px; height:40px;">L</button>
-              <button class="size-btn" style="width:40px; height:40px;">XL</button>
+              <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'S')">S</button>
+              <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'M')">M</button>
+              <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'L')">L</button>
+              <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'XL')">XL</button>
             </div>
           </div>
 
           <div>
             <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">PRICE RANGE</h4>
-            <input type="range" min="1000" max="6000" value="4000" style="width:100%;">
+            <input type="range" id="catalog-price-slider" min="1500" max="6000" value="6000" style="width:100%;">
             <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px; color:#666;">
-              <span>₹1,000</span>
-              <span>₹6,000</span>
+              <span>MAX PRICE:</span>
+              <span id="catalog-price-slider-value" style="font-weight:600; color:black;">₹6,000</span>
             </div>
           </div>
         </aside>
@@ -390,8 +521,8 @@
         <!-- Right side grid -->
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:15px; margin-bottom:30px;">
-            <div style="font-size:0.85rem; color:#777;">5 ORIGINALS FOUND</div>
-            <select style="border:none; background:none; font-family:inherit; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; outline:none; cursor:pointer;">
+            <div style="font-size:0.85rem; color:#777;" id="catalog-items-found-count">9 ORIGINALS FOUND</div>
+            <select style="border:none; background:none; font-family:inherit; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; outline:none; cursor:pointer;" onchange="STATE.products.reverse(); filterCatalogProducts();">
               <option>FEATURED SORT</option>
               <option>PRICE: LOW TO HIGH</option>
               <option>PRICE: HIGH TO LOW</option>
@@ -399,36 +530,7 @@
           </div>
           
           <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;" id="shop-catalog-grid">
-            <!-- Programmatically render same collection-cards style products -->
-            <div class="collection-card" onclick="navigateTo('product', 'tee-01')">
-              <div class="collection-card-visual">
-                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M95 20 L120 8 C130 24 170 24 180 8 L205 20 L235 55 L210 90 L195 78 L195 320 L105 320 L105 78 L90 90 L65 55 Z" fill="#fff" stroke-width="1.5"/></svg>
-              </div>
-              <span class="collection-card-num">TEE / 01</span>
-              <h3 class="collection-card-title">OV™ HEAVYWEIGHT TEE</h3>
-              <div class="collection-card-price">₹2,499</div>
-              <div class="collection-card-btn">Explore Piece</div>
-            </div>
-
-            <div class="collection-card" onclick="navigateTo('product', 'hoodie-01')">
-              <div class="collection-card-visual">
-                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M150 4 C120 4 100 22 96 42 L70 30 L40 62 L64 96 L84 84 L84 320 L216 320 L216 84 L236 96 L260 62 L230 30 L204 42 C200 22 180 4 150 4 Z" fill="#111" stroke-width="1.5"/><path d="M118 40 Q150 70 182 40" stroke="#333" stroke-width="1.4" fill="none"/><circle cx="150" cy="150" r="3" fill="#333"/></svg>
-              </div>
-              <span class="collection-card-num">HOODIE / 02</span>
-              <h3 class="collection-card-title">OV™ BOXY FIT HOODIE</h3>
-              <div class="collection-card-price">₹4,299</div>
-              <div class="collection-card-btn">Explore Piece</div>
-            </div>
-
-            <div class="collection-card" onclick="navigateTo('product', 'pants-01')">
-              <div class="collection-card-visual">
-                <svg viewBox="0 0 300 340" fill="none" style="width:70%; height:70%; stroke:#111;"><path d="M100 10 L200 10 L206 130 L235 320 L190 320 L160 150 L140 150 L110 320 L65 320 L94 130 Z" fill="#222" stroke-dasharray="2" stroke-width="1.5"/></svg>
-              </div>
-              <span class="collection-card-num">PANTS / 03</span>
-              <h3 class="collection-card-title">OV™ SIGNATURE CARGO</h3>
-              <div class="collection-card-price">₹3,799</div>
-              <div class="collection-card-btn">Explore Piece</div>
-            </div>
+            <!-- Dynamic products loaded here -->
           </div>
         </div>
       </div>
@@ -470,6 +572,17 @@
           <span id="pdp-stock-count">ONLY 3 PIECES LEFT IN STOCK</span>
         </div>
 
+        <!-- size selection layout -->
+        <div class="size-selector-wrap">
+          <div class="size-selector-header">
+            <span class="color-label">SELECT SIZE:</span>
+            <span class="size-guide-btn" onclick="openModal('size-guide-modal')">SIZE GUIDE</span>
+          </div>
+          <div class="size-buttons">
+            <!-- Injected by app.js based on product sizes -->
+          </div>
+        </div>
+
         <!-- Intelligent Size recommendation form -->
         <div class="size-recommend-box">
           <div class="size-recommend-title">SMART SIZE RECOMMENDATION</div>
@@ -487,22 +600,18 @@
           <div class="size-recommend-result" id="recommend-size-result"></div>
         </div>
 
-        <!-- Size Selector buttons -->
-        <div class="size-selector-wrap">
-          <div class="size-selector-header">
-            <span class="color-label">SELECT SIZE:</span>
-            <span class="size-guide-btn" onclick="openModal('size-guide-modal')">SIZE GUIDE</span>
+        <!-- Delivery Pincode Checker (Iconic India Feature) -->
+        <div class="pincode-checker-container">
+          <span class="pincode-label">DELIVERY ESTIMATE & COD CHECK</span>
+          <div class="pincode-input-row">
+            <input type="text" id="checkout-pincode-input" class="pincode-input" placeholder="ENTER 6-DIGIT PINCODE (e.g. 600006)" maxlength="6">
+            <button class="coupon-btn" id="check-pincode-btn" style="height:44px; padding:0 25px;">CHECK</button>
           </div>
-          <div class="size-buttons">
-            <button class="size-btn" data-size="S">S</button>
-            <button class="size-btn active" data-size="M">M</button>
-            <button class="size-btn" data-size="L">L</button>
-            <button class="size-btn" data-size="XL">XL</button>
-          </div>
+          <div class="pincode-result" id="pincode-check-result"></div>
         </div>
 
         <!-- Quantity selector -->
-        <div class="size-selector-wrap">
+        <div class="size-selector-wrap" style="margin-top: 10px;">
           <span class="color-label">QUANTITY:</span>
           <div class="quantity-selector">
             <button class="qty-btn" id="qty-minus">—</button>

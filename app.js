@@ -5,11 +5,15 @@
 // Global State
 const STATE = {
   products: [
-    { id: 'tee-01', name: 'OV™ Heavyweight Tee', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', badge: 'NEW', stock: 5, reviews: [], rating: 4.8 },
-    { id: 'hoodie-01', name: 'OV™ Boxy fit Hoodie', baseName: 'Boxy fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', badge: 'SALE', stock: 3, reviews: [], rating: 4.9 },
-    { id: 'pants-01', name: 'OV™ Signature Cargo', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', badge: null, stock: 8, reviews: [], rating: 4.7 },
-    { id: 'cap-01', name: 'OV™ Premium Cap', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', badge: null, stock: 12, reviews: [], rating: 4.5 },
-    { id: 'bag-01', name: 'OV™ Studio Canvas Tote', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', badge: 'SALE', stock: 4, reviews: [], rating: 4.6 }
+    { id: 'tee-01', name: 'OV™ Heavyweight Tee - Onyx', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 3, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8 },
+    { id: 'tee-02', name: 'OV™ Heavyweight Tee - Ivory', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2499, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 8, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.7 },
+    { id: 'hoodie-01', name: 'OV™ Boxy Fit Hoodie - Slate', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: 'SALE', stock: 2, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.9 },
+    { id: 'hoodie-02', name: 'OV™ Boxy Fit Hoodie - Bone', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 4299, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: null, stock: 6, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8 },
+    { id: 'pants-01', name: 'OV™ Signature Cargo - Onyx', baseName: 'Signature Cargo', price: 3799, originalPrice: 4499, type: 'pants', brand: 'OV™ STUDIO', badge: 'SALE', stock: 4, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.6 },
+    { id: 'pants-02', name: 'OV™ Signature Cargo - Slate', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', brand: 'OV™ STUDIO', badge: null, stock: 9, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.5 },
+    { id: 'cap-01', name: 'OV™ Premium Cap - Black', baseName: 'Premium Cap', price: 1599, originalPrice: 1999, type: 'cap', brand: 'OV™ ACTIVE', badge: 'SALE', stock: 11, sizes: ['O/S'], reviews: [], rating: 4.4 },
+    { id: 'cap-02', name: 'OV™ Premium Cap - Sand', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', brand: 'OV™ ACTIVE', badge: null, stock: 15, sizes: ['O/S'], reviews: [], rating: 4.3 },
+    { id: 'bag-01', name: 'OV™ Studio Canvas Tote - Cream', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', brand: 'OV™ STUDIO', badge: 'SALE', stock: 3, sizes: ['O/S'], reviews: [], rating: 4.6 }
   ],
   cart: JSON.parse(localStorage.getItem('ov_cart')) || [],
   wishlist: JSON.parse(localStorage.getItem('ov_wishlist')) || [],
@@ -22,14 +26,22 @@ const STATE = {
   quantity: 1,
   activeProduct: null,
   currentRoute: 'home',
+  filters: {
+    search: '',
+    category: [],
+    brand: '',
+    size: '',
+    priceMax: 6000
+  },
   orders: JSON.parse(localStorage.getItem('ov_orders')) || [
     {
       orderId: 'OV-98172',
       date: '2026-07-10',
-      items: [{ name: 'OV™ Heavyweight Tee', qty: 1, price: 2499, color: 'White', size: 'L' }],
+      items: [{ name: 'OV™ Heavyweight Tee - Onyx', qty: 1, price: 2499, color: 'White', size: 'L' }],
       total: 2499,
       status: 'shipped',
-      trackingStep: 2
+      trackingStep: 3,
+      address: '24, Khader Nawaz Khan Road, Nungambakkam, Chennai - 600006'
     }
   ]
 };
@@ -66,7 +78,7 @@ const SVGS = {
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
-  STATE.activeProduct = STATE.products[0]; // Set default active product
+  STATE.activeProduct = STATE.products[0];
 
   setupOpeningLoader();
   setupCustomCursor();
@@ -79,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSizeGuide();
   setupProductZoom();
   setupAccordions();
+  setupHeroSlider();
+  setupPincodeChecker();
+  setupCatalogSearchAndFilters();
 
   // Render initial feeds
   renderProductGrid('plp-products-grid', STATE.products);
@@ -92,12 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================================== */
 function setupOpeningLoader() {
   const loader = document.getElementById('opening-loader');
-  const bar = document.querySelector('.loader-bar');
   const body = document.body;
 
   body.classList.add('no-scroll');
 
-  // Disable scroll during loading
   setTimeout(() => {
     loader.classList.add('loaded');
     body.classList.remove('no-scroll');
@@ -121,8 +134,7 @@ function setupCustomCursor() {
     gsap.to(follower, { x: e.clientX, y: e.clientY, duration: 0.12 });
   });
 
-  // Scale up cursor on interactive elements
-  const interactives = 'a, button, .swatch, .size-btn, input, select, textarea, [onclick], .collection-card';
+  const interactives = 'a, button, .swatch, .size-btn, input, select, textarea, [onclick], .collection-card, .brand-card';
   document.addEventListener('mouseover', (e) => {
     if (e.target.closest(interactives)) {
       cursor.classList.add('hovered');
@@ -142,7 +154,6 @@ function setupCustomCursor() {
    3. Navigation, Page Switching (SPA router)
    ========================================================================== */
 function setupNavigation() {
-  // Sticky Header scroll direction detection
   let lastScroll = 0;
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
@@ -154,32 +165,25 @@ function setupNavigation() {
     }
 
     if (currentScroll > lastScroll && !header.classList.contains('hide')) {
-      // scrolling down
       header.classList.add('hide');
     } else if (currentScroll < lastScroll && header.classList.contains('hide')) {
-      // scrolling up
       header.classList.remove('hide');
     }
     lastScroll = currentScroll;
   });
 
-  // Mobile Bottom Navigation Bar Action
   const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
   mobileNavItems.forEach(item => {
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', () => {
       mobileNavItems.forEach(n => n.classList.remove('active'));
       const target = item.getAttribute('data-route');
       item.classList.add('active');
 
-      if (target === 'home') {
-        navigateTo('home');
-      } else if (target === 'shop') {
-        navigateTo('shop');
-      } else if (target === 'cart') {
-        toggleDrawer('cart-drawer');
-      } else if (target === 'wishlist') {
-        toggleDrawer('wishlist-drawer');
-      } else if (target === 'profile') {
+      if (target === 'home') navigateTo('home');
+      else if (target === 'shop') navigateTo('shop');
+      else if (target === 'cart') toggleDrawer('cart-drawer');
+      else if (target === 'wishlist') toggleDrawer('wishlist-drawer');
+      else if (target === 'profile') {
         if (STATE.user) {
           openModal('profile-modal');
           renderProfileDetails();
@@ -203,6 +207,7 @@ function navigateTo(route, productId = null) {
   } else if (route === 'shop') {
     document.getElementById('shop-page').classList.add('active');
     STATE.currentRoute = 'shop';
+    renderShopCatalog();
   } else if (route === 'product') {
     document.getElementById('product-page').classList.add('active');
     STATE.currentRoute = 'product';
@@ -215,14 +220,10 @@ function navigateTo(route, productId = null) {
     }
   }
 
-  // Update mobile bottom nav state
   const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
   mobileNavItems.forEach(n => {
-    if (n.getAttribute('data-route') === route) {
-      n.classList.add('active');
-    } else {
-      n.classList.remove('active');
-    }
+    if (n.getAttribute('data-route') === route) n.classList.add('active');
+    else n.classList.remove('active');
   });
 }
 
@@ -234,14 +235,84 @@ function setupAnnouncements() {
   const items = document.querySelectorAll('.announcement-item');
   let current = 0;
 
-  setInterval(() => {
-    current = (current + 1) % items.length;
-    slider.style.transform = `translateY(-${current * 32}px)`;
-  }, 4000);
+  if (slider && items.length > 0) {
+    setInterval(() => {
+      current = (current + 1) % items.length;
+      slider.style.transform = `translateY(-${current * 32}px)`;
+    }, 4000);
+  }
 }
 
 /* ==========================================================================
-   5. Three.js 3D T-Shirt Reveal Canvas
+   5. Hero Full-Bleed Slider (Iconic India Style)
+   ========================================================================== */
+function setupHeroSlider() {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dotsContainer = document.querySelector('.slider-dots');
+  let currentSlide = 0;
+  let slideInterval;
+
+  if (slides.length === 0) return;
+
+  // Render Dot Indicators
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
+    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    dot.addEventListener('click', () => {
+      changeSlide(i);
+      resetAutoPlay();
+    });
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = document.querySelectorAll('.slider-dot');
+
+  // Change Slide Action
+  function changeSlide(index) {
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    
+    currentSlide = (index + slides.length) % slides.length;
+    
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }
+
+  // Next / Prev triggers
+  const prevBtn = document.querySelector('.slider-arrow.prev');
+  const nextBtn = document.querySelector('.slider-arrow.next');
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      changeSlide(currentSlide - 1);
+      resetAutoPlay();
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      changeSlide(currentSlide + 1);
+      resetAutoPlay();
+    });
+  }
+
+  // Auto cycling
+  function startAutoPlay() {
+    slideInterval = setInterval(() => {
+      changeSlide(currentSlide + 1);
+    }, 6000);
+  }
+
+  function resetAutoPlay() {
+    clearInterval(slideInterval);
+    startAutoPlay();
+  }
+
+  startAutoPlay();
+}
+
+/* ==========================================================================
+   6. Three.js 3D T-Shirt Reveal Canvas
    ========================================================================== */
 let scene3D, camera3D, renderer3D, tshirtMesh;
 let lights = {};
@@ -253,15 +324,12 @@ function setupThreeJSReveal() {
   const width = container.clientWidth;
   const height = container.clientHeight;
 
-  // Scene
   scene3D = new THREE.Scene();
   scene3D.background = new THREE.Color(0xffffff);
 
-  // Camera
   camera3D = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
   camera3D.position.set(0, 0, 5);
 
-  // Renderer
   renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer3D.setSize(width, height);
   renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -269,7 +337,6 @@ function setupThreeJSReveal() {
   renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer3D.domElement);
 
-  // Controls
   const controls = new THREE.OrbitControls(camera3D, renderer3D.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
@@ -277,7 +344,6 @@ function setupThreeJSReveal() {
   controls.minDistance = 3;
   controls.maxDistance = 8;
 
-  // Lights
   lights.ambient = new THREE.AmbientLight(0xffffff, 0.7);
   scene3D.add(lights.ambient);
 
@@ -293,27 +359,21 @@ function setupThreeJSReveal() {
   lights.fillLight.position.set(-3, -1, -2);
   scene3D.add(lights.fillLight);
 
-  // Create Custom programmatical 3D T-Shirt shape
   tshirtMesh = createTShirtMesh();
   scene3D.add(tshirtMesh);
 
-  // Animation Loop
   function animate() {
     requestAnimationFrame(animate);
     controls.update();
 
-    if (tshirtMesh) {
-      // Slow background rotation when not dragging
-      if (!controls.state === -1) {
-        tshirtMesh.rotation.y += 0.004;
-      }
+    if (tshirtMesh && controls.state === -1) {
+      tshirtMesh.rotation.y += 0.004;
     }
 
     renderer3D.render(scene3D, camera3D);
   }
   animate();
 
-  // Resize Handler
   window.addEventListener('resize', () => {
     if (!container) return;
     const w = container.clientWidth;
@@ -323,13 +383,11 @@ function setupThreeJSReveal() {
     renderer3D.setSize(w, h);
   });
 
-  // Shadow wrinkle effect on hover
   container.addEventListener('mousemove', (e) => {
     const rect = container.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
-    // Move spotlight slightly with cursor to shift shadows dynamically
     gsap.to(lights.mainSpot.position, {
       x: 2 + x * 1.5,
       y: 4 + y * 1.5,
@@ -342,23 +400,19 @@ function setupThreeJSReveal() {
 function createTShirtMesh() {
   const tshirtGroup = new THREE.Group();
 
-  // T-Shirt Color Material (Matte rough fabric texture simulation)
   const fabricMaterial = new THREE.MeshStandardMaterial({
-    color: 0xffffff, // Initial color (White)
+    color: 0xffffff,
     roughness: 0.85,
     metalness: 0.1,
-    flatShading: false,
     side: THREE.DoubleSide
   });
 
-  // Body: Box with rounded edges or Extruded Shape
   const bodyGeo = new THREE.CylinderGeometry(0.85, 0.9, 2.0, 32, 1);
   const body = new THREE.Mesh(bodyGeo, fabricMaterial);
   body.castShadow = true;
   body.receiveShadow = true;
   tshirtGroup.add(body);
 
-  // Sleeves Left
   const sleeveLGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
   const sleeveL = new THREE.Mesh(sleeveLGeo, fabricMaterial);
   sleeveL.position.set(-0.85, 0.7, 0);
@@ -367,7 +421,6 @@ function createTShirtMesh() {
   sleeveL.receiveShadow = true;
   tshirtGroup.add(sleeveL);
 
-  // Sleeves Right
   const sleeveRGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
   const sleeveR = new THREE.Mesh(sleeveRGeo, fabricMaterial);
   sleeveR.position.set(0.85, 0.7, 0);
@@ -376,21 +429,17 @@ function createTShirtMesh() {
   sleeveR.receiveShadow = true;
   tshirtGroup.add(sleeveR);
 
-  // Neck collar ring
   const collarGeo = new THREE.TorusGeometry(0.32, 0.06, 16, 32);
   const collar = new THREE.Mesh(collarGeo, fabricMaterial);
   collar.position.set(0, 1.02, 0);
   collar.rotation.x = Math.PI / 2;
   tshirtGroup.add(collar);
 
-  // Center group slightly
   tshirtGroup.position.y = -0.3;
-
   return tshirtGroup;
 }
 
 function switch3DColor(colorName, element) {
-  // Update Swatch UI active state
   const swatches = document.querySelectorAll('.swatch');
   swatches.forEach(s => s.classList.remove('active'));
   element.classList.add('active');
@@ -398,15 +447,10 @@ function switch3DColor(colorName, element) {
   STATE.activeColor = colorName;
   let targetColor;
 
-  if (colorName === 'white') {
-    targetColor = 0xffffff;
-  } else if (colorName === 'black') {
-    targetColor = 0x111111;
-  } else if (colorName === 'cream') {
-    targetColor = 0xf3efe0;
-  }
+  if (colorName === 'white') targetColor = 0xffffff;
+  else if (colorName === 'black') targetColor = 0x111111;
+  else if (colorName === 'cream') targetColor = 0xf3efe0;
 
-  // Smoothly transition material color in Three.js
   if (tshirtMesh) {
     tshirtMesh.traverse((child) => {
       if (child.isMesh) {
@@ -423,13 +467,13 @@ function switch3DColor(colorName, element) {
 }
 
 /* ==========================================================================
-   6. Lenis Smooth Scroll Setup
+   7. Lenis Smooth Scroll Setup
    ========================================================================== */
 let lenis;
 function setupLenisScroll() {
   lenis = new Lenis({
     duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutQuart
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     direction: 'vertical',
     gestureDirection: 'vertical',
     smooth: true,
@@ -445,25 +489,18 @@ function setupLenisScroll() {
   }
   requestAnimationFrame(raf);
 
-  // Connect Lenis to GSAP ScrollTrigger
   lenis.on('scroll', ScrollTrigger.update);
-
-  gsap.ticker.add((time)=>{
+  gsap.ticker.add((time) => {
     lenis.raf(time * 1000);
   });
   gsap.ticker.lagSmoothing(0);
 }
 
 /* ==========================================================================
-   7. GSAP Scroll Trigger Animations
+   8. GSAP Scroll Trigger Animations
    ========================================================================== */
 function setupGSAPAnimations() {
   gsap.registerPlugin(ScrollTrigger);
-
-  // Hero Section Animations
-  const tlHero = gsap.timeline({ defaults: { ease: "power4.out" } });
-  tlHero.to('.hero-large-logo', { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.8, delay: 0.5 })
-        .to('.hero-text-block', { opacity: 1, translateY: 0, duration: 1.2 }, "-=1.0");
 
   // Word-by-word Story Section Reveal
   const storyHeading = document.querySelector('.story-heading');
@@ -471,7 +508,6 @@ function setupGSAPAnimations() {
     const text = storyHeading.innerText;
     storyHeading.innerHTML = '';
     
-    // Split into words
     const words = text.split(/\s+/);
     words.forEach(word => {
       const span = document.createElement('span');
@@ -540,15 +576,14 @@ function updateTimelineProgress(activeIndex) {
     return;
   }
   
-  const percentage = ((activeIndex) / (items.length - 1)) * 100;
+  const percentage = (activeIndex / (items.length - 1)) * 100;
   progressBar.style.height = `${percentage}%`;
 }
 
 /* ==========================================================================
-   8. E-Commerce Functionality (Cart, Wishlist, Coupons, Wallet, Checkout)
+   9. E-Commerce Core Logic (Cart, Wishlist, Coupons, Wallet, Checkout)
    ========================================================================== */
 function setupEcommerce() {
-  // Add to Cart Button handler
   const addToCartBtn = document.getElementById('add-to-cart-btn');
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', () => {
@@ -558,7 +593,6 @@ function setupEcommerce() {
     });
   }
 
-  // Wishlist toggle handler on product details
   const wishlistBtn = document.getElementById('detail-wishlist-btn');
   if (wishlistBtn) {
     wishlistBtn.addEventListener('click', () => {
@@ -568,7 +602,6 @@ function setupEcommerce() {
     });
   }
 
-  // Size buttons handler on PDP
   const sizeBtns = document.querySelectorAll('.size-btn');
   sizeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -578,7 +611,6 @@ function setupEcommerce() {
     });
   });
 
-  // Quantity control buttons
   const qtyMinus = document.getElementById('qty-minus');
   const qtyPlus = document.getElementById('qty-plus');
   const qtyVal = document.getElementById('qty-value');
@@ -598,7 +630,6 @@ function setupEcommerce() {
   }
 }
 
-// Add Item to Cart
 function addToCart(productId, color, size, qty) {
   const item = STATE.products.find(p => p.id === productId);
   if (!item) return;
@@ -625,7 +656,6 @@ function addToCart(productId, color, size, qty) {
   showNotification('ADDED TO BAG');
 }
 
-// Remove Item from Cart
 function removeFromCart(productId, color, size) {
   STATE.cart = STATE.cart.filter(item => !(item.id === productId && item.color === color && item.size === size));
   localStorage.setItem('ov_cart', JSON.stringify(STATE.cart));
@@ -643,7 +673,6 @@ function updateCartBadge() {
   });
 }
 
-// Toggle Wishlist item
 function toggleWishlist(productId) {
   const index = STATE.wishlist.indexOf(productId);
   if (index > -1) {
@@ -665,7 +694,6 @@ function updateWishlistBadge() {
   }
 }
 
-// Renders the Cart Drawer panel
 function renderCartDrawer() {
   const container = document.getElementById('cart-items-container');
   if (!container) return;
@@ -700,10 +728,9 @@ function renderCartDrawer() {
   updateCartSummary();
 }
 
-// Updates Subtotals, Taxes, Shipping and Grand Totals
 function updateCartSummary() {
   const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = Math.round(subtotal * 0.12); // 12% GST simulation
+  const tax = Math.round(subtotal * 0.12);
   const shipping = subtotal > 2999 || subtotal === 0 ? 0 : 150;
   
   let discount = 0;
@@ -737,7 +764,6 @@ function updateCartSummary() {
   }
 }
 
-// Renders the Wishlist Drawer panel
 function renderWishlistDrawer() {
   const container = document.getElementById('wishlist-items-container');
   if (!container) return;
@@ -777,7 +803,6 @@ function wishlistToCart(productId) {
   toggleWishlist(productId);
 }
 
-// Coupon system handler
 function applyPromoCoupon() {
   const input = document.getElementById('checkout-coupon-input');
   if (!input) return;
@@ -799,7 +824,165 @@ function applyPromoCoupon() {
 }
 
 /* ==========================================================================
-   9. Size Guide & Smart Size Recommendation Engine
+   10. Delivery Pincode Lookup (India Metro Logic)
+   ========================================================================== */
+function setupPincodeChecker() {
+  const pincodeBtn = document.getElementById('check-pincode-btn');
+  const pincodeInput = document.getElementById('checkout-pincode-input');
+  const resultDiv = document.getElementById('pincode-check-result');
+
+  if (!pincodeBtn || !pincodeInput || !resultDiv) return;
+
+  pincodeBtn.addEventListener('click', () => {
+    const code = pincodeInput.value.trim();
+
+    if (!/^\d{6}$/.test(code)) {
+      resultDiv.className = 'pincode-result error';
+      resultDiv.style.display = 'block';
+      resultDiv.textContent = '⚠ PLEASE ENTER A VALID 6-DIGIT INDIAN PINCODE (e.g. 600006)';
+      return;
+    }
+
+    // Metro Area Prefix Checking (Chennai, Bangalore, Mumbai, Delhi, etc.)
+    const isMetro = ['600', '560', '400', '110', '700', '500'].some(prefix => code.startsWith(prefix));
+    const isRemote = ['799', '190', '744'].some(prefix => code.startsWith(prefix));
+
+    resultDiv.className = 'pincode-result success';
+    resultDiv.style.display = 'block';
+
+    if (isMetro) {
+      resultDiv.innerHTML = `✓ EXPRESS DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>2 Days (Metro Fast-track)</strong><br>• Cash on Delivery (COD) Available`;
+    } else if (isRemote) {
+      resultDiv.innerHTML = `✓ STANDARD DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>7-9 Days (Remote Location)</strong><br>• Prepaid Orders Only (COD Not Available)`;
+    } else {
+      resultDiv.innerHTML = `✓ STANDARD SHIPPING AVAILABLE<br>• Estimated Delivery: <strong>4-5 Days</strong><br>• Cash on Delivery (COD) Available`;
+    }
+  });
+}
+
+/* ==========================================================================
+   11. Smart Catalog Search & Filter Engine (Iconic India Style Sidebar)
+   ========================================================================== */
+function setupCatalogSearchAndFilters() {
+  const searchInput = document.getElementById('catalog-search-bar');
+  const priceSlider = document.getElementById('catalog-price-slider');
+  const priceValueText = document.getElementById('catalog-price-slider-value');
+  const activeBrandText = document.getElementById('catalog-active-brand-indicator');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      STATE.filters.search = e.target.value.trim();
+      filterCatalogProducts();
+    });
+  }
+
+  if (priceSlider && priceValueText) {
+    priceSlider.addEventListener('input', (e) => {
+      STATE.filters.priceMax = parseInt(e.target.value);
+      priceValueText.textContent = `₹${STATE.filters.priceMax.toLocaleString('en-IN')}`;
+      filterCatalogProducts();
+    });
+  }
+}
+
+// Brand Segment routing from Home Grid
+function routeAndFilterByBrand(brandName) {
+  STATE.filters.brand = brandName;
+  
+  // Show active indicator on shop catalog
+  const activeBrandText = document.getElementById('catalog-active-brand-indicator');
+  const wrapperIndicator = document.getElementById('catalog-brand-indicator-wrapper');
+  if (activeBrandText && wrapperIndicator) {
+    activeBrandText.textContent = brandName.toUpperCase();
+    wrapperIndicator.style.display = 'flex';
+  }
+
+  navigateTo('shop');
+  filterCatalogProducts();
+}
+
+function clearBrandFilter() {
+  STATE.filters.brand = '';
+  const wrapperIndicator = document.getElementById('catalog-brand-indicator-wrapper');
+  if (wrapperIndicator) wrapperIndicator.style.display = 'none';
+  filterCatalogProducts();
+}
+
+// Toggles individual filters in sidebar (Categories and Sizes)
+function toggleSidebarFilterCheckbox(element, type, value) {
+  if (type === 'category') {
+    if (element.checked) {
+      STATE.filters.category.push(value);
+    } else {
+      STATE.filters.category = STATE.filters.category.filter(v => v !== value);
+    }
+  }
+  filterCatalogProducts();
+}
+
+function toggleSidebarFilterSize(element, sizeValue) {
+  const sizeBtns = document.querySelectorAll('.catalog-filter-size-btn');
+  
+  if (element.classList.contains('active')) {
+    element.classList.remove('active');
+    STATE.filters.size = '';
+  } else {
+    sizeBtns.forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    STATE.filters.size = sizeValue;
+  }
+  
+  filterCatalogProducts();
+}
+
+function filterCatalogProducts() {
+  let filtered = [...STATE.products];
+
+  // 1. Brand check
+  if (STATE.filters.brand) {
+    filtered = filtered.filter(p => p.brand === STATE.filters.brand);
+  }
+
+  // 2. Search check
+  if (STATE.filters.search) {
+    const q = STATE.filters.search.toLowerCase();
+    filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+  }
+
+  // 3. Category checkboxes
+  if (STATE.filters.category.length > 0) {
+    filtered = filtered.filter(p => STATE.filters.category.includes(p.type));
+  }
+
+  // 4. Size check
+  if (STATE.filters.size) {
+    filtered = filtered.filter(p => p.sizes.includes(STATE.filters.size) || p.sizes.includes('O/S'));
+  }
+
+  // 5. Price check
+  filtered = filtered.filter(p => p.price <= STATE.filters.priceMax);
+
+  renderProductGrid('shop-catalog-grid', filtered);
+  
+  // Update result count
+  const countText = document.getElementById('catalog-items-found-count');
+  if (countText) {
+    countText.textContent = `${filtered.length} ORIGINALS FOUND`;
+  }
+}
+
+// Render dynamic grid for Shop Catalog
+function renderShopCatalog() {
+  // Clear search filters
+  const searchInput = document.getElementById('catalog-search-bar');
+  if (searchInput) searchInput.value = '';
+  STATE.filters.search = '';
+
+  filterCatalogProducts();
+}
+
+/* ==========================================================================
+   12. Size Guide & Smart Size Recommendation Engine
    ========================================================================== */
 function setupSizeGuide() {
   const heightInput = document.getElementById('user-height');
@@ -836,7 +1019,7 @@ function setupSizeGuide() {
 }
 
 /* ==========================================================================
-   10. PDP Interactive Zoom & Visual controls
+   13. PDP Interactive Zoom & Visual controls
    ========================================================================== */
 function setupProductZoom() {
   const mainImageContainer = document.querySelector('.gallery-main');
@@ -854,7 +1037,7 @@ function setupProductZoom() {
 }
 
 /* ==========================================================================
-   11. Product detail accordions
+   14. Product detail accordions
    ========================================================================== */
 function setupAccordions() {
   const headers = document.querySelectorAll('.accordion-header');
@@ -867,7 +1050,7 @@ function setupAccordions() {
 }
 
 /* ==========================================================================
-   12. Profile and Auth Mock Implementation
+   15. Profile and Auth Mock Implementation
    ========================================================================== */
 function simulateOTP() {
   const emailInput = document.getElementById('auth-email-input');
@@ -876,7 +1059,6 @@ function simulateOTP() {
     return;
   }
 
-  // Display simulated OTP box
   const otpInput = document.getElementById('auth-otp-input-field');
   const otpTitle = document.getElementById('auth-otp-title');
   if (otpInput && otpTitle) {
@@ -888,11 +1070,8 @@ function simulateOTP() {
 
 function handleLoginSubmit() {
   const emailInput = document.getElementById('auth-email-input');
-  const otpVal = document.getElementById('auth-otp-input');
-  
   if (!emailInput.value) return;
 
-  // Complete Simulated Auth Session
   const username = emailInput.value.split('@')[0].toUpperCase();
   STATE.user = {
     username: username,
@@ -903,8 +1082,6 @@ function handleLoginSubmit() {
   localStorage.setItem('ov_user', JSON.stringify(STATE.user));
   closeModal('auth-modal');
   showNotification('WELCOME BACK, ' + username);
-  
-  // Re-render mobile navigation button state
   renderProfileDetails();
 }
 
@@ -964,7 +1141,7 @@ function renderOrderHistoryTable() {
 }
 
 /* ==========================================================================
-   13. Checkout flow and Razorpay / Stripe Payment Simulation
+   16. Checkout flow and Payment Simulation
    ========================================================================== */
 function startCheckout() {
   if (STATE.cart.length === 0) {
@@ -1037,7 +1214,6 @@ function completeCheckoutOrder() {
     return;
   }
 
-  // Create placed order
   const orderId = 'OV-' + Math.floor(10000 + Math.random() * 90000);
   const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const tax = Math.round(subtotal * 0.12);
@@ -1061,10 +1237,8 @@ function completeCheckoutOrder() {
   STATE.orders.unshift(newOrder);
   localStorage.setItem('ov_orders', JSON.stringify(STATE.orders));
 
-  // Add loyalty points
   STATE.loyaltyPoints += Math.round(grandTotal * 0.05);
 
-  // Clear Cart
   STATE.cart = [];
   localStorage.removeItem('ov_cart');
   updateCartBadge();
@@ -1074,14 +1248,13 @@ function completeCheckoutOrder() {
   closeModal('checkout-modal');
   showNotification('ORDER PLACED SUCCESSFULLY: ' + orderId);
 
-  // Show live tracking immediately
   setTimeout(() => {
     trackSpecificOrder(orderId);
   }, 1000);
 }
 
 /* ==========================================================================
-   14. Order tracking live status
+   17. Order tracking live status
    ========================================================================== */
 function trackSpecificOrder(orderId) {
   const order = STATE.orders.find(o => o.orderId === orderId);
@@ -1131,13 +1304,12 @@ function trackSpecificOrder(orderId) {
 }
 
 /* ==========================================================================
-   15. jsPDF Minimal Invoice Generation
+   18. jsPDF Minimal Invoice Generation
    ========================================================================== */
 function downloadPdfInvoice(orderId) {
   const order = STATE.orders.find(o => o.orderId === orderId);
   if (!order) return;
 
-  // jsPDF loaded via CDN
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -1145,12 +1317,10 @@ function downloadPdfInvoice(orderId) {
     format: 'a4'
   });
 
-  // Document Styling Constants
   const fontHeading = 'Helvetica';
   const colorDark = '#111111';
   const colorGray = '#777777';
 
-  // Invoice Title
   doc.setFont(fontHeading, 'bold');
   doc.setFontSize(22);
   doc.setTextColor(colorDark);
@@ -1162,7 +1332,6 @@ function downloadPdfInvoice(orderId) {
   doc.text('MINIMAL LUXURY STREETWEAR', 20, 30);
   doc.text('support@ovstreetwear.com', 20, 34);
 
-  // Invoice Details Side Block
   doc.setFont(fontHeading, 'bold');
   doc.setFontSize(11);
   doc.setTextColor(colorDark);
@@ -1175,11 +1344,9 @@ function downloadPdfInvoice(orderId) {
   doc.text(`DATE: ${order.date}`, 140, 34);
   doc.text('STATUS: PAID', 140, 38);
 
-  // Draw Horizontal Dividers
   doc.setDrawColor(220, 220, 220);
   doc.line(20, 48, 190, 48);
 
-  // Billing Details
   doc.setFont(fontHeading, 'bold');
   doc.setFontSize(9);
   doc.setTextColor(colorDark);
@@ -1191,7 +1358,6 @@ function downloadPdfInvoice(orderId) {
   doc.text(STATE.user ? STATE.user.email : 'guest@ov.com', 20, 65);
   doc.text(order.address || 'OV CUSTOMER LOGISTICS CENTRE', 20, 69, { maxWidth: 100 });
 
-  // Grid Header
   doc.line(20, 80, 190, 80);
   doc.setFont(fontHeading, 'bold');
   doc.setTextColor(colorDark);
@@ -1201,7 +1367,6 @@ function downloadPdfInvoice(orderId) {
   doc.text('TOTAL', 170, 85);
   doc.line(20, 89, 190, 89);
 
-  // Grid Body
   let currentY = 96;
   doc.setFont(fontHeading, 'normal');
   doc.setTextColor(colorGray);
@@ -1215,7 +1380,6 @@ function downloadPdfInvoice(orderId) {
     currentY += 15;
   });
 
-  // Totals calculations positioning
   doc.line(20, currentY - 5, 190, currentY - 5);
   
   doc.text('SUBTOTAL:', 130, currentY + 2);
@@ -1226,19 +1390,17 @@ function downloadPdfInvoice(orderId) {
   doc.text('TOTAL AMOUNT PAID:', 110, currentY + 9);
   doc.text(`INR ${order.total.toLocaleString('en-IN')}`, 170, currentY + 9);
 
-  // Footer Message
   doc.setFont(fontHeading, 'italic');
   doc.setFontSize(8);
   doc.setTextColor(colorGray);
   doc.text('Thank you for being an Original. Crafted to create identity.', 20, 270);
 
-  // Download Output PDF
   doc.save(`OV-INVOICE-${order.orderId}.pdf`);
   showNotification('INVOICE PDF DOWNLOADED');
 }
 
 /* ==========================================================================
-   16. Reviews Engine & Form submission
+   19. Reviews Engine & Form submission
    ========================================================================== */
 function submitReviewFromUser() {
   const nameInput = document.getElementById('review-author-name');
@@ -1261,14 +1423,12 @@ function submitReviewFromUser() {
     body: bodyInput.value
   };
 
-  // Add review to current PDP product
   if (STATE.activeProduct) {
     if (!STATE.activeProduct.reviews) STATE.activeProduct.reviews = [];
     STATE.activeProduct.reviews.unshift(newReview);
     renderReviewsSection(STATE.activeProduct);
   }
 
-  // Reset inputs
   nameInput.value = '';
   titleInput.value = '';
   bodyInput.value = '';
@@ -1313,7 +1473,7 @@ function renderReviewsSection(product) {
 }
 
 /* ==========================================================================
-   17. Helper Utilities (Drawers, Modals, Lists grids, Notifications)
+   20. Helper Utilities (Drawers, Modals, Lists grids, Notifications)
    ========================================================================== */
 function toggleDrawer(id) {
   const drawer = document.getElementById(id);
@@ -1349,22 +1509,53 @@ function renderProductGrid(containerId, productList) {
   if (!container) return;
 
   container.innerHTML = '';
+  
+  if (productList.length === 0) {
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px 0; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.15em;">NO ITEMS MATCH CURRENT FILTER SELECTION</div>`;
+    return;
+  }
+
   productList.forEach(p => {
     const card = document.createElement('div');
     card.className = 'collection-card';
     card.setAttribute('onclick', `navigateTo('product', '${p.id}')`);
 
-    const badgeHTML = p.badge ? `<span class="pc-badge" style="position:absolute; top:20px; left:20px; background:black; color:white; font-size: 0.7rem; padding:4px 8px; letter-spacing:0.1em; text-transform:uppercase; z-index: 10;">${p.badge}</span>` : '';
+    // Badge Render logic
+    let badgeHTML = '';
+    if (p.badge) {
+      const cls = p.badge === 'SALE' ? 'sale' : '';
+      badgeHTML = `<span class="card-badge ${cls}">${p.badge}</span>`;
+    }
+
+    // Pricing Render logic (Outlet styling with discounts)
+    let pricingHTML = `<span class="card-price">₹${p.price.toLocaleString('en-IN')}</span>`;
+    if (p.originalPrice > p.price) {
+      const percent = Math.round((1 - p.price / p.originalPrice) * 100);
+      pricingHTML = `
+        <span class="card-price">₹${p.price.toLocaleString('en-IN')}</span>
+        <span class="card-price crossed">₹${p.originalPrice.toLocaleString('en-IN')}</span>
+        <span class="card-price discount-percent">(${percent}% OFF)</span>
+      `;
+    }
+
+    // Size Preview logic
+    const sizesRowStr = p.sizes.map(s => `<span class="card-size-item">${s}</span>`).join('');
 
     card.innerHTML = `
-      ${badgeHTML}
+      <div class="card-badge-container">${badgeHTML}</div>
       <div class="collection-card-visual">
         ${SVGS[p.type]('#f9f9f9', '#111')}
+        <div class="card-sizes-overlay" onclick="event.stopPropagation();">
+          <span class="card-size-label">SIZES:</span>
+          <div class="card-sizes-row">${sizesRowStr}</div>
+        </div>
       </div>
-      <span class="collection-card-num">${p.type.toUpperCase()} / 0${p.id.split('-')[1] || '1'}</span>
-      <h3 class="collection-card-title">${p.name.toUpperCase()}</h3>
-      <div class="collection-card-price">₹${p.price.toLocaleString('en-IN')}</div>
-      <div class="collection-card-btn">Explore Piece</div>
+      <div class="card-info-wrap">
+        <span class="card-label-type">${p.brand}</span>
+        <h3 class="card-title-heading">${p.name.toUpperCase()}</h3>
+        <div class="card-price-row">${pricingHTML}</div>
+        <div class="card-stars-badge">★★★★★ <span style="font-size:0.75rem; color:#777; font-weight:normal;">(${p.rating})</span></div>
+      </div>
     `;
     container.appendChild(card);
   });
@@ -1381,13 +1572,19 @@ function renderFeaturedGrid(containerId, productList) {
     gridItem.style.cursor = 'pointer';
     gridItem.setAttribute('onclick', `navigateTo('product', '${p.id}')`);
 
+    let priceHTML = `<span style="color: black;">₹${p.price.toLocaleString('en-IN')}</span>`;
+    if (p.originalPrice > p.price) {
+      priceHTML = `<span style="color: var(--red-discount); font-weight:600;">₹${p.price.toLocaleString('en-IN')}</span> <span style="text-decoration:line-through; opacity:0.4; margin-left:5px;">₹${p.originalPrice.toLocaleString('en-IN')}</span>`;
+    }
+
     gridItem.innerHTML = `
       <div style="background-color: var(--light-gray); aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); position: relative; overflow: hidden; margin-bottom: 15px;">
         ${SVGS[p.type]('#e5e5e5', '#222')}
       </div>
-      <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;">
-        <div>${p.baseName}</div>
-        <div>₹${p.price.toLocaleString('en-IN')}</div>
+      <div style="font-size:0.7rem; letter-spacing:0.1em; color:#777; text-transform:uppercase; margin-bottom:3px;">${p.brand}</div>
+      <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+        <div style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:70%;">${p.baseName}</div>
+        <div>${priceHTML}</div>
       </div>
     `;
     container.appendChild(gridItem);
@@ -1395,21 +1592,21 @@ function renderFeaturedGrid(containerId, productList) {
 }
 
 function renderProductDetailPage(product) {
-  // Update texts
-  document.getElementById('pdp-brand-text').textContent = 'OV™ — CAP SULE COLLECTION';
+  document.getElementById('pdp-brand-text').textContent = product.brand;
   document.getElementById('pdp-product-name').textContent = product.name;
   
   const priceContainer = document.getElementById('pdp-price-container');
   if (product.originalPrice > product.price) {
+    const pct = Math.round((1 - product.price / product.originalPrice) * 100);
     priceContainer.innerHTML = `
       <span class="product-price original">₹${product.originalPrice.toLocaleString('en-IN')}</span>
       <span class="product-price sale">₹${product.price.toLocaleString('en-IN')}</span>
+      <span style="color:var(--red-discount); font-weight:bold; font-size:1.1rem; margin-left:10px;">(${pct}% OFF)</span>
     `;
   } else {
     priceContainer.innerHTML = `<span class="product-price">₹${product.price.toLocaleString('en-IN')}</span>`;
   }
 
-  // Material and Stock checks
   document.getElementById('pdp-material-desc').textContent = `${product.type === 'tee' ? '280 GSM Double-Combed Organic Cotton. Boxy fitting drop shoulder pattern. Pre-shrunk fabric with silicone softening finish.' : '450 GSM Heavyweight French Terry cotton. Relaxed silhouette. Double lined hood. Ribbed side panels.'}`;
   
   const stockText = document.getElementById('pdp-stock-text');
@@ -1420,13 +1617,12 @@ function renderProductDetailPage(product) {
     stockText.style.display = 'none';
   }
 
-  // Render main detail thumbnail SVG
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
     mainImageContainer.innerHTML = SVGS[product.type]('#f9f9f9', '#111');
   }
 
-  // Thumbnails render
+  // Render Thumbnails
   const thumbsContainer = document.getElementById('pdp-thumbs-container');
   if (thumbsContainer) {
     thumbsContainer.innerHTML = `
@@ -1442,28 +1638,43 @@ function renderProductDetailPage(product) {
     `;
   }
 
-  // Reset Quantity
+  // Size buttons generation
+  const sizeSelectContainer = document.querySelector('#product-page .size-buttons');
+  if (sizeSelectContainer) {
+    sizeSelectContainer.innerHTML = '';
+    product.sizes.forEach((s, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `size-btn ${idx === 0 ? 'active' : ''}`;
+      btn.setAttribute('data-size', s);
+      btn.textContent = s;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#product-page .size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        STATE.activeSize = s;
+      });
+      sizeSelectContainer.appendChild(btn);
+    });
+    STATE.activeSize = product.sizes[0];
+  }
+
   STATE.quantity = 1;
   document.getElementById('qty-value').value = 1;
 
-  // Set initial PDP color & size
   STATE.activeColor = 'White';
-  STATE.activeSize = 'M';
   
-  // Set Wishlist Button state
   const wishlistBtn = document.getElementById('detail-wishlist-btn');
   if (wishlistBtn) {
-    if (STATE.wishlist.includes(product.id)) {
-      wishlistBtn.classList.add('active');
-    } else {
-      wishlistBtn.classList.remove('active');
-    }
+    if (STATE.wishlist.includes(product.id)) wishlistBtn.classList.add('active');
+    else wishlistBtn.classList.remove('active');
   }
 
-  // Frequently bought together bundle calculation
-  renderFbtBundle(product);
+  // Clear Pincode inputs
+  const pincodeResult = document.getElementById('pincode-check-result');
+  const pincodeInput = document.getElementById('checkout-pincode-input');
+  if (pincodeResult) pincodeResult.style.display = 'none';
+  if (pincodeInput) pincodeInput.value = '';
 
-  // Render reviews
+  renderFbtBundle(product);
   renderReviewsSection(product);
 }
 
@@ -1476,7 +1687,6 @@ function switchPdpThumb(element, type, colorHex) {
     mainImageContainer.innerHTML = SVGS[type](colorHex, '#111');
   }
 
-  // Update selected color state
   const colorNames = {
     '#f9f9f9': 'White',
     '#111111': 'Black',
@@ -1551,13 +1761,11 @@ function showNotification(message) {
 
   container.appendChild(notification);
 
-  // Trigger animation frame
   setTimeout(() => {
     notification.style.transform = 'translateX(0)';
     notification.style.opacity = '1';
   }, 10);
 
-  // Auto remove
   setTimeout(() => {
     notification.style.transform = 'translateX(100px)';
     notification.style.opacity = '0';
