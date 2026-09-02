@@ -1949,7 +1949,7 @@ function renderHeroSlider() {
         const heroLogoSrc = (STATE.logo && STATE.logo.image && STATE.logo.image !== 'images/logo_transparent.png') ? STATE.logo.image : 'images/logo_white.png';
         innerHTML += `
           <div class="large-logo-graphic logo-container-render-large">
-            <img src="${heroLogoSrc}" alt="OV™ — ORIGINAL VERSION" class="logo-uploaded-img-large" style="max-height: 140px; width: auto; object-fit: contain; margin-bottom: 25px;">
+            <img src="${heroLogoSrc}" alt="OV™ — ORIGINAL VERSION" class="logo-uploaded-img-large" style="max-height: 220px; width: auto; object-fit: contain; margin-bottom: 25px;">
           </div>
         `;
       } else {
@@ -2039,7 +2039,7 @@ function renderLogoMarks() {
     if (!img) {
       img = document.createElement('img');
       img.className = 'logo-uploaded-img';
-      img.style.height = '38px';
+      img.style.height = '54px';
       img.style.width = 'auto';
       img.style.objectFit = 'contain';
       const link = headerContainer.querySelector('a');
@@ -2054,12 +2054,12 @@ function renderLogoMarks() {
   // 2. Update loader container (Dark Intro Screen)
   const loaderContainer = document.querySelector('.loader-logo-container');
   if (loaderContainer) {
-    let img = loaderContainer.querySelector('.logo-uploaded-img');
+    let img = loaderContainer.querySelector('.logo-uploaded-img-loader');
     const svg = loaderContainer.querySelector('.logo-svg');
     if (!img) {
       img = document.createElement('img');
-      img.className = 'logo-uploaded-img';
-      img.style.maxHeight = '95px';
+      img.className = 'logo-uploaded-img-loader';
+      img.style.maxHeight = '160px';
       img.style.width = 'auto';
       img.style.objectFit = 'contain';
       loaderContainer.appendChild(img);
@@ -2077,10 +2077,10 @@ function renderLogoMarks() {
     if (!img) {
       img = document.createElement('img');
       img.className = 'logo-uploaded-img-footer';
-      img.style.maxHeight = '48px';
+      img.style.maxHeight = '72px';
       img.style.width = 'auto';
       img.style.objectFit = 'contain';
-      img.style.marginBottom = '20px';
+      img.style.marginBottom = '25px';
       footerContainer.insertBefore(img, footerContainer.firstChild);
     }
     img.src = (image === 'images/logo_transparent.png') ? 'images/logo_white.png' : image;
@@ -2095,7 +2095,7 @@ function renderLogoMarks() {
     if (!img) {
       img = document.createElement('img');
       img.className = 'logo-uploaded-img-large';
-      img.style.maxHeight = '140px';
+      img.style.maxHeight = '220px';
       img.style.width = 'auto';
       img.style.objectFit = 'contain';
       img.style.marginBottom = '25px';

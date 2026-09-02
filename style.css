@@ -3312,15 +3312,19 @@ footer {
 /* Official Brand Logo Image Styling */
 .logo-uploaded-img {
   display: block;
-  height: 38px;
+  height: 54px;
   width: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
 
+.logo-uploaded-img:hover {
+  transform: scale(1.04);
+}
+
 .logo-uploaded-img-loader {
   display: block;
-  max-height: 95px;
+  max-height: 160px;
   width: auto;
   object-fit: contain;
   margin: 0 auto;
@@ -3328,15 +3332,15 @@ footer {
 
 .logo-uploaded-img-footer {
   display: block;
-  max-height: 48px;
+  max-height: 72px;
   width: auto;
   object-fit: contain;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .logo-uploaded-img-large {
   display: block;
-  max-height: 140px;
+  max-height: 220px;
   width: auto;
   object-fit: contain;
   margin-bottom: 25px;
@@ -3344,15 +3348,15 @@ footer {
 
 @media (max-width: 768px) {
   .logo-uploaded-img {
-    height: 30px;
+    height: 42px;
   }
   .logo-uploaded-img-loader {
-    max-height: 75px;
+    max-height: 120px;
   }
   .logo-uploaded-img-large {
-    max-height: 100px;
+    max-height: 150px;
   }
   .logo-uploaded-img-footer {
-    max-height: 40px;
+    max-height: 55px;
   }
 }
