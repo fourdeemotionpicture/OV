@@ -3308,3 +3308,51 @@ footer {
     border-bottom: 2px solid var(--black) !important;
   }
 }
+
+/* Official Brand Logo Image Styling */
+.logo-uploaded-img {
+  display: block;
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.logo-uploaded-img-loader {
+  display: block;
+  max-height: 95px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.logo-uploaded-img-footer {
+  display: block;
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.logo-uploaded-img-large {
+  display: block;
+  max-height: 140px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+  .logo-uploaded-img {
+    height: 30px;
+  }
+  .logo-uploaded-img-loader {
+    max-height: 75px;
+  }
+  .logo-uploaded-img-large {
+    max-height: 100px;
+  }
+  .logo-uploaded-img-footer {
+    max-height: 40px;
+  }
+}

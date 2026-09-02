@@ -68,7 +68,8 @@ const STATE = {
   ],
   logo: JSON.parse(localStorage.getItem('ov_custom_logo')) || {
     letters: 'OV',
-    subtext: 'ORIGINAL VERSION'
+    subtext: 'ORIGINAL VERSION',
+    image: 'images/logo_transparent.png'
   },
   cart: JSON.parse(localStorage.getItem('ov_cart')) || [],
   wishlist: JSON.parse(localStorage.getItem('ov_wishlist')) || [],
@@ -1945,21 +1946,10 @@ function renderHeroSlider() {
       `;
 
       if (slide.isLogoGraphic) {
+        const heroLogoSrc = (STATE.logo && STATE.logo.image && STATE.logo.image !== 'images/logo_transparent.png') ? STATE.logo.image : 'images/logo_white.png';
         innerHTML += `
-          <div class="large-logo-graphic">
-            <svg viewBox="0 0 500 350" class="logo-svg-large">
-              <defs>
-                <mask id="logo-cut-mask-large-${i}">
-                  <rect width="500" height="350" fill="white" />
-                  <rect x="0" y="160" width="500" height="30" fill="black" />
-                </mask>
-              </defs>
-              <g mask="url(#logo-cut-mask-large-${i})" fill="currentColor">
-                <text x="60" y="275" class="logo-letters" font-size="250">O</text>
-                <text x="250" y="275" class="logo-letters" font-size="250">V</text>
-              </g>
-              <text x="250" y="180" class="logo-subtext" font-size="14" fill="var(--gold-accent)" text-anchor="middle" letter-spacing="0.45em">ORIGINAL VERSION</text>
-            </svg>
+          <div class="large-logo-graphic logo-container-render-large">
+            <img src="${heroLogoSrc}" alt="OV™ — ORIGINAL VERSION" class="logo-uploaded-img-large" style="max-height: 140px; width: auto; object-fit: contain; margin-bottom: 25px;">
           </div>
         `;
       } else {
@@ -2039,103 +2029,82 @@ function renderHeroSlider() {
 function renderLogoMarks() {
   const letters = STATE.logo.letters || 'OV';
   const subtext = STATE.logo.subtext || 'ORIGINAL VERSION';
-  const image = STATE.logo.image || ''; // base64 string
+  const image = (STATE.logo && STATE.logo.image) ? STATE.logo.image : 'images/logo_transparent.png';
 
-  // Update all standard logo rendering containers
-  document.querySelectorAll('.logo-container-render').forEach(container => {
-    const svg = container.querySelector('.logo-svg');
-    let img = container.querySelector('.logo-uploaded-img');
-
-    if (image) {
-      if (svg) svg.style.display = 'none';
-      if (!img) {
-        img = document.createElement('img');
-        img.className = 'logo-uploaded-img';
-        img.style.height = '36px';
-        img.style.width = 'auto';
-        img.style.objectFit = 'contain';
-        
-        // If inside header link, append to link tag
-        const link = container.querySelector('a');
-        if (link) link.appendChild(img);
-        else container.appendChild(img);
-      }
-      img.src = image;
-      img.style.display = 'block';
-    } else {
-      if (svg) svg.style.display = 'block';
-      if (img) img.style.display = 'none';
+  // 1. Update standard header logo (Light/White Navigation Bar)
+  const headerContainer = document.querySelector('.logo-container');
+  if (headerContainer) {
+    let img = headerContainer.querySelector('.logo-uploaded-img');
+    const svg = headerContainer.querySelector('.logo-svg');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'logo-uploaded-img';
+      img.style.height = '38px';
+      img.style.width = 'auto';
+      img.style.objectFit = 'contain';
+      const link = headerContainer.querySelector('a');
+      if (link) link.appendChild(img);
+      else headerContainer.appendChild(img);
     }
-  });
+    img.src = (image === 'images/logo_white.png' || image === 'images/logo_transparent.png') ? 'images/logo_transparent.png' : image;
+    img.style.display = 'block';
+    if (svg) svg.style.display = 'none';
+  }
 
-  // Update loader container specifically (large layout)
+  // 2. Update loader container (Dark Intro Screen)
   const loaderContainer = document.querySelector('.loader-logo-container');
   if (loaderContainer) {
-    const svg = loaderContainer.querySelector('.logo-svg');
     let img = loaderContainer.querySelector('.logo-uploaded-img');
-    if (image) {
-      if (svg) svg.style.display = 'none';
-      if (!img) {
-        img = document.createElement('img');
-        img.className = 'logo-uploaded-img';
-        img.style.maxHeight = '90px';
-        img.style.width = 'auto';
-        img.style.objectFit = 'contain';
-        loaderContainer.appendChild(img);
-      }
-      img.src = image;
-      img.style.display = 'block';
-    } else {
-      if (svg) svg.style.display = 'block';
-      if (img) img.style.display = 'none';
+    const svg = loaderContainer.querySelector('.logo-svg');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'logo-uploaded-img';
+      img.style.maxHeight = '95px';
+      img.style.width = 'auto';
+      img.style.objectFit = 'contain';
+      loaderContainer.appendChild(img);
     }
+    img.src = (image === 'images/logo_transparent.png') ? 'images/logo_white.png' : image;
+    img.style.display = 'block';
+    if (svg) svg.style.display = 'none';
   }
 
-  // Update large hero slide logo graphics
+  // 3. Update footer container (Dark Luxury Footer)
+  const footerContainer = document.querySelector('.footer-brand');
+  if (footerContainer) {
+    let img = footerContainer.querySelector('.logo-uploaded-img-footer');
+    const svg = footerContainer.querySelector('.logo-svg');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'logo-uploaded-img-footer';
+      img.style.maxHeight = '48px';
+      img.style.width = 'auto';
+      img.style.objectFit = 'contain';
+      img.style.marginBottom = '20px';
+      footerContainer.insertBefore(img, footerContainer.firstChild);
+    }
+    img.src = (image === 'images/logo_transparent.png') ? 'images/logo_white.png' : image;
+    img.style.display = 'block';
+    if (svg) svg.style.display = 'none';
+  }
+
+  // 4. Update large hero slide logo graphics
   document.querySelectorAll('.logo-container-render-large').forEach(container => {
-    const svg = container.querySelector('.logo-svg-large');
     let img = container.querySelector('.logo-uploaded-img-large');
-
-    if (image) {
-      if (svg) svg.style.display = 'none';
-      if (!img) {
-        img = document.createElement('img');
-        img.className = 'logo-uploaded-img-large';
-        img.style.maxHeight = '140px';
-        img.style.width = 'auto';
-        img.style.objectFit = 'contain';
-        img.style.marginBottom = '25px';
-        container.appendChild(img);
-      }
-      img.src = image;
-      img.style.display = 'block';
-    } else {
-      if (svg) svg.style.display = 'block';
-      if (img) img.style.display = 'none';
+    const svg = container.querySelector('.logo-svg-large');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'logo-uploaded-img-large';
+      img.style.maxHeight = '140px';
+      img.style.width = 'auto';
+      img.style.objectFit = 'contain';
+      img.style.marginBottom = '25px';
+      container.appendChild(img);
     }
+    img.src = (image === 'images/logo_transparent.png') ? 'images/logo_white.png' : image;
+    img.style.display = 'block';
+    if (svg) svg.style.display = 'none';
   });
-
-  // Fallback to updating SVG text nodes if no image is uploaded
-  if (!image) {
-    const firstLetter = letters.charAt(0) || 'O';
-    const secondLetter = letters.substring(1) || 'V';
-    
-    document.querySelectorAll('.logo-svg, .logo-svg-large').forEach(svg => {
-      const lettersG = svg.querySelector('g');
-      const subtextText = svg.querySelector('.logo-subtext');
-
-      if (lettersG) {
-        const texts = lettersG.querySelectorAll('.logo-letters');
-        if (texts.length >= 2) {
-          texts[0].textContent = firstLetter;
-          texts[1].textContent = secondLetter;
-        }
-      }
-      if (subtextText) {
-        subtextText.textContent = subtext;
-      }
-    });
-  }
 }
 
 /* ==========================================================================
