@@ -397,7 +397,7 @@ function navigateTo(route, productId = null) {
   } else if (route === 'admin') {
     document.getElementById('admin-page').classList.add('active');
     STATE.currentRoute = 'admin';
-    renderAdminDashboard();
+    checkAdminAuth();
   }
 
   const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -1308,7 +1308,7 @@ function selectPaymentMethod(element, name) {
   STATE.paymentMethod = name;
 }
 
-function renderCheckoutSummary() {
+async function renderCheckoutSummary() {
   const container = document.getElementById('checkout-items-list');
   if (!container) return;
 
@@ -1319,136 +1319,336 @@ function renderCheckoutSummary() {
     row.style.justifyContent = 'space-between';
     row.style.marginBottom = '12px';
     row.innerHTML = `
-      <div style="font-size: 0.85rem;">${item.name} × ${item.qty}</div>
+      <div style="font-size: 0.85rem;">${item.name} (${item.size || 'M'}) × ${item.qty}</div>
       <div style="font-size: 0.85rem; font-weight: 500;">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
     `;
     container.appendChild(row);
   });
 
+  const pincodeInput = document.getElementById('checkout-pincode-input');
+  const pincode = pincodeInput ? pincodeInput.value.trim() : '';
+
+  // Calculate quote via Server API
+  try {
+    const itemsPayload = STATE.cart.map(i => ({
+      variant_id: i.variant_id || (i.size ? `var-grace-${i.size.toLowerCase()}` : 'var-grace-m'),
+      quantity: i.qty
+    }));
+
+    const res = await fetch('/api/checkout/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: itemsPayload,
+        coupon_code: STATE.appliedCoupon ? (STATE.appliedCoupon.code || STATE.appliedCoupon) : null,
+        payment_method: STATE.paymentMethod || 'UPI',
+        shipping_pincode: pincode
+      })
+    });
+
+    const quoteData = await res.json();
+    if (quoteData.success && quoteData.data) {
+      const q = quoteData.data;
+      document.getElementById('checkout-subtotal').textContent = `₹${q.subtotal.toLocaleString('en-IN')}`;
+      document.getElementById('checkout-tax').textContent = `₹0 (INCL.)`;
+      document.getElementById('checkout-shipping').textContent = q.shipping_fee === 0 ? 'FREE' : `₹${q.shipping_fee}`;
+      document.getElementById('checkout-total').textContent = `₹${q.total_amount.toLocaleString('en-IN')}`;
+
+      const rowDiscount = document.getElementById('checkout-discount-row');
+      const valDiscount = document.getElementById('checkout-discount-value');
+      if (q.discount_amount > 0 && rowDiscount && valDiscount) {
+        rowDiscount.style.display = 'flex';
+        valDiscount.textContent = `- ₹${q.discount_amount.toLocaleString('en-IN')}`;
+      } else if (rowDiscount) {
+        rowDiscount.style.display = 'none';
+      }
+      return;
+    }
+  } catch (e) {
+    console.warn('[Checkout] Fallback to local calculation:', e.message);
+  }
+
+  // Fallback if API fails
   const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = Math.round(subtotal * 0.12);
-  const shipping = subtotal > 2999 ? 0 : 150;
-  
+  const shipping = subtotal >= 999 ? 0 : 99;
   let discount = 0;
   if (STATE.appliedCoupon) {
-    if (STATE.appliedCoupon.type === 'percent') {
-      discount = Math.round(subtotal * (STATE.appliedCoupon.value / 100));
-    } else {
-      discount = STATE.appliedCoupon.value;
-    }
+    discount = STATE.appliedCoupon.type === 'percent' ? Math.round(subtotal * (STATE.appliedCoupon.value / 100)) : (STATE.appliedCoupon.value || 0);
   }
-
-  const grandTotal = subtotal + tax + shipping - discount;
+  const grandTotal = Math.max(0, subtotal + shipping - discount);
 
   document.getElementById('checkout-subtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-  document.getElementById('checkout-tax').textContent = `₹${tax.toLocaleString('en-IN')}`;
+  document.getElementById('checkout-tax').textContent = `₹0 (INCL.)`;
   document.getElementById('checkout-shipping').textContent = shipping === 0 ? 'FREE' : `₹${shipping}`;
   document.getElementById('checkout-total').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
-
-  const rowDiscount = document.getElementById('checkout-discount-row');
-  const valDiscount = document.getElementById('checkout-discount-value');
-  if (STATE.appliedCoupon && rowDiscount && valDiscount) {
-    rowDiscount.style.display = 'flex';
-    valDiscount.textContent = `- ₹${discount.toLocaleString('en-IN')}`;
-  } else if (rowDiscount) {
-    rowDiscount.style.display = 'none';
-  }
 }
 
-function completeCheckoutOrder() {
-  const address = document.getElementById('checkout-address-input');
-  if (!address || !address.value.trim()) {
-    showNotification('PLEASE PROVIDE DELIVERY ADDRESS');
+async function handleCheckoutPincodeChange(pincode) {
+  const msgEl = document.getElementById('checkout-pincode-msg');
+  if (!msgEl) return;
+
+  if (!/^\d{6}$/.test(pincode)) {
+    msgEl.style.display = 'none';
     return;
   }
 
-  const orderId = 'OV-' + Math.floor(10000 + Math.random() * 90000);
-  const subtotal = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = Math.round(subtotal * 0.12);
-  const shipping = subtotal > 2999 ? 0 : 150;
-  let discount = 0;
-  if (STATE.appliedCoupon) {
-    discount = STATE.appliedCoupon.type === 'percent' ? Math.round(subtotal * (STATE.appliedCoupon.value / 100)) : STATE.appliedCoupon.value;
+  msgEl.style.display = 'block';
+  msgEl.style.color = 'var(--medium-gray)';
+  msgEl.textContent = 'Verifying delivery serviceability via Shiprocket...';
+
+  try {
+    const res = await fetch(`/api/shipping/serviceability?pincode=${pincode}`);
+    const data = await res.json();
+
+    if (data.success && data.data?.serviceable) {
+      const topCourier = data.data.couriers?.[0];
+      msgEl.style.color = '#127938';
+      msgEl.innerHTML = `✓ <strong>Express Delivery Available</strong> via ${topCourier ? topCourier.name : 'Shiprocket'} (${topCourier ? topCourier.estimated_days : '2-3 Days'})`;
+      renderCheckoutSummary();
+    } else {
+      msgEl.style.color = '#cf222e';
+      msgEl.textContent = '✕ Serviceability restricted for this pincode.';
+    }
+  } catch (err) {
+    msgEl.style.color = '#127938';
+    msgEl.textContent = '✓ Express Delivery Available across India';
   }
-  const grandTotal = subtotal + tax + shipping - discount;
+}
 
-  const newOrder = {
-    orderId: orderId,
-    date: new Date().toISOString().split('T')[0],
-    items: [...STATE.cart],
-    total: grandTotal,
-    status: 'placed',
-    trackingStep: 1,
-    address: address.value
-  };
+async function completeCheckoutOrder() {
+  const nameInput = document.getElementById('checkout-name-input');
+  const phoneInput = document.getElementById('checkout-phone-input');
+  const emailInput = document.getElementById('checkout-email-input');
+  const addressInput = document.getElementById('checkout-address-input');
+  const cityInput = document.getElementById('checkout-city-input');
+  const stateInput = document.getElementById('checkout-state-input');
+  const pincodeInput = document.getElementById('checkout-pincode-input');
 
-  STATE.orders.unshift(newOrder);
-  localStorage.setItem('ov_orders', JSON.stringify(STATE.orders));
+  const name = nameInput ? nameInput.value.trim() : '';
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim() : '';
+  const address = addressInput ? addressInput.value.trim() : '';
+  const city = cityInput ? cityInput.value.trim() : '';
+  const state = stateInput ? stateInput.value.trim() : '';
+  const pincode = pincodeInput ? pincodeInput.value.trim() : '';
 
-  STATE.loyaltyPoints += Math.round(grandTotal * 0.05);
+  if (!name || !phone || !email || !address || !city || !state || !pincode) {
+    showNotification('PLEASE COMPLETE ALL DELIVERY FIELDS');
+    return;
+  }
 
-  STATE.cart = [];
-  localStorage.removeItem('ov_cart');
-  updateCartBadge();
-  renderCartDrawer();
-  STATE.appliedCoupon = null;
+  if (phone.replace(/[^0-9]/g, '').length < 10) {
+    showNotification('PLEASE PROVIDE A VALID 10-DIGIT MOBILE NUMBER');
+    return;
+  }
 
-  closeModal('checkout-modal');
-  showNotification('ORDER PLACED SUCCESSFULLY: ' + orderId);
+  if (!/^\d{6}$/.test(pincode)) {
+    showNotification('PLEASE PROVIDE A VALID 6-DIGIT PINCODE');
+    return;
+  }
 
-  setTimeout(() => {
-    trackSpecificOrder(orderId);
-  }, 1000);
+  const itemsPayload = STATE.cart.map(i => ({
+    variant_id: i.variant_id || (i.size ? `var-grace-${i.size.toLowerCase()}` : 'var-grace-m'),
+    quantity: i.qty
+  }));
+
+  const paymentMethod = STATE.paymentMethod || 'UPI';
+
+  showNotification('VERIFYING & CREATING YOUR ORDER...');
+
+  try {
+    // 1. If Prepaid UPI / Card, create payment order first
+    let paymentId = null;
+    if (paymentMethod === 'UPI' || paymentMethod === 'STRIPE') {
+      const payRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: 999 * STATE.cart.reduce((s, i) => s + i.qty, 0),
+          customer_email: email,
+          customer_phone: phone
+        })
+      });
+      const payData = await payRes.json();
+      if (payData.success) {
+        paymentId = payData.data.order_id;
+      }
+    }
+
+    // 2. Persist order to database API
+    const orderRes = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer: { name, phone, email },
+        shipping_address: {
+          address_line1: address,
+          city,
+          state,
+          pincode,
+          country: 'India'
+        },
+        items: itemsPayload,
+        payment_method: paymentMethod,
+        coupon_code: STATE.appliedCoupon ? (STATE.appliedCoupon.code || STATE.appliedCoupon) : null,
+        payment_id: paymentId
+      })
+    });
+
+    const orderJson = await orderRes.json();
+    if (!orderJson.success) {
+      showNotification(orderJson.message || 'ORDER CREATION FAILED');
+      return;
+    }
+
+    const createdOrder = orderJson.data;
+
+    // Add to local state for customer profile
+    STATE.orders.unshift({
+      orderId: createdOrder.order_number,
+      date: new Date().toISOString().split('T')[0],
+      items: [...STATE.cart],
+      total: createdOrder.total_amount,
+      status: createdOrder.order_status,
+      trackingStep: 2,
+      address: `${address}, ${city}, ${state} - ${pincode}`
+    });
+    localStorage.setItem('ov_orders', JSON.stringify(STATE.orders));
+
+    STATE.loyaltyPoints += Math.round(createdOrder.total_amount * 0.05);
+
+    // Empty cart
+    STATE.cart = [];
+    localStorage.removeItem('ov_cart');
+    updateCartBadge();
+    renderCartDrawer();
+    STATE.appliedCoupon = null;
+
+    closeModal('checkout-modal');
+    showNotification('ORDER PLACED SUCCESSFULLY: ' + createdOrder.order_number);
+
+    setTimeout(() => {
+      trackSpecificOrder(createdOrder.order_number);
+    }, 1000);
+
+  } catch (err) {
+    console.error('[Checkout Error]', err);
+    showNotification('ERROR PROCESSING ORDER. PLEASE TRY AGAIN.');
+  }
 }
 
 /* ==========================================================================
-   17. Order tracking live status
+   17. Order tracking live status (Connected to Real Shiprocket API)
    ========================================================================== */
-function trackSpecificOrder(orderId) {
-  const order = STATE.orders.find(o => o.orderId === orderId);
-  if (!order) return;
-
+async function trackSpecificOrder(orderNumber) {
   const container = document.getElementById('track-order-modal-body');
   if (!container) return;
 
   container.innerHTML = `
-    <div style="font-size: 1rem; font-weight:600; margin-bottom: 5px;">ORDER ID: ${order.orderId}</div>
-    <div style="font-size: 0.8rem; color:#777; margin-bottom: 25px;">PLACED ON: ${order.date}</div>
-
-    <div class="tracking-steps">
-      <div class="tracking-step-item ${order.trackingStep >= 1 ? 'completed' : ''}">
-        <div class="tracking-step-dot">1</div>
-        <div class="tracking-step-label">Placed</div>
-      </div>
-      <div class="tracking-step-item ${order.trackingStep >= 2 ? 'completed' : ''}">
-        <div class="tracking-step-dot">2</div>
-        <div class="tracking-step-label">Processed</div>
-      </div>
-      <div class="tracking-step-item ${order.trackingStep >= 3 ? 'completed' : ''}">
-        <div class="tracking-step-dot">3</div>
-        <div class="tracking-step-label">Shipped</div>
-      </div>
-      <div class="tracking-step-item ${order.trackingStep >= 4 ? 'completed' : ''}">
-        <div class="tracking-step-dot">4</div>
-        <div class="tracking-step-label">Out Delivery</div>
-      </div>
-      <div class="tracking-step-item ${order.trackingStep >= 5 ? 'completed' : ''}">
-        <div class="tracking-step-dot">5</div>
-        <div class="tracking-step-label">Delivered</div>
-      </div>
-    </div>
-    
-    <div style="margin-top: 40px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 20px;">
-      <div style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 10px;">DELIVERY ADDRESS</div>
-      <div style="font-size: 0.9rem; color: #555;">${order.address || 'OV CUSTOMER LOGISTICS HUB'}</div>
-    </div>
-
-    <div style="margin-top: 30px; display: flex; gap: 15px;">
-      <button class="luxury-btn" style="width: 100%;" onclick="downloadPdfInvoice('${order.orderId}')">DOWNLOAD INVOICE PDF</button>
+    <div style="text-align:center; padding:30px;">
+      <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">RETRIEVING LIVE SHIPMENT STATUS...</div>
+      <div style="font-size:0.8rem; color:var(--medium-gray);">Querying Central Logistics Engine & Shiprocket Scans</div>
     </div>
   `;
-
   openModal('track-order-modal');
+
+  try {
+    const res = await fetch(`/api/orders/track?order_number=${orderNumber}`);
+    const data = await res.json();
+
+    if (data.success && data.data) {
+      const o = data.data;
+      const ship = o.shipment;
+
+      let stepNum = 1;
+      if (o.order_status === 'PROCESSING') stepNum = 2;
+      if (o.order_status === 'READY_TO_SHIP' || o.shipment_status === 'AWB_ASSIGNED') stepNum = 3;
+      if (o.order_status === 'SHIPPED' || o.order_status === 'IN_TRANSIT') stepNum = 4;
+      if (o.order_status === 'OUT_FOR_DELIVERY') stepNum = 5;
+      if (o.order_status === 'DELIVERED') stepNum = 6;
+
+      container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+          <div>
+            <div style="font-size: 1.1rem; font-weight:700; letter-spacing:0.1em;">ORDER: ${o.order_number}</div>
+            <div style="font-size: 0.8rem; color:#777; margin-top:3px;">PLACED ON: ${new Date(o.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+          </div>
+          <span class="admin-badge admin-badge-success">${o.order_status}</span>
+        </div>
+
+        <div class="tracking-steps" style="margin-bottom:30px;">
+          <div class="tracking-step-item ${stepNum >= 1 ? 'completed' : ''}">
+            <div class="tracking-step-dot">1</div>
+            <div class="tracking-step-label">Placed</div>
+          </div>
+          <div class="tracking-step-item ${stepNum >= 2 ? 'completed' : ''}">
+            <div class="tracking-step-dot">2</div>
+            <div class="tracking-step-label">Verified</div>
+          </div>
+          <div class="tracking-step-item ${stepNum >= 3 ? 'completed' : ''}">
+            <div class="tracking-step-dot">3</div>
+            <div class="tracking-step-label">AWB Assigned</div>
+          </div>
+          <div class="tracking-step-item ${stepNum >= 4 ? 'completed' : ''}">
+            <div class="tracking-step-dot">4</div>
+            <div class="tracking-step-label">In Transit</div>
+          </div>
+          <div class="tracking-step-item ${stepNum >= 5 ? 'completed' : ''}">
+            <div class="tracking-step-dot">5</div>
+            <div class="tracking-step-label">Out Delivery</div>
+          </div>
+          <div class="tracking-step-item ${stepNum >= 6 ? 'completed' : ''}">
+            <div class="tracking-step-dot">6</div>
+            <div class="tracking-step-label">Delivered</div>
+          </div>
+        </div>
+
+        ${ship ? `
+          <div style="background:#fafafa; border:1px solid var(--border-color); padding:18px; margin-bottom:25px;">
+            <div style="font-size:0.75rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--medium-gray); margin-bottom:8px;">LOGISTICS & AWB COURIER</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:600;">${ship.courier_name || 'Express Courier'}</div>
+                <div style="font-size:0.8rem; color:var(--dark-gray); margin-top:2px;">AWB: <strong>${ship.awb_code || 'Pending'}</strong></div>
+              </div>
+              ${ship.tracking_url ? `
+                <a href="${ship.tracking_url}" target="_blank" class="luxury-btn outline-gold-btn" style="padding:8px 14px; font-size:0.65rem; text-decoration:none;">SHIPROCKET LIVE SCAN ↗</a>
+              ` : ''}
+            </div>
+          </div>
+        ` : `
+          <div style="background:#fafafa; border:1px solid var(--border-color); padding:14px; margin-bottom:20px; font-size:0.8rem; color:var(--medium-gray);">
+            Order verified. Central fulfillment warehouse is preparing your garment for courier dispatch.
+          </div>
+        `}
+
+        <div style="border-top: 1px solid rgba(0,0,0,0.06); padding-top: 18px;">
+          <div style="font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing:0.1em; margin-bottom: 12px;">ACTIVITY TIMELINE</div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            ${(o.timeline || []).map(t => `
+              <div style="display:flex; gap:14px; font-size:0.8rem;">
+                <span style="color:var(--medium-gray); min-width:85px; font-size:0.75rem;">${new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>${t.message}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      return;
+    }
+  } catch (err) {
+    console.warn('[Track Order API] Falling back to local state:', err);
+  }
+
+  // Fallback if network issue
+  const localOrder = STATE.orders.find(o => o.orderId === orderNumber);
+  if (localOrder) {
+    container.innerHTML = `
+      <div style="font-size: 1rem; font-weight:600; margin-bottom: 5px;">ORDER ID: ${localOrder.orderId}</div>
+      <div style="font-size: 0.8rem; color:#777; margin-bottom: 25px;">STATUS: ${localOrder.status.toUpperCase()}</div>
+      <div style="font-size:0.85rem; color:#444;">Your order has been recorded in the central database.</div>
+    `;
+  }
 }
 
 /* ==========================================================================
@@ -2184,8 +2384,123 @@ function renderLogoMarks() {
 }
 
 /* ==========================================================================
-   23. Admin Dashboard & Portal Manager
+   23. Admin Dashboard & Portal Manager (Shopify-Style Executive Console)
    ========================================================================== */
+
+function getAdminAuthHeader() {
+  const token = localStorage.getItem('ov_admin_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+}
+
+async function handleAdminLogin(e) {
+  if (e) e.preventDefault();
+  const emailInput = document.getElementById('admin-login-email');
+  const passInput = document.getElementById('admin-login-password');
+  const errEl = document.getElementById('admin-login-error');
+
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passInput ? passInput.value : '';
+
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/auth/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (!data.success) {
+      if (errEl) {
+        errEl.textContent = data.message || 'Invalid credentials';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    // Save session
+    localStorage.setItem('ov_admin_token', data.data.token);
+    localStorage.setItem('ov_admin_user', JSON.stringify(data.data.user));
+
+    showAdminBoard(data.data.user);
+    showNotification('LOGGED IN AS ' + data.data.user.role);
+    initAdminDashboard();
+
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = 'Connection error. Please try again.';
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+function handleAdminLogout() {
+  localStorage.removeItem('ov_admin_token');
+  localStorage.removeItem('ov_admin_user');
+  fetch('/api/auth/logout').catch(() => {});
+
+  const barrier = document.getElementById('admin-login-barrier');
+  const board = document.getElementById('admin-dashboard-view');
+  if (barrier) barrier.style.display = 'block';
+  if (board) board.style.display = 'none';
+
+  showNotification('ADMIN SESSION TERMINATED');
+}
+
+async function checkAdminAuth() {
+  const token = localStorage.getItem('ov_admin_token');
+  const cachedUser = JSON.parse(localStorage.getItem('ov_admin_user') || 'null');
+
+  const barrier = document.getElementById('admin-login-barrier');
+  const board = document.getElementById('admin-dashboard-view');
+
+  if (!token) {
+    if (barrier) barrier.style.display = 'block';
+    if (board) board.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/verify', {
+      headers: getAdminAuthHeader()
+    });
+    const data = await res.json();
+
+    if (data.success && data.data?.user) {
+      showAdminBoard(data.data.user);
+      initAdminDashboard();
+    } else {
+      if (barrier) barrier.style.display = 'block';
+      if (board) board.style.display = 'none';
+    }
+  } catch (err) {
+    // If offline or dev fallback, use cached user
+    if (cachedUser) {
+      showAdminBoard(cachedUser);
+      initAdminDashboard();
+    } else {
+      if (barrier) barrier.style.display = 'block';
+      if (board) board.style.display = 'none';
+    }
+  }
+}
+
+function showAdminBoard(user) {
+  const barrier = document.getElementById('admin-login-barrier');
+  const board = document.getElementById('admin-dashboard-view');
+  if (barrier) barrier.style.display = 'none';
+  if (board) board.style.display = 'block';
+
+  const badge = document.getElementById('admin-user-badge');
+  const emailEl = document.getElementById('admin-user-email');
+  if (badge) badge.textContent = `${user.role}`;
+  if (emailEl) emailEl.textContent = user.email;
+}
+
 function switchAdminTab(tabId) {
   const buttons = document.querySelectorAll('.admin-tab-btn');
   buttons.forEach(btn => {
@@ -2208,6 +2523,649 @@ function switchAdminTab(tabId) {
       panel.style.display = 'none';
     }
   });
+
+  // Lazy tab loaders
+  if (tabId === 'metrics-tab') loadAdminMetrics();
+  if (tabId === 'orders-tab') loadAdminOrders();
+  if (tabId === 'inventory-tab') loadAdminInventory();
+  if (tabId === 'returns-tab') loadAdminReturns();
+  if (tabId === 'coupons-tab') loadAdminCoupons();
+  if (tabId === 'audit-tab') loadAdminAuditLogs();
+}
+
+function initAdminDashboard() {
+  loadAdminMetrics();
+  loadAdminOrders();
+  renderAdminDashboard();
+}
+
+// 1. METRICS LOADER
+async function loadAdminMetrics() {
+  try {
+    const res = await fetch('/api/admin/metrics', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && json.data) {
+      const m = json.data;
+      const netSalesEl = document.getElementById('metric-net-sales');
+      const totalOrdersEl = document.getElementById('metric-total-orders');
+      const unfulfilledEl = document.getElementById('metric-unfulfilled-orders');
+      const unitsSoldEl = document.getElementById('metric-units-sold');
+      const aovEl = document.getElementById('metric-aov');
+
+      if (netSalesEl) netSalesEl.textContent = `₹${m.net_sales.toLocaleString('en-IN')}`;
+      if (totalOrdersEl) totalOrdersEl.textContent = m.total_orders;
+      if (unfulfilledEl) unfulfilledEl.textContent = `${m.unfulfilled_orders} Pending Fulfillment`;
+      if (unitsSoldEl) unitsSoldEl.textContent = m.units_sold;
+      if (aovEl) aovEl.textContent = `₹${m.average_order_value.toLocaleString('en-IN')}`;
+
+      // Low Stock List
+      const lowStockContainer = document.getElementById('admin-low-stock-list');
+      if (lowStockContainer) {
+        if (!m.low_stock_items || m.low_stock_items.length === 0) {
+          lowStockContainer.innerHTML = '<span style="color:#127938;">✓ All sizes and color variants are sufficiently stocked above minimum thresholds.</span>';
+        } else {
+          lowStockContainer.innerHTML = m.low_stock_items.map(item => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+              <div>
+                <strong>${item.sku}</strong> — ${item.product_title} (${item.size})
+              </div>
+              <span class="admin-badge ${item.stock_quantity === 0 ? 'admin-badge-danger' : 'admin-badge-warning'}">
+                ${item.stock_quantity === 0 ? 'OUT OF STOCK' : `LOW STOCK: ${item.stock_quantity} LEFT`}
+              </span>
+            </div>
+          `).join('');
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Admin Metrics] Error loading metrics:', err);
+  }
+}
+
+// 2. ORDERS MANAGEMENT
+STATE.adminOrders = [];
+STATE.adminOrderFilter = 'ALL';
+
+async function loadAdminOrders() {
+  const tbody = document.getElementById('admin-orders-table-body');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:#888;">Fetching orders from database...</td></tr>';
+
+  try {
+    const res = await fetch('/api/orders', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      STATE.adminOrders = json.data;
+      renderAdminOrdersTable();
+    }
+  } catch (err) {
+    console.warn('[Admin Orders] Error loading orders:', err);
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:#cf222e;">Failed to load orders. Check network connection.</td></tr>';
+  }
+}
+
+function setOrderFilter(filter) {
+  STATE.adminOrderFilter = filter;
+  const btns = document.querySelectorAll('.admin-filter-btn');
+  btns.forEach(b => {
+    if (b.getAttribute('data-filter') === filter) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderAdminOrdersTable();
+}
+
+function filterOrdersTable() {
+  renderAdminOrdersTable();
+}
+
+function renderAdminOrdersTable() {
+  const tbody = document.getElementById('admin-orders-table-body');
+  if (!tbody) return;
+
+  const searchInput = document.getElementById('admin-order-search');
+  const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  let orders = [...STATE.adminOrders];
+
+  if (STATE.adminOrderFilter !== 'ALL') {
+    orders = orders.filter(o => o.order_status === STATE.adminOrderFilter);
+  }
+
+  if (q) {
+    orders = orders.filter(o =>
+      o.order_number.toLowerCase().includes(q) ||
+      (o.customer && o.customer.name.toLowerCase().includes(q)) ||
+      (o.customer && o.customer.phone.includes(q))
+    );
+  }
+
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:#888;">No orders matching current filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    const isPaid = o.payment_status === 'PAID';
+    const totalItems = o.items?.reduce((s, i) => s + i.quantity, 0) || 1;
+    const dateStr = new Date(o.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+    let statusBadge = 'admin-badge-warning';
+    if (o.order_status === 'DELIVERED') statusBadge = 'admin-badge-success';
+    if (o.order_status === 'READY_TO_SHIP') statusBadge = 'admin-badge-info';
+    if (o.order_status === 'SHIPPED') statusBadge = 'admin-badge-purple';
+    if (o.order_status === 'CANCELLED' || o.order_status === 'RTO') statusBadge = 'admin-badge-danger';
+
+    return `
+      <tr>
+        <td><strong>${o.order_number}</strong></td>
+        <td>${dateStr}</td>
+        <td>
+          <div style="font-weight:600;">${o.customer?.name || 'Customer'}</div>
+          <div style="font-size:0.75rem; color:var(--medium-gray);">${o.customer?.phone || ''}</div>
+        </td>
+        <td>${totalItems} Pc</td>
+        <td><strong>₹${(o.total_amount || 0).toLocaleString('en-IN')}</strong></td>
+        <td>
+          <span class="admin-badge ${isPaid ? 'admin-badge-success' : 'admin-badge-warning'}">
+            ${o.payment_method} (${o.payment_status})
+          </span>
+        </td>
+        <td><span class="admin-badge ${statusBadge}">${o.order_status}</span></td>
+        <td><span class="admin-badge admin-badge-dark">${o.shipment_status || 'UNFULFILLED'}</span></td>
+        <td>
+          <button class="luxury-btn outline-gold-btn" onclick="openOrderFulfillmentModal('${o.order_number}')" style="padding:6px 12px; font-size:0.6rem;">
+            FULFILL
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 3. ORDER FULFILLMENT MODAL (Shiprocket One-Click Console)
+async function openOrderFulfillmentModal(orderNumber) {
+  const order = STATE.adminOrders.find(o => o.order_number === orderNumber);
+  if (!order) return;
+
+  const container = document.getElementById('admin-order-modal-body');
+  const title = document.getElementById('order-modal-title');
+  if (title) title.textContent = `FULFILLMENT — ${order.order_number}`;
+
+  container.innerHTML = `
+    <!-- Top Customer Details -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; padding-bottom:20px; border-bottom:1px solid var(--border-color); margin-bottom:20px;">
+      <div>
+        <div class="admin-kpi-label">SHIPPING DESTINATION</div>
+        <div style="font-weight:600; font-size:0.95rem;">${order.customer?.name}</div>
+        <div style="font-size:0.8rem; color:var(--dark-gray); line-height:1.5; margin-top:4px;">
+          ${order.shipping_address?.address_line1}<br>
+          ${order.shipping_address?.city}, ${order.shipping_address?.state} — <strong>${order.shipping_address?.pincode}</strong>
+        </div>
+        <div style="font-size:0.8rem; color:var(--medium-gray); margin-top:6px;">
+          Phone: ${order.customer?.phone} | Email: ${order.customer?.email}
+        </div>
+      </div>
+      <div>
+        <div class="admin-kpi-label">ORDER SUMMARY</div>
+        <div style="font-size:0.85rem; line-height:1.6;">
+          Total Amount: <strong>₹${order.total_amount?.toLocaleString('en-IN')}</strong><br>
+          Payment: <span class="admin-badge ${order.payment_status === 'PAID' ? 'admin-badge-success' : 'admin-badge-warning'}">${order.payment_method} (${order.payment_status})</span><br>
+          Current Order Status: <span class="admin-badge admin-badge-info">${order.order_status}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items List -->
+    <div style="margin-bottom:25px;">
+      <div class="admin-kpi-label" style="margin-bottom:10px;">ORDERED GARMENTS</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        ${order.items?.map(i => `
+          <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#fafafa; border:1px solid var(--border-color); font-size:0.8rem;">
+            <span><strong>${i.product_title}</strong> (Size: ${i.size}) × ${i.quantity}</span>
+            <span>₹${i.total_price?.toLocaleString('en-IN')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- 1-Click Shiprocket Logistics Actions -->
+    <div style="margin-bottom:25px;">
+      <div class="admin-kpi-label" style="margin-bottom:12px;">SHIPROCKET AUTOMATED LOGISTICS PIPELINE</div>
+      
+      <!-- Step 1: Assign Courier & AWB -->
+      <div class="admin-fulfillment-step ${order.shipment_status !== 'UNFULFILLED' ? 'completed' : ''}">
+        <div class="admin-fulfillment-step-num">1</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:0.85rem;">ASSIGN COURIER & GENERATE AWB</div>
+          <div style="font-size:0.75rem; color:var(--medium-gray); margin-top:2px;">
+            Pushes manifest to Shiprocket API and reserves courier slot (Delhivery / Bluedart Express).
+          </div>
+          <div style="margin-top:10px; display:flex; gap:10px;">
+            <button class="luxury-btn gold-btn" onclick="executeAssignAWB('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
+              ⚡ AUTO-ASSIGN SHIPROCKET AWB
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Schedule Courier Pickup -->
+      <div class="admin-fulfillment-step ${order.shipment_status === 'PICKUP_SCHEDULED' || order.order_status === 'SHIPPED' ? 'completed' : ''}">
+        <div class="admin-fulfillment-step-num">2</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:0.85rem;">SCHEDULE WAREHOUSE PICKUP</div>
+          <div style="font-size:0.75rem; color:var(--medium-gray); margin-top:2px;">
+            Notifies courier driver to collect package from OV Central Hub (PIN: 600006).
+          </div>
+          <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+            <input type="date" id="order-pickup-date-input" class="auth-input" value="${new Date(Date.now() + 86400000).toISOString().slice(0, 10)}" style="border:1px solid var(--border-color); padding:6px 10px; font-size:0.75rem;">
+            <button class="luxury-btn secondary" onclick="executeSchedulePickup('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
+              📅 SCHEDULE PICKUP
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Print Shipping Label -->
+      <div class="admin-fulfillment-step">
+        <div class="admin-fulfillment-step-num">3</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:0.85rem;">OFFICIAL SHIPPING LABEL</div>
+          <div style="font-size:0.75rem; color:var(--medium-gray); margin-top:2px;">
+            Generate ready-to-print barcode label for garment package exterior.
+          </div>
+          <div style="margin-top:10px;">
+            <button class="luxury-btn outline-gold-btn" onclick="executePrintLabel('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
+              🖨️ PRINT SHIPPING LABEL (PDF)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Status Override -->
+    <div style="border-top:1px solid var(--border-color); padding-top:18px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; gap:10px; align-items:center;">
+        <label style="font-size:0.75rem; font-weight:700;">UPDATE STATUS:</label>
+        <select id="modal-order-status-select" class="auth-input" style="border:1px solid var(--border-color); padding:6px 12px; font-size:0.75rem;">
+          <option value="PROCESSING" ${order.order_status === 'PROCESSING' ? 'selected' : ''}>PROCESSING</option>
+          <option value="READY_TO_SHIP" ${order.order_status === 'READY_TO_SHIP' ? 'selected' : ''}>READY_TO_SHIP</option>
+          <option value="SHIPPED" ${order.order_status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+          <option value="DELIVERED" ${order.order_status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+          <option value="CANCELLED" ${order.order_status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+          <option value="NDR" ${order.order_status === 'NDR' ? 'selected' : ''}>NDR (ISSUE)</option>
+          <option value="RTO" ${order.order_status === 'RTO' ? 'selected' : ''}>RTO</option>
+        </select>
+        <button class="luxury-btn secondary" onclick="executeManualStatusUpdate('${order.order_number}')" style="padding:6px 12px; font-size:0.65rem;">
+          UPDATE
+        </button>
+      </div>
+      <button class="luxury-btn secondary" onclick="closeAdminModal('admin-order-modal')" style="padding:8px 16px; font-size:0.65rem;">
+        CLOSE
+      </button>
+    </div>
+  `;
+
+  openAdminModal('admin-order-modal');
+}
+
+async function executeAssignAWB(orderNumber) {
+  showNotification('ASSIGNING SHIPROCKET AWB...');
+  try {
+    const res = await fetch('/api/shipping/assign-awb', {
+      method: 'POST',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({ order_id: orderNumber })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`AWB ASSIGNED: ${json.data.shipment.awb_code} (${json.data.shipment.courier_name})`);
+      await loadAdminOrders();
+      openOrderFulfillmentModal(orderNumber);
+    } else {
+      showNotification(json.message || 'FAILED TO ASSIGN AWB');
+    }
+  } catch (err) {
+    showNotification('NETWORK ERROR ASSIGNING AWB');
+  }
+}
+
+async function executeSchedulePickup(orderNumber) {
+  const dateInput = document.getElementById('order-pickup-date-input');
+  const pickupDate = dateInput ? dateInput.value : null;
+
+  showNotification('SCHEDULING COURIER PICKUP...');
+  try {
+    const res = await fetch('/api/shipping/schedule-pickup', {
+      method: 'POST',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({ order_id: orderNumber, pickup_date: pickupDate })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(json.data?.message || 'PICKUP CONFIRMED');
+      await loadAdminOrders();
+      openOrderFulfillmentModal(orderNumber);
+    } else {
+      showNotification(json.message || 'FAILED TO SCHEDULE PICKUP');
+    }
+  } catch (err) {
+    showNotification('NETWORK ERROR SCHEDULING PICKUP');
+  }
+}
+
+async function executePrintLabel(orderNumber) {
+  showNotification('GENERATING LABEL...');
+  try {
+    const res = await fetch(`/api/shipping/label?order_id=${orderNumber}`, {
+      headers: getAdminAuthHeader()
+    });
+    const json = await res.json();
+    if (json.success && json.data?.label_url) {
+      window.open(json.data.label_url, '_blank');
+    } else {
+      showNotification(json.message || 'FAILED TO GENERATE LABEL');
+    }
+  } catch (err) {
+    showNotification('ERROR RETRIEVING LABEL');
+  }
+}
+
+async function executeManualStatusUpdate(orderNumber) {
+  const select = document.getElementById('modal-order-status-select');
+  const status = select ? select.value : 'PROCESSING';
+
+  try {
+    const res = await fetch(`/api/orders/${orderNumber}`, {
+      method: 'PUT',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({ order_status: status })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`STATUS UPDATED: ${status}`);
+      await loadAdminOrders();
+      openOrderFulfillmentModal(orderNumber);
+    }
+  } catch (err) {
+    showNotification('FAILED TO UPDATE STATUS');
+  }
+}
+
+// 4. INVENTORY STOCK MATRIX LOADER
+async function loadAdminInventory() {
+  const tbody = document.getElementById('admin-inventory-table-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#888;">Loading variant stock levels...</td></tr>';
+
+  try {
+    const res = await fetch('/api/products');
+    const json = await res.json();
+
+    if (json.success && Array.isArray(json.data)) {
+      const rows = [];
+      json.data.forEach(prod => {
+        (prod.variants || []).forEach(v => {
+          rows.push(`
+            <tr>
+              <td><strong>${prod.title}</strong></td>
+              <td><code>${v.sku}</code></td>
+              <td>${v.color || 'Dune Beige'}</td>
+              <td><strong>${v.size}</strong></td>
+              <td>₹${v.price}</td>
+              <td>
+                <span class="admin-badge ${v.stock_quantity <= 5 ? (v.stock_quantity === 0 ? 'admin-badge-danger' : 'admin-badge-warning') : 'admin-badge-success'}">
+                  ${v.stock_quantity} Units
+                </span>
+              </td>
+              <td>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <button class="admin-stepper-btn" onclick="adjustVariantStock('${v.id}', -1)">-</button>
+                  <button class="admin-stepper-btn" onclick="adjustVariantStock('${v.id}', 1)">+</button>
+                  <button class="admin-stepper-btn" onclick="adjustVariantStock('${v.id}', 10)" style="width:36px; font-size:0.7rem;">+10</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+      });
+
+      tbody.innerHTML = rows.join('') || '<tr><td colspan="7" style="text-align:center;">No variants found.</td></tr>';
+    }
+  } catch (err) {
+    console.warn('[Admin Inventory] Error:', err);
+  }
+}
+
+async function adjustVariantStock(variantId, delta) {
+  try {
+    const res = await fetch('/api/inventory/adjust', {
+      method: 'POST',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({ variant_id: variantId, delta: delta, reason: 'Admin UI Adjust' })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`STOCK UPDATED: ${json.data.sku} (${json.data.stock_quantity} Left)`);
+      loadAdminInventory();
+      loadAdminMetrics();
+    }
+  } catch (err) {
+    showNotification('FAILED TO ADJUST INVENTORY');
+  }
+}
+
+// 5. SHIPROCKET SERVICEABILITY TESTER
+async function testCourierRates() {
+  const pinInput = document.getElementById('shipping-test-pincode');
+  const resultsEl = document.getElementById('shipping-test-results');
+  const pin = pinInput ? pinInput.value.trim() : '';
+
+  if (!/^\d{6}$/.test(pin)) {
+    alert('Please enter a valid 6-digit Indian PIN code');
+    return;
+  }
+
+  resultsEl.innerHTML = '<span style="color:var(--medium-gray);">Checking Shiprocket courier APIs...</span>';
+
+  try {
+    const res = await fetch(`/api/shipping/serviceability?pincode=${pin}`);
+    const json = await res.json();
+
+    if (json.success && json.data?.serviceable) {
+      const couriers = json.data.couriers || [];
+      resultsEl.innerHTML = `
+        <div style="color:#127938; font-weight:600; margin-bottom:10px;">✓ PINCODE ${pin} IS SERVICEABLE</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${couriers.map(c => `
+            <div style="display:flex; justify-content:space-between; padding:8px 12px; background:white; border:1px solid var(--border-color); font-size:0.75rem;">
+              <span><strong>${c.name}</strong> (${c.estimated_days})</span>
+              <span>₹${c.rate}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      resultsEl.innerHTML = `<span style="color:#cf222e;">✕ Not serviceable: ${json.data?.message || 'Invalid or remote PIN code'}</span>`;
+    }
+  } catch (err) {
+    resultsEl.innerHTML = '<span style="color:#cf222e;">Error querying courier serviceability.</span>';
+  }
+}
+
+// 6. RETURNS & EXCHANGES
+async function loadAdminReturns() {
+  const tbody = document.getElementById('admin-returns-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/returns', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+
+    if (json.success && Array.isArray(json.data)) {
+      if (json.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#888;">No active return/exchange requests.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = json.data.map(r => `
+        <tr>
+          <td><code>${r.id}</code></td>
+          <td><strong>${r.order_number}</strong></td>
+          <td>${r.customer_name}</td>
+          <td><span class="admin-badge admin-badge-purple">${r.type}</span></td>
+          <td>${r.reason}</td>
+          <td><span class="admin-badge ${r.status === 'APPROVED' ? 'admin-badge-success' : 'admin-badge-warning'}">${r.status}</span></td>
+          <td>${r.reverse_awb ? `<strong>${r.reverse_awb}</strong>` : '—'}</td>
+          <td>
+            ${r.status === 'REQUESTED' ? `
+              <div style="display:flex; gap:6px;">
+                <button class="luxury-btn gold-btn" onclick="updateReturnStatus('${r.id}', 'APPROVED')" style="padding:4px 8px; font-size:0.6rem;">APPROVE</button>
+                <button class="luxury-btn secondary" onclick="updateReturnStatus('${r.id}', 'REJECTED')" style="padding:4px 8px; font-size:0.6rem;">REJECT</button>
+              </div>
+            ` : `<span style="color:var(--medium-gray); font-size:0.75rem;">Resolved</span>`}
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Admin Returns] Error:', err);
+  }
+}
+
+async function updateReturnStatus(returnId, status) {
+  try {
+    const res = await fetch(`/api/returns/${returnId}`, {
+      method: 'PUT',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({ status })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`RETURN ${status}: ${returnId}`);
+      loadAdminReturns();
+    }
+  } catch (err) {
+    showNotification('FAILED TO UPDATE RETURN STATUS');
+  }
+}
+
+// 7. COUPONS MANAGEMENT
+async function loadAdminCoupons() {
+  const tbody = document.getElementById('admin-coupons-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/admin/coupons', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      tbody.innerHTML = json.data.map(c => `
+        <tr>
+          <td><strong>${c.code}</strong></td>
+          <td>${c.discount_type === 'PERCENTAGE' ? `${c.discount_value}% OFF` : `₹${c.discount_value} FLAT`}</td>
+          <td>₹${c.min_order_amount || 0}</td>
+          <td>${c.max_discount ? `₹${c.max_discount}` : 'No Cap'}</td>
+          <td>${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td>
+          <td><span class="admin-badge ${c.is_active ? 'admin-badge-success' : 'admin-badge-danger'}">${c.is_active ? 'ACTIVE' : 'EXPIRED'}</span></td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Admin Coupons] Error:', err);
+  }
+}
+
+function openNewCouponForm() {
+  const form = document.getElementById('admin-coupon-form');
+  if (form) form.reset();
+  openAdminModal('admin-coupon-modal');
+}
+
+async function saveCouponForm(e) {
+  if (e) e.preventDefault();
+  const code = document.getElementById('coupon-form-code').value.trim();
+  const type = document.getElementById('coupon-form-type').value;
+  const val = document.getElementById('coupon-form-val').value;
+  const min = document.getElementById('coupon-form-min').value;
+  const max = document.getElementById('coupon-form-max').value;
+
+  try {
+    const res = await fetch('/api/admin/coupons', {
+      method: 'POST',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({
+        code,
+        discount_type: type,
+        discount_value: val,
+        min_order_amount: min,
+        max_discount: max
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`COUPON ${code} CREATED`);
+      closeAdminModal('admin-coupon-modal');
+      loadAdminCoupons();
+    }
+  } catch (err) {
+    showNotification('FAILED TO CREATE COUPON');
+  }
+}
+
+// 8. SECURITY AUDIT LOGS
+async function loadAdminAuditLogs() {
+  const tbody = document.getElementById('admin-audit-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/admin/audit-logs', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      tbody.innerHTML = json.data.map(l => `
+        <tr>
+          <td style="font-size:0.75rem; color:var(--medium-gray);">${new Date(l.timestamp).toLocaleString('en-IN')}</td>
+          <td><strong>${l.user_name || 'System'}</strong></td>
+          <td><span class="admin-badge admin-badge-dark">${l.action}</span></td>
+          <td>${l.resource_type}: ${l.resource_id}</td>
+          <td><code>${l.ip_address || '127.0.0.1'}</code></td>
+          <td style="font-size:0.75rem; color:#555; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            ${typeof l.details === 'object' ? JSON.stringify(l.details) : l.details}
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Admin Audit Logs] Error:', err);
+  }
+}
+
+// 9. STORE SETTINGS
+async function saveAdminSettings(e) {
+  if (e) e.preventDefault();
+  const storeName = document.getElementById('setting-store-name').value;
+  const freeShip = document.getElementById('setting-free-shipping').value;
+  const stdShip = document.getElementById('setting-standard-shipping').value;
+  const codFee = document.getElementById('setting-cod-fee').value;
+  const pincode = document.getElementById('setting-pickup-pincode').value;
+
+  try {
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: getAdminAuthHeader(),
+      body: JSON.stringify({
+        store_name: storeName,
+        free_shipping_threshold: freeShip ? parseFloat(freeShip) : 999,
+        standard_shipping_rate: stdShip ? parseFloat(stdShip) : 99,
+        cod_fee: codFee ? parseFloat(codFee) : 49,
+        pickup_pincode: pincode
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification('STORE CONFIGURATION SAVED');
+    }
+  } catch (err) {
+    showNotification('FAILED TO SAVE SETTINGS');
+  }
 }
 
 function renderAdminDashboard() {
