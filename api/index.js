@@ -8,6 +8,7 @@
 const handlers = {
   // Auth
   'auth/admin-login': require('../lib/handlers/auth/admin-login'),
+  'auth/change-password': require('../lib/handlers/auth/change-password'),
   'auth/verify': require('../lib/handlers/auth/verify'),
   'auth/logout': require('../lib/handlers/auth/logout'),
 
@@ -18,6 +19,7 @@ const handlers = {
 
   // Checkout & Orders
   'checkout/quote': require('../lib/handlers/checkout/quote'),
+  'checkout/abandoned': require('../lib/handlers/checkout/abandoned'),
   'orders': require('../lib/handlers/orders/index'),
   'orders/track': require('../lib/handlers/orders/track'),
   'orders/detail': require('../lib/handlers/orders/[id]'),
@@ -33,14 +35,21 @@ const handlers = {
   'shipping/schedule-pickup': require('../lib/handlers/shipping/schedule-pickup'),
   'shipping/label': require('../lib/handlers/shipping/label'),
   'shipping/track': require('../lib/handlers/shipping/track'),
+  'shipping/cancel': require('../lib/handlers/shipping/cancel'),
+  'shipping/ndr': require('../lib/handlers/shipping/ndr'),
   'webhooks/shiprocket': require('../lib/handlers/webhooks/shiprocket'),
 
   // Returns & Exchanges
   'returns': require('../lib/handlers/returns/index'),
   'returns/detail': require('../lib/handlers/returns/[id]'),
 
-  // Admin & Settings
+  // Admin & Operations
   'admin/metrics': require('../lib/handlers/admin/metrics'),
+  'admin/customers': require('../lib/handlers/admin/customers'),
+  'admin/payments': require('../lib/handlers/admin/payments'),
+  'admin/refunds': require('../lib/handlers/admin/refunds'),
+  'admin/users': require('../lib/handlers/admin/users'),
+  'admin/health': require('../lib/handlers/admin/health'),
   'admin/coupons': require('../lib/handlers/admin/coupons'),
   'admin/audit-logs': require('../lib/handlers/admin/audit-logs'),
   'admin/settings': require('../lib/handlers/admin/settings')

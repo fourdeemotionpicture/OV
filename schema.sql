@@ -299,3 +299,78 @@ CREATE TABLE IF NOT EXISTS store_settings (
     value JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 19. WEBHOOK EVENTS (Idempotency and Duplicate Protection)
+CREATE TABLE IF NOT EXISTS webhook_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id VARCHAR(150) UNIQUE NOT NULL,
+    provider VARCHAR(50) NOT NULL CHECK (provider IN ('SHIPROCKET', 'RAZORPAY', 'CUSTOM')),
+    event_type VARCHAR(100) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(30) DEFAULT 'PROCESSED',
+    processed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_events_id ON webhook_events(event_id);
+
+-- 20. ABANDONED CHECKOUTS
+CREATE TABLE IF NOT EXISTS abandoned_checkouts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id VARCHAR(100) UNIQUE,
+    customer_email VARCHAR(150),
+    customer_phone VARCHAR(20),
+    customer_name VARCHAR(100),
+    items JSONB NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    recovery_status VARCHAR(30) DEFAULT 'ABANDONED' CHECK (recovery_status IN ('ABANDONED', 'RECOVERED', 'CANCELLED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_abandoned_checkouts_email ON abandoned_checkouts(customer_email);
+
+-- 21. ORDER TIMELINE
+CREATE TABLE IF NOT EXISTS order_timeline (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    order_number VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    created_by VARCHAR(100) DEFAULT 'SYSTEM',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_timeline_order ON order_timeline(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_timeline_number ON order_timeline(order_number);
+
+-- 22. REFUNDS
+CREATE TABLE IF NOT EXISTS refunds (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    order_number VARCHAR(50) NOT NULL,
+    payment_id VARCHAR(100),
+    gateway_refund_id VARCHAR(100),
+    amount DECIMAL(10, 2) NOT NULL,
+    reason TEXT,
+    status VARCHAR(30) DEFAULT 'PROCESSED' CHECK (status IN ('PENDING', 'PROCESSED', 'FAILED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_refunds_order ON refunds(order_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_gw_id ON refunds(gateway_refund_id);
+
+-- 23. INVENTORY TRANSACTIONS (Audit Trail for Stock Changes)
+CREATE TABLE IF NOT EXISTS inventory_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    variant_id UUID REFERENCES product_variants(id) ON DELETE CASCADE,
+    delta INT NOT NULL,
+    reason VARCHAR(100) NOT NULL,
+    reference_id VARCHAR(100),
+    previous_quantity INT NOT NULL,
+    new_quantity INT NOT NULL,
+    created_by VARCHAR(100) DEFAULT 'SYSTEM',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_inventory_tx_variant ON inventory_transactions(variant_id);
+

@@ -805,11 +805,11 @@
       <form id="admin-login-form" onsubmit="handleAdminLogin(event)" style="text-align: left;">
         <div class="admin-form-group" style="margin-bottom: 18px;">
           <label style="display:block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px;">Executive Email</label>
-          <input type="email" id="admin-login-email" class="auth-input" value="admin@ovclothing.com" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
+          <input type="email" id="admin-login-email" class="auth-input" placeholder="executive@ovclothing.com" autocomplete="username" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
         </div>
         <div class="admin-form-group" style="margin-bottom: 24px;">
           <label style="display:block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px;">Password</label>
-          <input type="password" id="admin-login-password" class="auth-input" value="Admin@OV2026!" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
+          <input type="password" id="admin-login-password" class="auth-input" placeholder="••••••••••••" autocomplete="current-password" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
         </div>
         <button type="submit" class="luxury-btn gold-btn" style="width: 100%; padding: 14px; font-size: 0.75rem; letter-spacing: 0.15em;">AUTHENTICATE & ENTER</button>
       </form>
@@ -843,11 +843,16 @@
           <button class="admin-tab-btn" data-tab="products-tab" onclick="switchAdminTab('products-tab')">🏷️ CATALOG PRODUCTS</button>
           <button class="admin-tab-btn" data-tab="inventory-tab" onclick="switchAdminTab('inventory-tab')">🔢 STOCK & INVENTORY</button>
           <button class="admin-tab-btn" data-tab="shipping-tab" onclick="switchAdminTab('shipping-tab')">🚚 SHIPROCKET HUB</button>
-          <button class="admin-tab-btn" data-tab="returns-tab" onclick="switchAdminTab('returns-tab')">🔄 RETURNS & EXCHANGES</button>
+          <button class="admin-tab-btn" data-tab="customers-tab" onclick="switchAdminTab('customers-tab')">👥 CUSTOMERS</button>
+          <button class="admin-tab-btn" data-tab="payments-tab" onclick="switchAdminTab('payments-tab')">💳 PAYMENTS & COD</button>
+          <button class="admin-tab-btn" data-tab="returns-tab" onclick="switchAdminTab('returns-tab')">🔄 RETURNS & REFUNDS</button>
+          <button class="admin-tab-btn" data-tab="abandoned-tab" onclick="switchAdminTab('abandoned-tab')">🛒 ABANDONED CARTS</button>
           <button class="admin-tab-btn" data-tab="coupons-tab" onclick="switchAdminTab('coupons-tab')">🎟️ COUPONS & PROMOS</button>
           <button class="admin-tab-btn" data-tab="slides-tab" onclick="switchAdminTab('slides-tab')">🖼️ HERO BANNER SLIDES</button>
           <button class="admin-tab-btn" data-tab="logo-tab" onclick="switchAdminTab('logo-tab')">🎨 BRAND LOGO</button>
+          <button class="admin-tab-btn" data-tab="users-tab" onclick="switchAdminTab('users-tab')">👤 USERS & RBAC</button>
           <button class="admin-tab-btn" data-tab="audit-tab" onclick="switchAdminTab('audit-tab')">🛡️ SECURITY AUDIT</button>
+          <button class="admin-tab-btn" data-tab="health-tab" onclick="switchAdminTab('health-tab')">⚡ SYSTEM HEALTH</button>
           <button class="admin-tab-btn" data-tab="settings-tab" onclick="switchAdminTab('settings-tab')">⚙️ STORE SETTINGS</button>
         </div>
 
@@ -1030,6 +1035,62 @@
             </div>
           </div>
 
+          <!-- TAB: CUSTOMERS -->
+          <div id="customers-tab" class="admin-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 5px;">CUSTOMER DIRECTORY</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">Track customer profiles, lifetime order spend, and risk tagging.</p>
+              </div>
+              <button class="luxury-btn secondary" onclick="loadAdminCustomers()" style="padding:8px 16px; font-size:0.65rem;">REFRESH CUSTOMERS</button>
+            </div>
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>NAME</th>
+                    <th>CONTACT</th>
+                    <th>TOTAL ORDERS</th>
+                    <th>LIFETIME SPENT</th>
+                    <th>TAG</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-customers-table-body">
+                  <tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">Loading customer database...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB: PAYMENTS & COD -->
+          <div id="payments-tab" class="admin-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 5px;">PAYMENTS & COD RECONCILIATION</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">Verify prepaid transactions, confirm COD cash collection, and initiate refunds.</p>
+              </div>
+              <button class="luxury-btn secondary" onclick="loadAdminPayments()" style="padding:8px 16px; font-size:0.65rem;">REFRESH PAYMENTS</button>
+            </div>
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ORDER #</th>
+                    <th>CUSTOMER</th>
+                    <th>AMOUNT</th>
+                    <th>METHOD</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-payments-table-body">
+                  <tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">Loading payment transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- TAB 6: RETURNS & EXCHANGES -->
           <div id="returns-tab" class="admin-panel" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -1056,6 +1117,34 @@
                 </thead>
                 <tbody id="admin-returns-table-body">
                   <tr><td colspan="8" style="text-align:center; padding:30px; color:#888;">No active return requests.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB: ABANDONED CARTS -->
+          <div id="abandoned-tab" class="admin-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 5px;">ABANDONED CHECKOUT RECOVERY</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">Recover shoppers who started checkout but did not complete payment.</p>
+              </div>
+              <button class="luxury-btn secondary" onclick="loadAdminAbandoned()" style="padding:8px 16px; font-size:0.65rem;">REFRESH</button>
+            </div>
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>SESSION ID</th>
+                    <th>CUSTOMER CONTACT</th>
+                    <th>ITEMS IN CART</th>
+                    <th>CART VALUE</th>
+                    <th>STATUS</th>
+                    <th>DETECTED AT</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-abandoned-table-body">
+                  <tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">Loading abandoned carts...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1134,6 +1223,33 @@
             <button class="luxury-btn gold-btn" onclick="saveAdminLogo()" style="margin-top:15px;">SAVE LOGO STYLE</button>
           </div>
 
+          <!-- TAB: USERS & RBAC -->
+          <div id="users-tab" class="admin-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 5px;">ADMIN USERS & ROLES</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">Configure executive accounts, warehouse staff, and role-based permissions.</p>
+              </div>
+              <button class="luxury-btn gold-btn" onclick="openNewAdminUserModal()" style="padding:10px 18px; font-size:0.65rem;">+ ADD USER</button>
+            </div>
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>NAME</th>
+                    <th>EMAIL</th>
+                    <th>ROLE</th>
+                    <th>STATUS</th>
+                    <th>CREATED AT</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-table-body">
+                  <tr><td colspan="5" style="text-align:center; padding:30px; color:#888;">Loading administrative users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- TAB 10: AUDIT LOGS -->
           <div id="audit-tab" class="admin-panel" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -1160,6 +1276,47 @@
                   <tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">Loading audit logs...</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- TAB: SYSTEM HEALTH -->
+          <div id="health-tab" class="admin-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 5px;">SYSTEM HEALTH & INTEGRATIONS</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">Live diagnostic status of PostgreSQL database, Razorpay gateway, and Shiprocket logistics.</p>
+              </div>
+              <button class="luxury-btn secondary" onclick="loadAdminHealth()" style="padding:8px 16px; font-size:0.65rem;">RUN DIAGNOSTIC</button>
+            </div>
+
+            <div class="admin-kpi-grid" style="margin-bottom:30px;">
+              <div class="admin-kpi-card" id="health-db-card">
+                <div class="admin-kpi-label">DATABASE</div>
+                <div class="admin-kpi-val" id="health-db-status" style="font-size:1.2rem;">CHECKING...</div>
+                <div class="admin-kpi-sub" id="health-db-details">PostgreSQL Status</div>
+              </div>
+              <div class="admin-kpi-card" id="health-pay-card">
+                <div class="admin-kpi-label">PAYMENTS (RAZORPAY)</div>
+                <div class="admin-kpi-val" id="health-pay-status" style="font-size:1.2rem;">CHECKING...</div>
+                <div class="admin-kpi-sub" id="health-pay-details">API Keys & Webhook Secret</div>
+              </div>
+              <div class="admin-kpi-card" id="health-ship-card">
+                <div class="admin-kpi-label">LOGISTICS (SHIPROCKET)</div>
+                <div class="admin-kpi-val" id="health-ship-status" style="font-size:1.2rem;">CHECKING...</div>
+                <div class="admin-kpi-sub" id="health-ship-details">Token Auth & Pickup Hub</div>
+              </div>
+              <div class="admin-kpi-card" id="health-sys-card">
+                <div class="admin-kpi-label">SERVER RUNTIME</div>
+                <div class="admin-kpi-val" id="health-sys-status" style="font-size:1.2rem;">ONLINE</div>
+                <div class="admin-kpi-sub" id="health-sys-details">Node & Memory Health</div>
+              </div>
+            </div>
+
+            <div style="background:#fafafa; border:1px solid var(--border-color); padding:24px;">
+              <h4 style="font-size:0.85rem; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 15px;">PRODUCTION READINESS CHECKLIST</h4>
+              <div id="health-checklist" style="font-size:0.85rem; color:var(--dark-gray); line-height:1.8;">
+                Loading configuration status...
+              </div>
             </div>
           </div>
 
@@ -1255,6 +1412,99 @@
               <button type="button" class="luxury-btn secondary" onclick="closeAdminModal('admin-coupon-modal')" style="padding:10px 20px; font-size:0.65rem;">CANCEL</button>
               <button type="submit" class="luxury-btn gold-btn" style="padding:10px 20px; font-size:0.65rem;">SAVE COUPON</button>
             </div>
+          </form>
+        </div>
+      </div>
+    <!-- ADMIN MODAL: CREATE ADMIN USER & RBAC -->
+    <div id="admin-user-modal" class="modal-overlay">
+      <div class="modal-panel" style="max-width: 500px; background-color:var(--white);">
+        <div class="modal-header" style="padding:20px 30px; border-bottom:1px solid var(--border-color);">
+          <h3 style="font-size:1.1rem; letter-spacing:0.15em;">ADD ADMINISTRATIVE USER</h3>
+          <button class="close-drawer-btn" onclick="closeAdminModal('admin-user-modal')">×</button>
+        </div>
+        <div class="modal-body" style="padding:30px;">
+          <form id="admin-user-form" onsubmit="saveAdminUserForm(event)">
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Full Name</label>
+              <input type="text" id="user-form-name" class="auth-input" placeholder="e.g. Ramesh Kumar" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Email Address</label>
+              <input type="email" id="user-form-email" class="auth-input" placeholder="user@ovclothing.com" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Initial Secure Password</label>
+              <input type="password" id="user-form-password" class="auth-input" placeholder="Min 8 characters" minlength="8" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:24px;">
+              <label>Role & Permissions</label>
+              <select id="user-form-role" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+                <option value="ADMIN">ADMIN — Full Catalog & Store Management</option>
+                <option value="ORDER_MANAGER">ORDER_MANAGER — Orders & Fulfillment</option>
+                <option value="WAREHOUSE">WAREHOUSE — Stock, Inventory & Pickups</option>
+                <option value="MARKETING">MARKETING — Promos & CMS Banners</option>
+                <option value="ACCOUNTANT">ACCOUNTANT — Payments & Refunds</option>
+                <option value="SUPPORT">SUPPORT — Customer Orders & Returns</option>
+              </select>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+              <button type="button" class="luxury-btn secondary" onclick="closeAdminModal('admin-user-modal')" style="padding:10px 20px; font-size:0.65rem;">CANCEL</button>
+              <button type="submit" class="luxury-btn gold-btn" style="padding:10px 20px; font-size:0.65rem;">CREATE USER</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER MODAL: REQUEST RETURN OR EXCHANGE -->
+    <div id="customer-return-modal" class="modal-overlay">
+      <div class="modal-panel" style="max-width: 550px; background-color:var(--white);">
+        <div class="modal-header" style="padding:20px 30px; border-bottom:1px solid var(--border-color);">
+          <div>
+            <span class="eyebrow" style="color:var(--gold-accent);">OV™ HASSLE-FREE SERVICE</span>
+            <h3 style="font-size:1.1rem; letter-spacing:0.15em; margin-top:4px;">REQUEST RETURN / EXCHANGE</h3>
+          </div>
+          <button class="close-drawer-btn" onclick="closeModal('customer-return-modal')">×</button>
+        </div>
+        <div class="modal-body" style="padding:30px;">
+          <form id="customer-return-form" onsubmit="handleCustomerReturnSubmit(event)">
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Order Number</label>
+              <input type="text" id="return-form-order-number" class="auth-input" placeholder="e.g. OV-10001" style="border:1px solid var(--border-color); padding:10px; width:100%; text-transform:uppercase;" required>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Request Type</label>
+              <select id="return-form-type" class="auth-input" onchange="toggleDesiredSizeInput(this.value)" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+                <option value="EXCHANGE">Size Exchange (Same Color, Different Size)</option>
+                <option value="RETURN">Return & Full Refund</option>
+              </select>
+            </div>
+            <div class="admin-form-group" id="desired-size-group" style="margin-bottom:16px;">
+              <label>Desired Replacement Size</label>
+              <select id="return-form-desired-size" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+                <option value="XS">XS (Extra Small)</option>
+                <option value="S">S (Small)</option>
+                <option value="M" selected>M (Medium)</option>
+                <option value="L">L (Large)</option>
+                <option value="XL">XL (Extra Large)</option>
+                <option value="XXL">XXL (Double Extra Large)</option>
+              </select>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:16px;">
+              <label>Reason for Request</label>
+              <select id="return-form-reason" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+                <option value="SIZE_TOO_LARGE">Size too large / Loose fit</option>
+                <option value="SIZE_TOO_SMALL">Size too small / Tight fit</option>
+                <option value="FABRIC_FEEL">Different fabric preference</option>
+                <option value="DEFECTIVE">Minor manufacturing irregularity</option>
+                <option value="COLOR_DIFFERENCE">Color shade variance</option>
+              </select>
+            </div>
+            <div class="admin-form-group" style="margin-bottom:24px;">
+              <label>Additional Remarks</label>
+              <textarea id="return-form-notes" class="auth-input" rows="3" placeholder="Tell us how we can help..." style="border:1px solid var(--border-color); padding:10px; width:100%; font-family:inherit;"></textarea>
+            </div>
+            <button type="submit" class="luxury-btn gold-btn" style="width:100%; padding:14px; font-size:0.75rem; letter-spacing:0.15em;">SUBMIT REQUEST</button>
           </form>
         </div>
       </div>

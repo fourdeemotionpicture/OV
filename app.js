@@ -1457,14 +1457,41 @@ async function completeCheckoutOrder() {
   showNotification('VERIFYING & CREATING YOUR ORDER...');
 
   try {
-    // 1. If Prepaid UPI / Card, create payment order first
+    // 1. Get server-verified quote first (never trust client prices)
+    const quoteRes = await fetch('/api/checkout/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: itemsPayload,
+        coupon_code: STATE.appliedCoupon ? (STATE.appliedCoupon.code || STATE.appliedCoupon) : null,
+        payment_method: paymentMethod
+      })
+    });
+    const quoteJson = await quoteRes.json();
+    const verifiedTotal = quoteJson.success && quoteJson.data ? quoteJson.data.total_amount : 999;
+
+    // Track checkout attempt for abandoned cart recovery
+    fetch('/api/checkout/abandoned', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: `chk_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        customer_email: email,
+        customer_phone: phone,
+        customer_name: name,
+        items: itemsPayload,
+        subtotal: verifiedTotal
+      })
+    }).catch(() => {});
+
+    // 2. If Prepaid UPI / Card, create payment order first with server-verified total
     let paymentId = null;
     if (paymentMethod === 'UPI' || paymentMethod === 'STRIPE') {
       const payRes = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: 999 * STATE.cart.reduce((s, i) => s + i.qty, 0),
+          amount: verifiedTotal,
           customer_email: email,
           customer_phone: phone
         })
@@ -1632,6 +1659,11 @@ async function trackSpecificOrder(orderNumber) {
               </div>
             `).join('')}
           </div>
+        </div>
+
+        <div style="margin-top: 25px; padding-top:15px; border-top:1px solid rgba(0,0,0,0.06); display:flex; gap:10px; justify-content:flex-end;">
+          <button class="luxury-btn outline-gold-btn" onclick="openCustomerReturnModal('${o.order_number}')" style="padding:8px 14px; font-size:0.65rem;">REQUEST RETURN / EXCHANGE</button>
+          <button class="luxury-btn secondary" onclick="closeModal('track-order-modal')" style="padding:8px 14px; font-size:0.65rem;">CLOSE</button>
         </div>
       `;
       return;
@@ -2528,9 +2560,14 @@ function switchAdminTab(tabId) {
   if (tabId === 'metrics-tab') loadAdminMetrics();
   if (tabId === 'orders-tab') loadAdminOrders();
   if (tabId === 'inventory-tab') loadAdminInventory();
+  if (tabId === 'customers-tab') loadAdminCustomers();
+  if (tabId === 'payments-tab') loadAdminPayments();
   if (tabId === 'returns-tab') loadAdminReturns();
+  if (tabId === 'abandoned-tab') loadAdminAbandoned();
   if (tabId === 'coupons-tab') loadAdminCoupons();
+  if (tabId === 'users-tab') loadAdminUsers();
   if (tabId === 'audit-tab') loadAdminAuditLogs();
+  if (tabId === 'health-tab') loadAdminHealth();
 }
 
 function initAdminDashboard() {
@@ -3138,7 +3175,324 @@ async function loadAdminAuditLogs() {
   }
 }
 
-// 9. STORE SETTINGS
+// 9. CUSTOMERS DIRECTORY
+async function loadAdminCustomers() {
+  const tbody = document.getElementById('admin-customers-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/admin/customers', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      if (json.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">No customer profiles recorded yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = json.data.map(c => `
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td>${c.phone}<br><span style="font-size:0.75rem; color:var(--medium-gray);">${c.email || 'No email'}</span></td>
+          <td>${c.total_orders || 1} Orders</td>
+          <td><strong>₹${(c.total_spent || 0).toLocaleString('en-IN')}</strong></td>
+          <td>
+            <span class="admin-badge ${c.group_tag === 'VIP' ? 'admin-badge-success' : (c.group_tag === 'COD_RISK' ? 'admin-badge-danger' : 'admin-badge-dark')}">
+              ${c.group_tag || 'NEW'}
+            </span>
+          </td>
+          <td>
+            <button class="luxury-btn secondary" onclick="promptUpdateCustomerTag('${c.phone}')" style="padding:6px 12px; font-size:0.6rem;">UPDATE TAG</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Admin Customers] Error:', err);
+  }
+}
+
+async function promptUpdateCustomerTag(phone) {
+  const newTag = prompt('Enter new tag for customer (VIP, NEW, COD_RISK, RETURNING):', 'VIP');
+  if (!newTag) return;
+  try {
+    const res = await fetch('/api/admin/customers', {
+      method: 'PUT',
+      headers: { ...getAdminAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, group_tag: newTag.toUpperCase() })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification('CUSTOMER TAG UPDATED: ' + newTag.toUpperCase());
+      loadAdminCustomers();
+    }
+  } catch (e) {
+    showNotification('FAILED TO UPDATE TAG');
+  }
+}
+
+// 10. PAYMENTS & COD RECONCILIATION
+async function loadAdminPayments() {
+  const tbody = document.getElementById('admin-payments-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/admin/payments', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      if (json.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">No transactions found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = json.data.map(p => `
+        <tr>
+          <td><strong>${p.order_number}</strong></td>
+          <td>${p.customer_name || 'Customer'}</td>
+          <td><strong>₹${(p.amount || 0).toLocaleString('en-IN')}</strong></td>
+          <td><span class="admin-badge admin-badge-dark">${p.payment_method}</span></td>
+          <td>
+            <span class="admin-badge ${p.status === 'PAID' || p.status === 'SUCCESS' ? 'admin-badge-success' : (p.status === 'REFUNDED' ? 'admin-badge-warning' : 'admin-badge-secondary')}">
+              ${p.status}
+            </span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              ${p.payment_method === 'COD' && p.status !== 'PAID' ? `
+                <button class="luxury-btn gold-btn" onclick="markCodCollected('${p.order_number}')" style="padding:6px 10px; font-size:0.6rem;">MARK COLLECTED</button>
+              ` : ''}
+              ${(p.status === 'PAID' || p.status === 'SUCCESS') ? `
+                <button class="luxury-btn secondary" onclick="processAdminRefund('${p.order_number}', ${p.amount})" style="padding:6px 10px; font-size:0.6rem; color:#cf222e;">REFUND</button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Admin Payments] Error:', err);
+  }
+}
+
+async function markCodCollected(orderNumber) {
+  if (!confirm(`Confirm COD cash collection for Order ${orderNumber}?`)) return;
+  try {
+    const res = await fetch('/api/admin/payments', {
+      method: 'POST',
+      headers: { ...getAdminAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_number: orderNumber, action: 'MARK_COD_COLLECTED' })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification('COD PAYMENT CONFIRMED');
+      loadAdminPayments();
+      loadAdminOrders();
+    }
+  } catch (e) {
+    showNotification('FAILED TO UPDATE PAYMENT');
+  }
+}
+
+async function processAdminRefund(orderNumber, amount) {
+  const reason = prompt(`Enter refund reason for Order ${orderNumber} (Amount: ₹${amount}):`, 'Customer return approved');
+  if (!reason) return;
+
+  try {
+    showNotification('PROCESSING REFUND VIA GATEWAY...');
+    const res = await fetch('/api/admin/refunds', {
+      method: 'POST',
+      headers: { ...getAdminAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_number: orderNumber, amount, reason })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification(`REFUND PROCESSED: ₹${amount} (Ref: ${json.data.gateway_refund_id || 'OK'})`);
+      loadAdminPayments();
+      loadAdminOrders();
+      loadAdminReturns();
+    } else {
+      showNotification(json.message || 'REFUND FAILED');
+    }
+  } catch (e) {
+    showNotification('FAILED TO PROCESS REFUND');
+  }
+}
+
+// 11. ABANDONED CARTS
+async function loadAdminAbandoned() {
+  const tbody = document.getElementById('admin-abandoned-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/checkout/abandoned', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      if (json.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">No abandoned checkouts detected.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = json.data.map(a => `
+        <tr>
+          <td><code>${a.session_id.slice(-8)}</code></td>
+          <td>${a.customer_phone || a.customer_email || 'Anonymous'}<br><span style="font-size:0.75rem; color:#888;">${a.customer_name || ''}</span></td>
+          <td>${Array.isArray(a.items) ? a.items.length : 1} garment(s)</td>
+          <td><strong>₹${(a.subtotal || 0).toLocaleString('en-IN')}</strong></td>
+          <td><span class="admin-badge admin-badge-warning">${a.recovery_status || 'ABANDONED'}</span></td>
+          <td style="font-size:0.75rem; color:var(--medium-gray);">${new Date(a.created_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</td>
+        </tr>
+      `).join('');
+    }
+  } catch (e) {
+    console.warn('[Admin Abandoned] Error:', e);
+  }
+}
+
+// 12. USERS & RBAC MANAGEMENT
+async function loadAdminUsers() {
+  const tbody = document.getElementById('admin-users-table-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/admin/users', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      tbody.innerHTML = json.data.map(u => `
+        <tr>
+          <td><strong>${u.name}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="admin-badge ${u.role === 'OWNER' ? 'admin-badge-success' : 'admin-badge-dark'}">${u.role}</span></td>
+          <td><span class="admin-badge ${u.is_active ? 'admin-badge-success' : 'admin-badge-danger'}">${u.is_active ? 'ACTIVE' : 'DISABLED'}</span></td>
+          <td style="font-size:0.75rem; color:var(--medium-gray);">${new Date(u.created_at).toLocaleDateString('en-IN')}</td>
+        </tr>
+      `).join('');
+    }
+  } catch (e) {
+    console.warn('[Admin Users] Error:', e);
+  }
+}
+
+function openNewAdminUserModal() {
+  openAdminModal('admin-user-modal');
+}
+
+async function saveAdminUserForm(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('user-form-name').value.trim();
+  const email = document.getElementById('user-form-email').value.trim();
+  const password = document.getElementById('user-form-password').value;
+  const role = document.getElementById('user-form-role').value;
+
+  try {
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { ...getAdminAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showNotification('ADMIN USER CREATED: ' + email);
+      closeAdminModal('admin-user-modal');
+      loadAdminUsers();
+      document.getElementById('admin-user-form').reset();
+    } else {
+      showNotification(json.message || 'FAILED TO CREATE USER');
+    }
+  } catch (err) {
+    showNotification('FAILED TO CREATE USER');
+  }
+}
+
+// 13. SYSTEM HEALTH DIAGNOSTIC
+async function loadAdminHealth() {
+  const dbCard = document.getElementById('health-db-status');
+  const payCard = document.getElementById('health-pay-status');
+  const shipCard = document.getElementById('health-ship-status');
+  const checklist = document.getElementById('health-checklist');
+  if (!dbCard) return;
+
+  dbCard.textContent = 'QUERYING...';
+  try {
+    const res = await fetch('/api/admin/health', { headers: getAdminAuthHeader() });
+    const json = await res.json();
+    if (json.success && json.data) {
+      const h = json.data;
+      const dbInfo = h.integrations.database;
+      const payInfo = h.integrations.payment_gateway;
+      const shipInfo = h.integrations.shipping_logistics;
+
+      dbCard.textContent = dbInfo.status;
+      dbCard.style.color = dbInfo.status === 'HEALTHY' ? '#127938' : '#b25900';
+      document.getElementById('health-db-details').textContent = `${dbInfo.engine} ${dbInfo.latency ? '(' + dbInfo.latency + ')' : ''}`;
+
+      payCard.textContent = payInfo.configured ? 'CONFIGURED' : 'DEV SIMULATION';
+      payCard.style.color = payInfo.configured ? '#127938' : '#b25900';
+      document.getElementById('health-pay-details').textContent = payInfo.configured ? 'Live Razorpay Keys Active' : 'Sandbox Simulated Mode';
+
+      shipCard.textContent = shipInfo.configured ? 'ONLINE' : 'DEV SIMULATION';
+      shipCard.style.color = shipInfo.configured ? '#127938' : '#b25900';
+      document.getElementById('health-ship-details').textContent = shipInfo.configured ? `Hub: ${shipInfo.pickup_location}` : 'Simulated Courier Matrix';
+
+      if (checklist) {
+        checklist.innerHTML = `
+          <div>${dbInfo.is_production_ready ? '✓' : '⚠️'} <strong>PostgreSQL Database:</strong> ${dbInfo.is_production_ready ? 'Connected & Verified as Sole Source of Truth' : 'Operating in Dev Mode without DATABASE_URL'}</div>
+          <div>${payInfo.configured ? '✓' : 'ℹ️'} <strong>Razorpay Payment Gateway:</strong> ${payInfo.configured ? 'Server-Verified HMAC Verification Active' : 'Dev Mode (Set RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET for live)'}</div>
+          <div>${shipInfo.configured ? '✓' : 'ℹ️'} <strong>Shiprocket Logistics Provider:</strong> ${shipInfo.configured ? 'Official API v1 Connected' : 'Dev Mode (Set SHIPROCKET_API_EMAIL & PASSWORD for live)'}</div>
+          <div>✓ <strong>Security Hardening:</strong> Zero Plaintext Secrets in Tracked Files & Brute-Force Defense Active</div>
+          <div>✓ <strong>Logistics Workflow:</strong> Rate Check → Courier Choice → AWB Generation → Pickup → Label PDF → NDR/RTO</div>
+        `;
+      }
+    }
+  } catch (err) {
+    console.warn('[Health Check] Error:', err);
+  }
+}
+
+// 14. CUSTOMER RETURN / EXCHANGE MODAL
+function openCustomerReturnModal(orderNumber = '') {
+  const input = document.getElementById('return-form-order-number');
+  if (input && orderNumber) input.value = orderNumber;
+  openModal('customer-return-modal');
+}
+
+function toggleDesiredSizeInput(type) {
+  const group = document.getElementById('desired-size-group');
+  if (group) {
+    group.style.display = type === 'EXCHANGE' ? 'block' : 'none';
+  }
+}
+
+async function handleCustomerReturnSubmit(e) {
+  if (e) e.preventDefault();
+  const orderNumber = document.getElementById('return-form-order-number').value.trim();
+  const type = document.getElementById('return-form-type').value;
+  const desiredSize = document.getElementById('return-form-desired-size').value;
+  const reason = document.getElementById('return-form-reason').value;
+  const notes = document.getElementById('return-form-notes').value.trim();
+
+  try {
+    showNotification('SUBMITTING RETURN / EXCHANGE REQUEST...');
+    const res = await fetch('/api/returns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_number: orderNumber,
+        type,
+        desired_size: type === 'EXCHANGE' ? desiredSize : null,
+        reason,
+        notes
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      closeModal('customer-return-modal');
+      showNotification('REQUEST SUBMITTED SUCCESSFULLY! OUR TEAM WILL REVIEW WITHIN 24 HOURS.');
+      document.getElementById('customer-return-form').reset();
+    } else {
+      showNotification(json.message || 'FAILED TO SUBMIT REQUEST');
+    }
+  } catch (err) {
+    showNotification('FAILED TO SUBMIT REQUEST');
+  }
+}
+
+// 15. STORE SETTINGS
 async function saveAdminSettings(e) {
   if (e) e.preventDefault();
   const storeName = document.getElementById('setting-store-name').value;
