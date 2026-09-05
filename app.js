@@ -2445,7 +2445,17 @@ async function handleAdminLogin(e) {
       body: JSON.stringify({ email, password })
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      if (errEl) {
+        errEl.textContent = `Server error (${res.status}). Please verify API status.`;
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
     if (!data.success) {
       if (errEl) {
         errEl.textContent = data.message || 'Invalid credentials';

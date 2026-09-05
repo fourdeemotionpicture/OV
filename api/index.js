@@ -65,78 +65,92 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Parse Path and Query with standard WHATWG URL
-  const reqUrl = req.url.startsWith('http') ? new URL(req.url) : new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  let pathname = (reqUrl.pathname || '').replace(/^\/api\/?/, '').replace(/\/$/, '');
+  try {
+    // Parse Path and Query with standard WHATWG URL
+    const reqUrl = req.url.startsWith('http') ? new URL(req.url) : new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    let pathname = (reqUrl.pathname || '').replace(/^\/api\/?/, '').replace(/\/$/, '');
 
-  // Populate req.query
-  if (!req.query) req.query = {};
-  for (const [key, val] of reqUrl.searchParams.entries()) {
-    if (req.query[key] === undefined) req.query[key] = val;
-  }
-
-  // Parse Body if not already parsed by Vercel
-  if (req.method !== 'GET' && req.method !== 'HEAD' && !req.body) {
-    try {
-      const buffers = [];
-      for await (const chunk of req) {
-        buffers.push(chunk);
-      }
-      const rawBody = Buffer.concat(buffers).toString('utf8');
-      if (rawBody) {
-        try {
-          req.body = JSON.parse(rawBody);
-        } catch (e) {
-          req.body = rawBody;
-        }
-      }
-    } catch (err) {
-      // ignore
+    // Populate req.query
+    if (!req.query) req.query = {};
+    for (const [key, val] of reqUrl.searchParams.entries()) {
+      if (req.query[key] === undefined) req.query[key] = val;
     }
-  }
 
-  // Health check / Root
-  if (!pathname || pathname === 'health') {
+    // Parse Body if not already parsed by Vercel
+    if (typeof req.body === 'string') {
+      try {
+        req.body = JSON.parse(req.body);
+      } catch (e) {}
+    } else if (req.method !== 'GET' && req.method !== 'HEAD' && !req.body && !req.readableEnded) {
+      try {
+        const buffers = [];
+        for await (const chunk of req) {
+          buffers.push(chunk);
+        }
+        const rawBody = Buffer.concat(buffers).toString('utf8');
+        if (rawBody) {
+          try {
+            req.body = JSON.parse(rawBody);
+          } catch (e) {
+            req.body = rawBody;
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    // Health check / Root
+    if (!pathname || pathname === 'health') {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).json({
+        success: true,
+        service: 'OV™ — Original Version D2C API Engine',
+        status: 'ONLINE',
+        version: '2.0.0',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Route matching
+    // 1. Direct handler match
+    if (handlers[pathname]) {
+      return await handlers[pathname](req, res);
+    }
+
+    // 2. Dynamic [id] routes
+    const productMatch = pathname.match(/^products\/(.+)$/);
+    if (productMatch) {
+      req.query.id = productMatch[1];
+      return await handlers['products/detail'](req, res);
+    }
+
+    const orderMatch = pathname.match(/^orders\/(.+)$/);
+    if (orderMatch) {
+      req.query.id = orderMatch[1];
+      return await handlers['orders/detail'](req, res);
+    }
+
+    const returnMatch = pathname.match(/^returns\/(.+)$/);
+    if (returnMatch) {
+      req.query.id = returnMatch[1];
+      return await handlers['returns/detail'](req, res);
+    }
+
+    // 404 Route Not Found
     res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({
-      success: true,
-      service: 'OV™ — Original Version D2C API Engine',
-      status: 'ONLINE',
-      version: '2.0.0',
+    return res.status(404).json({
+      success: false,
+      message: `API endpoint '/api/${pathname}' not found.`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (fatalError) {
+    console.error('[OV API Critical Exception]', fatalError);
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json({
+      success: false,
+      message: fatalError.message || 'Internal Server Error',
       timestamp: new Date().toISOString()
     });
   }
-
-  // Route matching
-  // 1. Direct handler match
-  if (handlers[pathname]) {
-    return handlers[pathname](req, res);
-  }
-
-  // 2. Dynamic [id] routes
-  const productMatch = pathname.match(/^products\/(.+)$/);
-  if (productMatch) {
-    req.query.id = productMatch[1];
-    return handlers['products/detail'](req, res);
-  }
-
-  const orderMatch = pathname.match(/^orders\/(.+)$/);
-  if (orderMatch) {
-    req.query.id = orderMatch[1];
-    return handlers['orders/detail'](req, res);
-  }
-
-  const returnMatch = pathname.match(/^returns\/(.+)$/);
-  if (returnMatch) {
-    req.query.id = returnMatch[1];
-    return handlers['returns/detail'](req, res);
-  }
-
-  // 404 Route Not Found
-  res.setHeader('Content-Type', 'application/json');
-  return res.status(404).json({
-    success: false,
-    message: `API endpoint '/api/${pathname}' not found.`,
-    timestamp: new Date().toISOString()
-  });
 };
