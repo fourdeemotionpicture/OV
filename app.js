@@ -389,12 +389,10 @@ function navigateTo(route, productId = null) {
   } else if (route === 'product') {
     document.getElementById('product-page').classList.add('active');
     STATE.currentRoute = 'product';
-    if (productId) {
-      const prod = STATE.products.find(p => p.id === productId);
-      if (prod) {
-        STATE.activeProduct = prod;
-        renderProductDetailPage(prod);
-      }
+    const prod = productId ? STATE.products.find(p => p.id === productId) : (STATE.activeProduct || STATE.products[0]);
+    if (prod) {
+      STATE.activeProduct = prod;
+      renderProductDetailPage(prod);
     }
   } else if (route === 'admin') {
     document.getElementById('admin-page').classList.add('active');
@@ -1806,19 +1804,33 @@ function renderProductDetailPage(product) {
   const priceContainer = document.getElementById('pdp-price-container');
   if (product.originalPrice > product.price) {
     const pct = Math.round((1 - product.price / product.originalPrice) * 100);
+    const savings = product.originalPrice - product.price;
     priceContainer.innerHTML = `
       <span class="product-price original">₹${product.originalPrice.toLocaleString('en-IN')}</span>
       <span class="product-price sale">₹${product.price.toLocaleString('en-IN')}</span>
       <span style="color:var(--red-discount); font-weight:bold; font-size:1.1rem; margin-left:10px;">(${pct}% OFF)</span>
+      <div style="font-size: 0.85rem; color: #16a34a; font-weight: 700; margin-top: 8px; letter-spacing: 0.05em;">YOU SAVE: ₹${savings.toLocaleString('en-IN')} (${pct}% OFF)</div>
     `;
   } else {
     priceContainer.innerHTML = `<span class="product-price">₹${product.price.toLocaleString('en-IN')}</span>`;
   }
 
-  document.getElementById('pdp-material-desc').textContent = `${product.type === 'tee' ? '280 GSM Double-Combed Organic Cotton. Boxy fitting drop shoulder pattern. Pre-shrunk fabric with silicone softening finish.' : '450 GSM Heavyweight French Terry cotton. Relaxed silhouette. Double lined hood. Ribbed side panels.'}`;
+  // Material & specs description
+  const pdpMaterialDesc = document.getElementById('pdp-material-desc');
+  if (pdpMaterialDesc) {
+    pdpMaterialDesc.innerHTML = `
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; font-size: 0.82rem; color: #111; letter-spacing: 0.05em;">
+        <span><strong>FIT:</strong> ${product.fit || 'Oversize'}</span> &bull;
+        <span><strong>FABRIC:</strong> ${product.fabric || '240 GSM'}</span> &bull;
+        <span><strong>NECK:</strong> ${product.neck || 'Round Neck'}</span> &bull;
+        <span><strong>COLOUR:</strong> ${product.color || 'Beige'}</span>
+      </div>
+      <p style="color: #666; line-height: 1.6; font-size: 0.88rem;">${product.desc || 'Grace Is Her Greatest Strength. 240 GSM heavyweight combed cotton cut in a relaxed drop-shoulder oversized silhouette.'}</p>
+    `;
+  }
   
   const stockText = document.getElementById('pdp-stock-text');
-  if (product.stock <= 5) {
+  if (product.stock > 0 && product.stock <= 5) {
     stockText.style.display = 'flex';
     document.getElementById('pdp-stock-count').textContent = `ONLY ${product.stock} PIECES LEFT IN STOCK`;
   } else {
@@ -1827,7 +1839,7 @@ function renderProductDetailPage(product) {
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover;" id="pdp-main-image-el">`;
+    mainImageContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;" id="pdp-main-image-el">`;
   }
 
   const zoomOverlay = document.querySelector('.zoom-overlay');
@@ -1835,22 +1847,15 @@ function renderProductDetailPage(product) {
     zoomOverlay.style.backgroundImage = `url('${product.image}')`;
   }
 
-  // Render Thumbnails
+  // Render Thumbnails (using all 4 uploaded product photos)
   const thumbsContainer = document.getElementById('pdp-thumbs-container');
   if (thumbsContainer) {
-    const otherImg1 = `images/model${product.id === 'tee-01' ? '2' : '1'}.jpg`;
-    const otherImg2 = `images/model${product.id === 'tee-01' ? '3' : '3'}.jpg`;
-    thumbsContainer.innerHTML = `
-      <div class="thumb-item active" onclick="switchPdpThumb(this, '${product.image}')">
-        <img src="${product.image}" style="width:100%; height:100%; object-fit:cover;">
+    const galleryList = (product.gallery && product.gallery.length > 0) ? product.gallery : [product.image];
+    thumbsContainer.innerHTML = galleryList.map((imgSrc, idx) => `
+      <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchPdpThumb(this, '${imgSrc}')">
+        <img src="${imgSrc}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;">
       </div>
-      <div class="thumb-item" onclick="switchPdpThumb(this, '${otherImg1}')">
-        <img src="${otherImg1}" style="width:100%; height:100%; object-fit:cover;">
-      </div>
-      <div class="thumb-item" onclick="switchPdpThumb(this, '${otherImg2}')">
-        <img src="${otherImg2}" style="width:100%; height:100%; object-fit:cover;">
-      </div>
-    `;
+    `).join('');
   }
 
   // Size buttons generation
@@ -1870,6 +1875,26 @@ function renderProductDetailPage(product) {
       sizeSelectContainer.appendChild(btn);
     });
     STATE.activeSize = product.sizes[0];
+  }
+
+  // Add to Cart Button state
+  const atbBtn = document.getElementById('add-to-cart-btn');
+  if (atbBtn) {
+    if (product.isUpcoming) {
+      atbBtn.textContent = 'NOTIFY ME ON DROP';
+      atbBtn.classList.add('secondary');
+      atbBtn.onclick = (e) => {
+        e.preventDefault();
+        showNotification(`WE WILL NOTIFY YOU WHEN ${product.name} DROPS!`);
+      };
+    } else {
+      atbBtn.textContent = `ADD TO BAG — ₹${product.price.toLocaleString('en-IN')}`;
+      atbBtn.classList.remove('secondary');
+      atbBtn.onclick = (e) => {
+        e.preventDefault();
+        addToCart(product.id, STATE.activeSize, STATE.quantity);
+      };
+    }
   }
 
   STATE.quantity = 1;
@@ -1909,15 +1934,13 @@ function switchPdpThumb(element, imageSrc) {
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = `<img src="${imageSrc}" style="width:100%; height:100%; object-fit:cover;" id="pdp-main-image-el">`;
+    mainImageContainer.innerHTML = `<img src="${imageSrc}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;" id="pdp-main-image-el">`;
   }
 
   const zoomOverlay = document.querySelector('.zoom-overlay');
   if (zoomOverlay) {
     zoomOverlay.style.backgroundImage = `url('${imageSrc}')`;
   }
-
-  STATE.activeColor = 'Custom';
 }
 
 function renderFbtBundle(product) {
