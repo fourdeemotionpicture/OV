@@ -1786,7 +1786,7 @@ header.hide {
 
 /* ===== Product Detail Section ===== */
 .product-detail-section {
-  padding: 100px 40px 60px;
+  padding: 145px 40px 60px;
   max-width: 1480px;
   margin: 0 auto;
   display: flex;
@@ -1798,7 +1798,7 @@ header.hide {
 .product-gallery {
   width: 50%;
   position: sticky;
-  top: 90px;
+  top: 135px;
   display: flex;
   gap: 15px;
 }
@@ -1839,8 +1839,8 @@ header.hide {
 
 .gallery-main {
   flex: 1;
-  height: 560px;
-  max-height: calc(100vh - 140px);
+  height: 530px;
+  max-height: calc(100vh - 170px);
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
@@ -3192,7 +3192,7 @@ footer {
   
   .product-detail-section {
     flex-direction: column;
-    padding: 100px 20px 40px;
+    padding: 135px 20px 40px;
     gap: 40px;
   }
   
