@@ -514,149 +514,94 @@ let lights = {};
 function setupThreeJSReveal() {
   const container = document.getElementById('reveal-canvas-container');
   if (!container) return;
+  const floatImg = container.querySelector('.antigravity-float-img');
+  if (!floatImg) return;
 
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let currentRotY = 0, currentRotX = 0;
+  let targetRotY = 0, targetRotX = 0;
 
-  scene3D = new THREE.Scene();
-  scene3D.background = new THREE.Color(0xffffff);
+  container.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    container.style.cursor = 'grabbing';
+  });
 
-  camera3D = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-  camera3D.position.set(0, 0, 5);
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    if (container) container.style.cursor = 'grab';
+  });
 
-  renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer3D.setSize(width, height);
-  renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer3D.shadowMap.enabled = true;
-  renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
-  container.appendChild(renderer3D.domElement);
-
-  const controls = new THREE.OrbitControls(camera3D, renderer3D.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.maxPolarAngle = Math.PI / 1.8;
-  controls.minDistance = 3;
-  controls.maxDistance = 8;
-
-  lights.ambient = new THREE.AmbientLight(0xffffff, 0.7);
-  scene3D.add(lights.ambient);
-
-  lights.mainSpot = new THREE.SpotLight(0xffffff, 0.9);
-  lights.mainSpot.position.set(2, 4, 3);
-  lights.mainSpot.castShadow = true;
-  lights.mainSpot.shadow.mapSize.width = 1024;
-  lights.mainSpot.shadow.mapSize.height = 1024;
-  lights.mainSpot.shadow.bias = -0.001;
-  scene3D.add(lights.mainSpot);
-
-  lights.fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
-  lights.fillLight.position.set(-3, -1, -2);
-  scene3D.add(lights.fillLight);
-
-  tshirtMesh = createTShirtMesh();
-  scene3D.add(tshirtMesh);
-
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-
-    if (tshirtMesh && controls.state === -1) {
-      tshirtMesh.rotation.y += 0.004;
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      targetRotY += deltaX * 0.22;
+      targetRotX -= deltaY * 0.22;
+      startX = e.clientX;
+      startY = e.clientY;
+    } else {
+      const rect = container.getBoundingClientRect();
+      if (e.clientY >= rect.top && e.clientY <= rect.bottom && e.clientX >= rect.left && e.clientX <= rect.right) {
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        targetRotY = x * 18;
+        targetRotX = -y * 14;
+      }
     }
+  });
 
-    renderer3D.render(scene3D, camera3D);
+  // Touch handlers for mobile
+  container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+      const deltaX = e.touches[0].clientX - startX;
+      const deltaY = e.touches[0].clientY - startY;
+      targetRotY += deltaX * 0.25;
+      targetRotX -= deltaY * 0.25;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  function updateParallax() {
+    currentRotY += (targetRotY - currentRotY) * 0.08;
+    currentRotX += (targetRotX - currentRotX) * 0.08;
+    currentRotX = Math.max(-20, Math.min(20, currentRotX));
+    floatImg.style.transform = `perspective(1200px) rotateY(${currentRotY.toFixed(2)}deg) rotateX(${currentRotX.toFixed(2)}deg) scale(1.02)`;
+    requestAnimationFrame(updateParallax);
   }
-  animate();
-
-  window.addEventListener('resize', () => {
-    if (!container) return;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera3D.aspect = w / h;
-    camera3D.updateProjectionMatrix();
-    renderer3D.setSize(w, h);
-  });
-
-  container.addEventListener('mousemove', (e) => {
-    const rect = container.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-    gsap.to(lights.mainSpot.position, {
-      x: 2 + x * 1.5,
-      y: 4 + y * 1.5,
-      duration: 0.8,
-      ease: "power2.out"
-    });
-  });
-}
-
-function createTShirtMesh() {
-  const tshirtGroup = new THREE.Group();
-
-  const fabricMaterial = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.85,
-    metalness: 0.1,
-    side: THREE.DoubleSide
-  });
-
-  const bodyGeo = new THREE.CylinderGeometry(0.85, 0.9, 2.0, 32, 1);
-  const body = new THREE.Mesh(bodyGeo, fabricMaterial);
-  body.castShadow = true;
-  body.receiveShadow = true;
-  tshirtGroup.add(body);
-
-  const sleeveLGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
-  const sleeveL = new THREE.Mesh(sleeveLGeo, fabricMaterial);
-  sleeveL.position.set(-0.85, 0.7, 0);
-  sleeveL.rotation.z = Math.PI / 4.5;
-  sleeveL.castShadow = true;
-  sleeveL.receiveShadow = true;
-  tshirtGroup.add(sleeveL);
-
-  const sleeveRGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16);
-  const sleeveR = new THREE.Mesh(sleeveRGeo, fabricMaterial);
-  sleeveR.position.set(0.85, 0.7, 0);
-  sleeveR.rotation.z = -Math.PI / 4.5;
-  sleeveR.castShadow = true;
-  sleeveR.receiveShadow = true;
-  tshirtGroup.add(sleeveR);
-
-  const collarGeo = new THREE.TorusGeometry(0.32, 0.06, 16, 32);
-  const collar = new THREE.Mesh(collarGeo, fabricMaterial);
-  collar.position.set(0, 1.02, 0);
-  collar.rotation.x = Math.PI / 2;
-  tshirtGroup.add(collar);
-
-  tshirtGroup.position.y = -0.3;
-  return tshirtGroup;
+  updateParallax();
 }
 
 function switch3DColor(colorName, element) {
   const swatches = document.querySelectorAll('.swatch');
   swatches.forEach(s => s.classList.remove('active'));
-  element.classList.add('active');
+  if (element) element.classList.add('active');
 
   STATE.activeColor = colorName;
-  let targetColor;
-
-  if (colorName === 'white') targetColor = 0xffffff;
-  else if (colorName === 'black') targetColor = 0x111111;
-  else if (colorName === 'cream') targetColor = 0xf3efe0;
-
-  if (tshirtMesh) {
-    tshirtMesh.traverse((child) => {
-      if (child.isMesh) {
-        gsap.to(child.material.color, {
-          r: ((targetColor >> 16) & 255) / 255,
-          g: ((targetColor >> 8) & 255) / 255,
-          b: (targetColor & 255) / 255,
-          duration: 0.6,
-          ease: "power2.out"
-        });
-      }
-    });
+  const floatImg = document.querySelector('.antigravity-float-img');
+  if (floatImg) {
+    if (colorName === 'white') {
+      gsap.to(floatImg, { filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.12)) brightness(1.05) contrast(1)', duration: 0.5 });
+    } else if (colorName === 'black') {
+      gsap.to(floatImg, { filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.3)) brightness(0.95) contrast(1.15)', duration: 0.5 });
+    } else if (colorName === 'cream') {
+      gsap.to(floatImg, { filter: 'drop-shadow(0 20px 40px rgba(180,150,110,0.25)) sepia(0.18)', duration: 0.5 });
+    }
   }
 }
 

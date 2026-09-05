@@ -1420,19 +1420,31 @@ header.hide {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 24px;
   border: 1px solid var(--border-color);
-  font-size: 0.7rem;
+  border-radius: 40px;
+  font-size: 0.72rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   pointer-events: none;
   z-index: 10;
   display: flex;
-  gap: 15px;
+  gap: 16px;
   align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes antigravityGlow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.antigravity-scene {
+  animation: antigravityGlow 5s ease-in-out infinite;
 }
 
 .reveal-canvas-instructions span {
