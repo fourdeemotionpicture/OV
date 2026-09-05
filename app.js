@@ -1839,7 +1839,7 @@ function renderProductDetailPage(product) {
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;" id="pdp-main-image-el">`;
+    mainImageContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:contain;" id="pdp-main-image-el">`;
   }
 
   const zoomOverlay = document.querySelector('.zoom-overlay');
@@ -1853,7 +1853,7 @@ function renderProductDetailPage(product) {
     const galleryList = (product.gallery && product.gallery.length > 0) ? product.gallery : [product.image];
     thumbsContainer.innerHTML = galleryList.map((imgSrc, idx) => `
       <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="switchPdpThumb(this, '${imgSrc}')">
-        <img src="${imgSrc}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;">
+        <img src="${imgSrc}" style="width:100%; height:100%; object-fit:contain;">
       </div>
     `).join('');
   }
@@ -1934,7 +1934,7 @@ function switchPdpThumb(element, imageSrc) {
 
   const mainImageContainer = document.getElementById('pdp-main-image-container');
   if (mainImageContainer) {
-    mainImageContainer.innerHTML = `<img src="${imageSrc}" style="width:100%; height:100%; object-fit:cover; object-position: 50% 0%;" id="pdp-main-image-el">`;
+    mainImageContainer.innerHTML = `<img src="${imageSrc}" style="width:100%; height:100%; object-fit:contain;" id="pdp-main-image-el">`;
   }
 
   const zoomOverlay = document.querySelector('.zoom-overlay');
