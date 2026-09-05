@@ -3,19 +3,124 @@
    ========================================================================== */
 
 // Global State
-// Global State
+const DEFAULT_PRODUCTS = [
+  {
+    id: 'ov-tee-grace-beige',
+    name: 'OV™ "GRACE" 240 GSM Oversized Heavyweight Tee — Dune Beige',
+    baseName: 'Grace Oversized Tee',
+    price: 999,
+    originalPrice: 2999,
+    type: 'tee',
+    brand: 'OV™ FEMME',
+    badge: '67% OFF',
+    stock: 15,
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    reviews: [
+      { author: 'Ananya S.', rating: 5, date: '2 days ago', title: 'Perfection in fabric & fit', comment: 'The 240 GSM weight feels incredibly premium and soft. The back floral print with Grace is so empowering!' },
+      { author: 'Meera K.', rating: 5, date: '1 week ago', title: 'Best oversized tee I own', comment: 'Drape is immaculate. Exactly the luxury streetwear aesthetic I was hunting for.' }
+    ],
+    rating: 4.9,
+    image: 'images/product_beige_front_model.jpg',
+    gallery: [
+      'images/product_beige_front_model.jpg',
+      'images/product_beige_back_model.jpg',
+      'images/product_beige_back_flat.jpg',
+      'images/product_beige_front_flat.jpg'
+    ],
+    fit: 'Oversize',
+    fabric: '240 GSM Heavyweight Combed Cotton',
+    neck: 'Round Neck',
+    color: 'Beige',
+    desc: 'Grace Is Her Greatest Strength. 240 GSM heavyweight combed cotton cut in an intentional drop-shoulder oversized silhouette. Features signature minimal front script and high-density typographic back floral muse graphic: "Quite. Unbreakable. Limitless."',
+    isUpcoming: false
+  },
+  {
+    id: 'hoodie-01',
+    name: 'OV™ 450 GSM French Terry Boxy Hoodie — Slate Noir',
+    baseName: 'Boxy Fit Hoodie',
+    price: 4299,
+    originalPrice: 5499,
+    type: 'hoodie',
+    brand: 'OV™ ESSENTIALS',
+    badge: 'UPCOMING',
+    stock: 0,
+    sizes: ['S', 'M', 'L', 'XL'],
+    reviews: [],
+    rating: 4.9,
+    image: 'images/model3.jpg',
+    gallery: ['images/model3.jpg'],
+    fit: 'Boxy Relaxed',
+    fabric: '450 GSM French Terry',
+    color: 'Slate Noir',
+    isUpcoming: true
+  },
+  {
+    id: 'pants-01',
+    name: 'OV™ Signature Tailored Cargo — Noir',
+    baseName: 'Signature Cargo',
+    price: 3799,
+    originalPrice: 4499,
+    type: 'pants',
+    brand: 'OV™ STUDIO',
+    badge: 'UPCOMING',
+    stock: 0,
+    sizes: ['M', 'L', 'XL'],
+    reviews: [],
+    rating: 4.8,
+    image: 'images/model5.jpg',
+    gallery: ['images/model5.jpg'],
+    fit: 'Relaxed Tapered',
+    fabric: 'Heavy Cotton Twill',
+    color: 'Noir',
+    isUpcoming: true
+  },
+  {
+    id: 'cap-01',
+    name: 'OV™ Monogram Embroidered Cap — Noir',
+    baseName: 'Premium Cap',
+    price: 1599,
+    originalPrice: 1999,
+    type: 'cap',
+    brand: 'OV™ ACCESSORIES',
+    badge: 'UPCOMING',
+    stock: 0,
+    sizes: ['O/S'],
+    reviews: [],
+    rating: 4.6,
+    image: 'images/model2.jpg',
+    gallery: ['images/model2.jpg'],
+    color: 'Noir',
+    isUpcoming: true
+  },
+  {
+    id: 'bag-01',
+    name: 'OV™ Heavy Canvas Studio Tote — Raw Bone',
+    baseName: 'Studio Canvas Tote',
+    price: 1899,
+    originalPrice: 2299,
+    type: 'bag',
+    brand: 'OV™ ACCESSORIES',
+    badge: 'UPCOMING',
+    stock: 0,
+    sizes: ['O/S'],
+    reviews: [],
+    rating: 4.7,
+    image: 'images/model4.jpg',
+    gallery: ['images/model4.jpg'],
+    color: 'Bone',
+    isUpcoming: true
+  }
+];
+
 const STATE = {
-  products: JSON.parse(localStorage.getItem('ov_custom_products')) || [
-    { id: 'tee-01', name: 'OV™ Heavyweight Tee - Onyx', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2999, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 3, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8, image: 'images/model1.jpg' },
-    { id: 'tee-02', name: 'OV™ Heavyweight Tee - Ivory', baseName: 'Heavyweight Tee', price: 2499, originalPrice: 2499, type: 'tee', brand: 'OV™ BLACK LABEL', badge: 'NEW', stock: 8, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.7, image: 'images/model2.jpg' },
-    { id: 'hoodie-01', name: 'OV™ Boxy Fit Hoodie - Slate', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 5499, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: 'SALE', stock: 2, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.9, image: 'images/model3.jpg' },
-    { id: 'hoodie-02', name: 'OV™ Boxy Fit Hoodie - Bone', baseName: 'Boxy Fit Hoodie', price: 4299, originalPrice: 4299, type: 'hoodie', brand: 'OV™ ESSENTIALS', badge: null, stock: 6, sizes: ['S', 'M', 'L', 'XL'], reviews: [], rating: 4.8, image: 'images/model4.jpg' },
-    { id: 'pants-01', name: 'OV™ Signature Cargo - Onyx', baseName: 'Signature Cargo', price: 3799, originalPrice: 4499, type: 'pants', brand: 'OV™ STUDIO', badge: 'SALE', stock: 4, sizes: ['M', 'L', 'XL'], reviews: [], rating: 4.6, image: 'images/model5.jpg' },
-    { id: 'pants-02', name: 'OV™ Signature Cargo - Slate', baseName: 'Signature Cargo', price: 3799, originalPrice: 3799, type: 'pants', brand: 'OV™ STUDIO', badge: null, stock: 9, sizes: ['S', 'M', 'L'], reviews: [], rating: 4.5, image: 'images/model1.jpg' },
-    { id: 'cap-01', name: 'OV™ Premium Cap - Black', baseName: 'Premium Cap', price: 1599, originalPrice: 1999, type: 'cap', brand: 'OV™ ACTIVE', badge: 'SALE', stock: 11, sizes: ['O/S'], reviews: [], rating: 4.4, image: 'images/model2.jpg' },
-    { id: 'cap-02', name: 'OV™ Premium Cap - Sand', baseName: 'Premium Cap', price: 1599, originalPrice: 1599, type: 'cap', brand: 'OV™ ACTIVE', badge: null, stock: 15, sizes: ['O/S'], reviews: [], rating: 4.3, image: 'images/model3.jpg' },
-    { id: 'bag-01', name: 'OV™ Studio Canvas Tote - Cream', baseName: 'Studio Canvas Tote', price: 1899, originalPrice: 2299, type: 'bag', brand: 'OV™ STUDIO', badge: 'SALE', stock: 3, sizes: ['O/S'], reviews: [], rating: 4.6, image: 'images/model4.jpg' }
-  ],
+  products: (() => {
+    const saved = localStorage.getItem('ov_custom_products_v3');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) {}
+    }
+    localStorage.setItem('ov_custom_products_v3', JSON.stringify(DEFAULT_PRODUCTS));
+    return DEFAULT_PRODUCTS;
+  })(),
   slides: JSON.parse(localStorage.getItem('ov_custom_slides')) || [
     {
       image: 'images/model_sunglasses.jpg',
@@ -1617,13 +1722,16 @@ function renderProductGrid(containerId, productList) {
 
   productList.forEach(p => {
     const card = document.createElement('div');
-    card.className = 'collection-card';
+    const isUpcoming = p.isUpcoming || false;
+    card.className = `collection-card ${isUpcoming ? 'upcoming-card' : ''}`;
     card.setAttribute('onclick', `navigateTo('product', '${p.id}')`);
 
     // Badge Render logic
     let badgeHTML = '';
-    if (p.badge) {
-      const cls = p.badge === 'SALE' ? 'sale' : '';
+    if (isUpcoming) {
+      badgeHTML = `<span class="card-badge upcoming">UPCOMING</span>`;
+    } else if (p.badge) {
+      const cls = p.badge === 'SALE' || p.badge.includes('OFF') ? 'sale' : '';
       badgeHTML = `<span class="card-badge ${cls}">${p.badge}</span>`;
     }
 
@@ -1639,7 +1747,7 @@ function renderProductGrid(containerId, productList) {
     }
 
     // Size Preview logic
-    const sizesRowStr = p.sizes.map(s => `<span class="card-size-item">${s}</span>`).join('');
+    const sizesRowStr = (p.sizes || []).map(s => `<span class="card-size-item">${s}</span>`).join('');
 
     card.innerHTML = `
       <div class="card-badge-container">${badgeHTML}</div>
