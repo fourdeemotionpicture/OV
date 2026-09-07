@@ -2622,6 +2622,7 @@ function switchAdminTab(tabId) {
   if (tabId === 'users-tab') loadAdminUsers();
   if (tabId === 'audit-tab') loadAdminAuditLogs();
   if (tabId === 'health-tab') loadAdminHealth();
+  if (tabId === 'slides-tab' || tabId === 'products-tab' || tabId === 'logo-tab') renderAdminDashboard();
 }
 
 function initAdminDashboard() {
@@ -3738,12 +3739,26 @@ function setProductImagePreset(presetUrl) {
 
 function openAdminModal(modalId) {
   const modal = document.getElementById(modalId);
-  if (modal) modal.classList.add('active');
+  if (modal) {
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.pointerEvents = 'auto';
+    document.body.classList.add('no-scroll');
+  }
 }
 
 function closeAdminModal(modalId) {
   const modal = document.getElementById(modalId);
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = '';
+    modal.style.opacity = '';
+    modal.style.visibility = '';
+    modal.style.pointerEvents = '';
+    document.body.classList.remove('no-scroll');
+  }
 }
 
 function openNewSlideForm() {
