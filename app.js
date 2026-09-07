@@ -3740,6 +3740,9 @@ function setProductImagePreset(presetUrl) {
 function openAdminModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
     modal.classList.add('active');
     modal.style.display = 'flex';
     modal.style.opacity = '1';
