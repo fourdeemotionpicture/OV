@@ -3753,13 +3753,20 @@ function closeAdminModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('active');
-    modal.style.display = '';
-    modal.style.opacity = '';
-    modal.style.visibility = '';
-    modal.style.pointerEvents = '';
+    modal.style.display = 'none';
+    modal.style.opacity = '0';
+    modal.style.visibility = 'hidden';
+    modal.style.pointerEvents = 'none';
     document.body.classList.remove('no-scroll');
   }
 }
+
+// Allow clicking outside modal panel to close admin modals smoothly
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('modal-overlay') && e.target.classList.contains('active')) {
+    closeAdminModal(e.target.id);
+  }
+});
 
 function openNewSlideForm() {
   document.getElementById('admin-slide-form').reset();
