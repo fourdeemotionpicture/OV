@@ -47,8 +47,8 @@ const DEFAULT_PRODUCTS = [
     sizes: ['S', 'M', 'L', 'XL'],
     reviews: [],
     rating: 4.9,
-    image: 'images/model3.jpg',
-    gallery: ['images/model3.jpg'],
+    image: 'images/model_runway.jpg',
+    gallery: ['images/model_runway.jpg'],
     fit: 'Boxy Relaxed',
     fabric: '450 GSM French Terry',
     color: 'Slate Noir',
@@ -121,56 +121,78 @@ const STATE = {
     localStorage.setItem('ov_custom_products_v3', JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
   })(),
-  slides: JSON.parse(localStorage.getItem('ov_custom_slides')) || [
-    {
-      image: 'images/model_sunglasses.jpg',
-      position: 'right 20% top 0%',
-      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-      eyebrow: 'FESTIVE SPECIFICATION',
-      title: 'DIWALI DROP',
-      desc: 'Discover statement pieces that blend elegance with individuality. Designed for the modern muse.',
-      btnText: 'SHOP NOW',
-      btnAction: 'shop',
-      layout: 'layout-split',
-      isLogoGraphic: true,
-      scriptTitle: ''
-    },
-    {
-      image: 'images/model2.jpg',
-      position: 'right 20% top 0%',
-      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-      eyebrow: 'FESTIVE SPECIFICATION',
-      title: 'ELEVATE YOUR STYLE',
-      scriptTitle: 'Define Your Story',
-      desc: 'Timeless elegance. Modern sophistication. Crafted for the woman who inspires.',
-      btnText: 'EXPLORE COLLECTION',
-      btnAction: 'shop',
-      layout: 'layout-split',
-      isLogoGraphic: false,
-      vFeatures: [
-        { num: '01', title: 'PREMIUM QUALITY', desc: 'Double-combed heavy cotton' },
-        { num: '02', title: 'MODERN DESIGNS', desc: 'Designed for the modern muse' },
-        { num: '03', title: 'TIMELESS ELEGANCE', desc: 'Crafted to outlast trends' }
-      ]
-    },
-    {
-      image: 'images/model3.jpg',
-      position: 'right 30% center',
-      overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-      eyebrow: 'ORIGINAL FIT',
-      title: 'BLACK LABEL',
-      scriptTitle: 'Original Never Copies',
-      desc: 'French Terry Sweats & Heavyweight Hoodies Engineered to Outlast Trends.',
-      btnText: 'VIEW ESSENTIALS',
-      btnAction: 'shop',
-      layout: 'layout-split',
-      isLogoGraphic: false,
-      vFeatures: [
-        { num: '04', title: 'HEAVY WEIGHT', desc: '450 GSM Organic French Terry' },
-        { num: '05', title: 'MINIMAL LUXURY', desc: 'Designed for daily comfort' }
-      ]
+  slides: (() => {
+    const DEFAULT_SLIDES = [
+      {
+        image: 'images/model_sunglasses.jpg',
+        position: 'right 20% top 0%',
+        overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+        eyebrow: 'FESTIVE SPECIFICATION',
+        title: 'DIWALI DROP',
+        desc: 'Discover statement pieces that blend elegance with individuality. Designed for the modern muse.',
+        btnText: 'SHOP NOW',
+        btnAction: 'shop',
+        layout: 'layout-split',
+        isLogoGraphic: true,
+        scriptTitle: ''
+      },
+      {
+        image: 'images/model2.jpg',
+        position: 'right 20% top 0%',
+        overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+        eyebrow: 'FESTIVE SPECIFICATION',
+        title: 'ELEVATE YOUR STYLE',
+        scriptTitle: 'Define Your Story',
+        desc: 'Timeless elegance. Modern sophistication. Crafted for the woman who inspires.',
+        btnText: 'EXPLORE COLLECTION',
+        btnAction: 'shop',
+        layout: 'layout-split',
+        isLogoGraphic: false,
+        vFeatures: [
+          { num: '01', title: 'PREMIUM QUALITY', desc: 'Double-combed heavy cotton' },
+          { num: '02', title: 'MODERN DESIGNS', desc: 'Designed for the modern muse' },
+          { num: '03', title: 'TIMELESS ELEGANCE', desc: 'Crafted to outlast trends' }
+        ]
+      },
+      {
+        image: 'images/diwali_banner.png',
+        position: 'right 20% center',
+        overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
+        eyebrow: 'ORIGINAL FIT',
+        title: 'BLACK LABEL',
+        scriptTitle: 'Original Never Copies',
+        desc: 'French Terry Sweats & Heavyweight Hoodies Engineered to Outlast Trends.',
+        btnText: 'VIEW ESSENTIALS',
+        btnAction: 'shop',
+        layout: 'layout-split',
+        isLogoGraphic: false,
+        vFeatures: [
+          { num: '04', title: 'HEAVY WEIGHT', desc: '450 GSM Organic French Terry' },
+          { num: '05', title: 'MINIMAL LUXURY', desc: 'Designed for daily comfort' }
+        ]
+      }
+    ];
+
+    let list = null;
+    try {
+      const saved = localStorage.getItem('ov_custom_slides');
+      if (saved) list = JSON.parse(saved);
+    } catch(e) {}
+
+    if (!list || !Array.isArray(list) || list.length === 0) {
+      list = DEFAULT_SLIDES;
+    } else {
+      // Auto-migrate any outdated references to model3.jpg to official diwali_banner.png
+      list.forEach(s => {
+        if (s.image && s.image.includes('model3.jpg')) {
+          s.image = 'images/diwali_banner.png';
+          s.position = 'right 20% center';
+        }
+      });
     }
-  ],
+    localStorage.setItem('ov_custom_slides', JSON.stringify(list));
+    return list;
+  })(),
   logo: JSON.parse(localStorage.getItem('ov_custom_logo')) || {
     letters: 'OV',
     subtext: 'ORIGINAL VERSION',
@@ -262,6 +284,29 @@ document.addEventListener('DOMContentLoaded', () => {
   try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { updateCartBadge(); } catch(e) { console.error(e); }
   try { updateWishlistBadge(); } catch(e) { console.error(e); }
+
+  // Fetch remote settings (slides, brand logo, etc.) to ensure 100% cross-browser consistency
+  fetch('/api/settings')
+    .then(r => r.json())
+    .then(res => {
+      if (res && res.success && res.data) {
+        let rerenderSlider = false;
+        if (Array.isArray(res.data.hero_slides) && res.data.hero_slides.length > 0) {
+          STATE.slides = res.data.hero_slides;
+          localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+          rerenderSlider = true;
+        }
+        if (res.data.brand_logo) {
+          STATE.logo = res.data.brand_logo;
+          localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
+          renderLogoMarks();
+        }
+        if (rerenderSlider) {
+          renderHeroSlider();
+        }
+      }
+    })
+    .catch(() => {});
 
   // SPA Route Path/Hash check on boot
   try {
@@ -3666,6 +3711,11 @@ function deleteSlide(idx) {
     renderHeroSlider();
     renderAdminDashboard();
     showNotification('SLIDE REMOVED SUCCESSFUL');
+    fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+      body: JSON.stringify({ hero_slides: STATE.slides })
+    }).catch(() => {});
   }
 }
 
@@ -3711,6 +3761,12 @@ function saveSlideForm(event) {
   renderAdminDashboard();
   closeAdminModal('admin-slide-modal');
   showNotification('BANNER SLIDE SAVED');
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ hero_slides: STATE.slides })
+  }).catch(() => {});
 }
 
 function openNewProductForm() {
@@ -3843,4 +3899,10 @@ function saveAdminLogo() {
   localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
   renderLogoMarks();
   showNotification('BRAND LOGO STYLING SAVED');
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ brand_logo: STATE.logo })
+  }).catch(() => {});
 }
