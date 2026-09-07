@@ -1566,13 +1566,24 @@
           <h3 id="slide-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT HERO SLIDE</h3>
           <button class="close-drawer-btn" onclick="closeAdminModal('admin-slide-modal')">×</button>
         </div>
-        <div class="modal-body" style="padding:30px;">
+        <div class="modal-body" style="padding:30px; max-height:calc(90vh - 80px); overflow-y:auto;">
           <form id="admin-slide-form" onsubmit="saveSlideForm(event)">
             <input type="hidden" id="slide-form-index">
             
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Slide Image (Upload Local File)</label>
-              <input type="file" id="slide-form-file" class="auth-input" accept="image/*" onchange="handleFileAsBase64(this, 'slide-form-img-preview', 'slide-form-image-data')" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+            <div class="admin-form-group" style="margin-bottom:18px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Slide Image (URL / Path or Upload)</label>
+              <input type="text" id="slide-form-image-url" class="auth-input" placeholder="e.g. images/diwali_banner.png or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateSlidePreviewFromUrl(this.value)">
+              
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center;">
+                <span style="font-size:0.65rem; color:var(--medium-gray); font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/diwali_banner.png')">Diwali Banner</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model_sunglasses.jpg')">Sunglasses Model</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model2.jpg')">Model 2</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model_runway.jpg')">Runway Model</button>
+              </div>
+
+              <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px; font-weight:500;">OR UPLOAD FROM COMPUTER:</div>
+              <input type="file" id="slide-form-file" class="auth-input" accept="image/*" onchange="handleFileAsCompressedBase64(this, 'slide-form-img-preview', 'slide-form-image-data', 'slide-form-image-url')" style="border:1px solid var(--border-color); padding:8px; width:100%;">
               <input type="hidden" id="slide-form-image-data">
               <img id="slide-form-img-preview" src="" style="width: 100%; max-height: 180px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
             </div>
@@ -1580,6 +1591,7 @@
             <div class="admin-form-group" style="margin-bottom:15px;">
               <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Crop / Background Position (Face alignment)</label>
               <select id="slide-form-position" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; background-color:var(--white);">
+                <option value="right 20% center">Right 20% Center (Recommended for Black Label)</option>
                 <option value="right 20% top 0%">Right 20% Top (Recommended for portrait models)</option>
                 <option value="right top">Right Top</option>
                 <option value="center top">Center Top</option>
@@ -1634,13 +1646,24 @@
           <h3 id="product-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT CATALOG PRODUCT</h3>
           <button class="close-drawer-btn" onclick="closeAdminModal('admin-product-modal')">×</button>
         </div>
-        <div class="modal-body" style="padding:30px;">
+        <div class="modal-body" style="padding:30px; max-height:calc(90vh - 80px); overflow-y:auto;">
           <form id="admin-product-form" onsubmit="saveProductForm(event)">
             <input type="hidden" id="product-form-id">
             
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Image (Upload Local File)</label>
-              <input type="file" id="product-form-file" class="auth-input" accept="image/*" onchange="handleFileAsBase64(this, 'product-form-img-preview', 'product-form-image-data')" style="border:1px solid var(--border-color); padding:10px; width:100%;">
+            <div class="admin-form-group" style="margin-bottom:18px;">
+              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Image (URL / Path or Upload)</label>
+              <input type="text" id="product-form-image-url" class="auth-input" placeholder="e.g. images/product_beige_front.png or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateProductPreviewFromUrl(this.value)">
+
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center;">
+                <span style="font-size:0.65rem; color:var(--medium-gray); font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('/images/product_beige_front.png')">Beige Tee</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('/images/product_noir_front.png')">Noir Tee</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model_runway.jpg')">Runway Hoodie</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model2.jpg')">Model 2</button>
+              </div>
+
+              <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px; font-weight:500;">OR UPLOAD FROM COMPUTER:</div>
+              <input type="file" id="product-form-file" class="auth-input" accept="image/*" onchange="handleFileAsCompressedBase64(this, 'product-form-img-preview', 'product-form-image-data', 'product-form-image-url')" style="border:1px solid var(--border-color); padding:8px; width:100%;">
               <input type="hidden" id="product-form-image-data">
               <img id="product-form-img-preview" src="" style="width: 100px; height: 130px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
             </div>

@@ -291,14 +291,18 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(res => {
       if (res && res.success && res.data) {
         let rerenderSlider = false;
+        const hasLocalSlides = !!localStorage.getItem('ov_custom_slides');
         if (Array.isArray(res.data.hero_slides) && res.data.hero_slides.length > 0) {
-          STATE.slides = res.data.hero_slides;
-          localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
-          rerenderSlider = true;
+          if (!hasLocalSlides || res.data.custom_hero_slides_saved) {
+            STATE.slides = res.data.hero_slides;
+            try { localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides)); } catch(e) {}
+            rerenderSlider = true;
+          }
         }
-        if (res.data.brand_logo) {
+        const hasLocalLogo = !!localStorage.getItem('ov_custom_logo');
+        if (res.data.brand_logo && (!hasLocalLogo || res.data.custom_brand_logo_saved)) {
           STATE.logo = res.data.brand_logo;
-          localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
+          try { localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo)); } catch(e) {}
           renderLogoMarks();
         }
         if (rerenderSlider) {
@@ -3644,22 +3648,92 @@ function renderAdminDashboard() {
 }
 
 function handleFileAsBase64(input, previewId, hiddenInputId) {
+  handleFileAsCompressedBase64(input, previewId, hiddenInputId);
+}
+
+function handleFileAsCompressedBase64(input, previewId, hiddenInputId, urlInputId, maxWidth = 1600, maxHeight = 1600, quality = 0.82) {
   const file = input.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    const preview = document.getElementById(previewId);
-    const hidden = document.getElementById(hiddenInputId);
-    if (preview) {
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-    }
-    if (hidden) {
-      hidden.value = e.target.result;
-    }
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width;
+      let h = img.height;
+
+      if (w > maxWidth || h > maxHeight) {
+        if (w / h > maxWidth / maxHeight) {
+          h = Math.round((h * maxWidth) / w);
+          w = maxWidth;
+        } else {
+          w = Math.round((w * maxHeight) / h);
+          h = maxHeight;
+        }
+      }
+
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+
+      const preview = document.getElementById(previewId);
+      const hidden = document.getElementById(hiddenInputId);
+      const urlInput = urlInputId ? document.getElementById(urlInputId) : null;
+
+      if (preview) {
+        preview.src = compressedDataUrl;
+        preview.style.display = 'block';
+      }
+      if (hidden) {
+        hidden.value = compressedDataUrl;
+      }
+      if (urlInput) {
+        urlInput.value = ''; // clear text URL if uploaded custom file
+      }
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+function updateSlidePreviewFromUrl(url) {
+  const preview = document.getElementById('slide-form-img-preview');
+  const hidden = document.getElementById('slide-form-image-data');
+  if (url && url.trim()) {
+    if (preview) {
+      preview.src = url.trim();
+      preview.style.display = 'block';
+    }
+    if (hidden) hidden.value = url.trim();
+  }
+}
+
+function setSlideImagePreset(presetUrl) {
+  const urlInput = document.getElementById('slide-form-image-url');
+  if (urlInput) urlInput.value = presetUrl;
+  updateSlidePreviewFromUrl(presetUrl);
+}
+
+function updateProductPreviewFromUrl(url) {
+  const preview = document.getElementById('product-form-img-preview');
+  const hidden = document.getElementById('product-form-image-data');
+  if (url && url.trim()) {
+    if (preview) {
+      preview.src = url.trim();
+      preview.style.display = 'block';
+    }
+    if (hidden) hidden.value = url.trim();
+  }
+}
+
+function setProductImagePreset(presetUrl) {
+  const urlInput = document.getElementById('product-form-image-url');
+  if (urlInput) urlInput.value = presetUrl;
+  updateProductPreviewFromUrl(presetUrl);
 }
 
 function openAdminModal(modalId) {
@@ -3676,7 +3750,10 @@ function openNewSlideForm() {
   document.getElementById('admin-slide-form').reset();
   document.getElementById('slide-form-index').value = '';
   document.getElementById('slide-form-image-data').value = '';
-  document.getElementById('slide-form-img-preview').style.display = 'none';
+  const urlInput = document.getElementById('slide-form-image-url');
+  if (urlInput) urlInput.value = '';
+  const preview = document.getElementById('slide-form-img-preview');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
   document.getElementById('slide-modal-title').textContent = 'ADD NEW HERO SLIDE';
   openAdminModal('admin-slide-modal');
 }
@@ -3686,13 +3763,20 @@ function editSlide(idx) {
   if (!slide) return;
 
   document.getElementById('slide-form-index').value = idx;
-  document.getElementById('slide-form-image-data').value = slide.image;
+  document.getElementById('slide-form-image-data').value = slide.image || '';
   
-  const preview = document.getElementById('slide-form-img-preview');
-  preview.src = slide.image;
-  preview.style.display = 'block';
+  const urlInput = document.getElementById('slide-form-image-url');
+  if (urlInput) urlInput.value = slide.image || '';
 
-  document.getElementById('slide-form-position').value = slide.position || 'center center';
+  const preview = document.getElementById('slide-form-img-preview');
+  if (preview) {
+    preview.src = slide.image;
+    preview.style.display = slide.image ? 'block' : 'none';
+  }
+
+  const posEl = document.getElementById('slide-form-position');
+  if (posEl) posEl.value = slide.position || 'right 20% center';
+
   document.getElementById('slide-form-eyebrow').value = slide.eyebrow || '';
   document.getElementById('slide-form-title').value = slide.title || '';
   document.getElementById('slide-form-script').value = slide.scriptTitle || '';
@@ -3700,21 +3784,21 @@ function editSlide(idx) {
   document.getElementById('slide-form-btn-text').value = slide.btnText || 'SHOP NOW';
   document.getElementById('slide-form-is-logo').checked = !!slide.isLogoGraphic;
 
-  document.getElementById('slide-modal-title').textContent = 'EDIT HERO SLIDE';
+  document.getElementById('slide-modal-title').textContent = 'EDIT HERO SLIDE #' + (idx + 1);
   openAdminModal('admin-slide-modal');
 }
 
 function deleteSlide(idx) {
   if (confirm('Are you sure you want to delete this banner slide?')) {
     STATE.slides.splice(idx, 1);
-    localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+    try { localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides)); } catch(e) {}
     renderHeroSlider();
     renderAdminDashboard();
     showNotification('SLIDE REMOVED SUCCESSFUL');
     fetch('/api/admin/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
-      body: JSON.stringify({ hero_slides: STATE.slides })
+      body: JSON.stringify({ hero_slides: STATE.slides, custom_hero_slides_saved: true })
     }).catch(() => {});
   }
 }
@@ -3722,22 +3806,25 @@ function deleteSlide(idx) {
 function saveSlideForm(event) {
   event.preventDefault();
   const idx = document.getElementById('slide-form-index').value;
-  const imageData = document.getElementById('slide-form-image-data').value;
+  const urlInput = document.getElementById('slide-form-image-url');
+  let imageData = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : document.getElementById('slide-form-image-data').value;
   
   if (!imageData) {
-    alert('Please upload an image for the slide.');
+    showNotification('PLEASE PROVIDE AN IMAGE URL OR UPLOAD A FILE');
     return;
   }
 
+  const posVal = document.getElementById('slide-form-position').value || 'right 20% center';
+
   const slideData = {
     image: imageData,
-    position: document.getElementById('slide-form-position').value,
+    position: posVal,
     overlay: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-    eyebrow: document.getElementById('slide-form-eyebrow').value,
-    title: document.getElementById('slide-form-title').value,
-    scriptTitle: document.getElementById('slide-form-script').value,
-    desc: document.getElementById('slide-form-desc').value,
-    btnText: document.getElementById('slide-form-btn-text').value,
+    eyebrow: document.getElementById('slide-form-eyebrow').value.trim(),
+    title: document.getElementById('slide-form-title').value.trim(),
+    scriptTitle: document.getElementById('slide-form-script').value.trim(),
+    desc: document.getElementById('slide-form-desc').value.trim(),
+    btnText: document.getElementById('slide-form-btn-text').value.trim() || 'SHOP NOW',
     btnAction: 'shop',
     layout: 'layout-split',
     isLogoGraphic: document.getElementById('slide-form-is-logo').checked,
@@ -3756,16 +3843,21 @@ function saveSlideForm(event) {
     STATE.slides.push(slideData);
   }
 
-  localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+  try {
+    localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides));
+  } catch(e) {
+    console.warn('LocalStorage limit for slides:', e);
+  }
+
   renderHeroSlider();
   renderAdminDashboard();
   closeAdminModal('admin-slide-modal');
-  showNotification('BANNER SLIDE SAVED');
+  showNotification('BANNER SLIDE SAVED SUCCESSFULLY');
 
   fetch('/api/admin/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
-    body: JSON.stringify({ hero_slides: STATE.slides })
+    body: JSON.stringify({ hero_slides: STATE.slides, custom_hero_slides_saved: true })
   }).catch(() => {});
 }
 
@@ -3773,7 +3865,10 @@ function openNewProductForm() {
   document.getElementById('admin-product-form').reset();
   document.getElementById('product-form-id').value = '';
   document.getElementById('product-form-image-data').value = '';
-  document.getElementById('product-form-img-preview').style.display = 'none';
+  const urlInput = document.getElementById('product-form-image-url');
+  if (urlInput) urlInput.value = '';
+  const preview = document.getElementById('product-form-img-preview');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
   document.getElementById('product-modal-title').textContent = 'ADD NEW CATALOG PRODUCT';
   openAdminModal('admin-product-modal');
 }
@@ -3783,25 +3878,31 @@ function editProduct(id) {
   if (!prod) return;
 
   document.getElementById('product-form-id').value = prod.id;
-  document.getElementById('product-form-image-data').value = prod.image;
+  document.getElementById('product-form-image-data').value = prod.image || '';
   
-  const preview = document.getElementById('product-form-img-preview');
-  preview.src = prod.image;
-  preview.style.display = 'block';
+  const urlInput = document.getElementById('product-form-image-url');
+  if (urlInput) urlInput.value = prod.image || '';
 
-  document.getElementById('product-form-name').value = prod.name;
-  document.getElementById('product-form-basename').value = prod.baseName;
-  document.getElementById('product-form-price').value = prod.price;
-  document.getElementById('product-form-orig-price').value = prod.originalPrice || prod.price;
-  document.getElementById('product-form-type').value = prod.type;
-  document.getElementById('product-form-brand').value = prod.brand;
-  document.getElementById('product-form-stock').value = prod.stock;
+  const preview = document.getElementById('product-form-img-preview');
+  if (preview) {
+    preview.src = prod.image;
+    preview.style.display = prod.image ? 'block' : 'none';
+  }
+
+  document.getElementById('product-form-name').value = prod.name || '';
+  document.getElementById('product-form-basename').value = prod.baseName || prod.name || '';
+  document.getElementById('product-form-price').value = prod.price || 0;
+  document.getElementById('product-form-orig-price').value = prod.originalPrice || prod.price || 0;
+  document.getElementById('product-form-type').value = prod.type || 'tee';
+  document.getElementById('product-form-brand').value = prod.brand || 'OV™ BLACK LABEL';
+  document.getElementById('product-form-stock').value = prod.stock || 5;
   document.getElementById('product-form-badge').value = prod.badge || '';
 
-  // Set sizes checkboxes
+  // Set sizes checkboxes safely
   const checkboxes = document.querySelectorAll('input[name="product-form-sizes"]');
+  const prodSizes = Array.isArray(prod.sizes) ? prod.sizes : ['M', 'L'];
   checkboxes.forEach(cb => {
-    cb.checked = prod.sizes.includes(cb.value);
+    cb.checked = prodSizes.includes(cb.value);
   });
 
   document.getElementById('product-modal-title').textContent = 'EDIT CATALOG PRODUCT';
@@ -3811,7 +3912,10 @@ function editProduct(id) {
 function deleteProduct(id) {
   if (confirm('Are you sure you want to delete this product?')) {
     STATE.products = STATE.products.filter(p => p.id !== id);
-    localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+    try {
+      localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+      localStorage.setItem('ov_custom_products_v3', JSON.stringify(STATE.products));
+    } catch(e) {}
     
     // Re-render grids
     renderShopCatalog();
@@ -3825,10 +3929,11 @@ function deleteProduct(id) {
 function saveProductForm(event) {
   event.preventDefault();
   const id = document.getElementById('product-form-id').value;
-  const imageData = document.getElementById('product-form-image-data').value;
+  const urlInput = document.getElementById('product-form-image-url');
+  let imageData = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : document.getElementById('product-form-image-data').value;
   
   if (!imageData) {
-    alert('Please upload a product image.');
+    showNotification('PLEASE PROVIDE A PRODUCT IMAGE');
     return;
   }
 
@@ -3838,14 +3943,14 @@ function saveProductForm(event) {
 
   const productData = {
     id: id || 'custom-' + Date.now(),
-    name: document.getElementById('product-form-name').value,
-    baseName: document.getElementById('product-form-basename').value,
-    price: parseInt(document.getElementById('product-form-price').value),
-    originalPrice: parseInt(document.getElementById('product-form-orig-price').value),
+    name: document.getElementById('product-form-name').value.trim(),
+    baseName: document.getElementById('product-form-basename').value.trim(),
+    price: parseInt(document.getElementById('product-form-price').value, 10) || 999,
+    originalPrice: parseInt(document.getElementById('product-form-orig-price').value, 10) || 2999,
     type: document.getElementById('product-form-type').value,
     brand: document.getElementById('product-form-brand').value,
-    stock: parseInt(document.getElementById('product-form-stock').value),
-    badge: document.getElementById('product-form-badge').value || null,
+    stock: parseInt(document.getElementById('product-form-stock').value, 10) || 5,
+    badge: document.getElementById('product-form-badge').value.trim() || null,
     sizes: sizes.length > 0 ? sizes : ['M'],
     reviews: [],
     rating: 4.8,
@@ -3861,7 +3966,12 @@ function saveProductForm(event) {
     STATE.products.unshift(productData);
   }
 
-  localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+  try {
+    localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+    localStorage.setItem('ov_custom_products_v3', JSON.stringify(STATE.products));
+  } catch(e) {
+    console.warn('LocalStorage limit for products:', e);
+  }
   
   // Re-render grids
   renderShopCatalog();
