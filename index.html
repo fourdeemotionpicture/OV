@@ -804,8 +804,8 @@
       
       <form id="admin-login-form" onsubmit="handleAdminLogin(event)" style="text-align: left;">
         <div class="admin-form-group" style="margin-bottom: 18px;">
-          <label style="display:block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px;">Executive Email</label>
-          <input type="email" id="admin-login-email" class="auth-input" placeholder="executive@ovclothing.com" autocomplete="username" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
+          <label style="display:block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px;">Executive Email / Username</label>
+          <input type="text" id="admin-login-email" class="auth-input" placeholder="admin@ovclothing.com or admin" autocomplete="username" required style="width: 100%; border: 1px solid var(--border-color); padding: 12px; font-size: 0.85rem;">
         </div>
         <div class="admin-form-group" style="margin-bottom: 24px;">
           <label style="display:block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px;">Password</label>
@@ -813,8 +813,9 @@
         </div>
         <button type="submit" class="luxury-btn gold-btn" style="width: 100%; padding: 14px; font-size: 0.75rem; letter-spacing: 0.15em;">AUTHENTICATE & ENTER</button>
       </form>
-      <div style="margin-top: 20px; font-size: 0.7rem; color: #888;">
-        Protected by Server-Verified JWT & Role-Based Access Control
+      <div style="margin-top: 20px; font-size: 0.7rem; color: #888; line-height: 1.6;">
+        <div>Executive Access: <strong style="color:var(--dark-black);">admin@ovclothing.com</strong> (or <strong style="color:var(--dark-black);">admin</strong>)</div>
+        <div>Protected by Server-Verified JWT & Role-Based Access Control</div>
       </div>
     </div>
 
