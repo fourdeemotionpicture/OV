@@ -32,7 +32,7 @@
     <div class="loader-bar-bg">
       <div class="loader-bar"></div>
     </div>
-    <button class="audio-toggle-loader" onclick="this.textContent='AMBIENT ON ✓'">PLAY AMBIENT</button>
+    <button class="audio-toggle-loader" onclick="this.textContent='AMBIENT ACTIVE'">PLAY AMBIENT</button>
   </div>
 
   <!-- ===== 2. Sticky Header & Navigation ===== -->
@@ -837,23 +837,71 @@
 
       <div class="admin-dashboard-wrapper" style="display:grid; grid-template-columns: 260px 1fr; gap:40px;">
         <!-- Dashboard Sidebar / Tabs -->
-        <div class="admin-tabs-nav" style="display:flex; flex-direction:column; gap:6px; border-right:1px solid var(--border-color); padding-right:24px;">
-          <button class="admin-tab-btn active" data-tab="metrics-tab" onclick="switchAdminTab('metrics-tab')">📊 OVERVIEW</button>
-          <button class="admin-tab-btn" data-tab="orders-tab" onclick="switchAdminTab('orders-tab')">📦 ORDERS & LOGISTICS</button>
-          <button class="admin-tab-btn" data-tab="products-tab" onclick="switchAdminTab('products-tab')">🏷️ CATALOG PRODUCTS</button>
-          <button class="admin-tab-btn" data-tab="inventory-tab" onclick="switchAdminTab('inventory-tab')">🔢 STOCK & INVENTORY</button>
-          <button class="admin-tab-btn" data-tab="shipping-tab" onclick="switchAdminTab('shipping-tab')">🚚 SHIPROCKET HUB</button>
-          <button class="admin-tab-btn" data-tab="customers-tab" onclick="switchAdminTab('customers-tab')">👥 CUSTOMERS</button>
-          <button class="admin-tab-btn" data-tab="payments-tab" onclick="switchAdminTab('payments-tab')">💳 PAYMENTS & COD</button>
-          <button class="admin-tab-btn" data-tab="returns-tab" onclick="switchAdminTab('returns-tab')">🔄 RETURNS & REFUNDS</button>
-          <button class="admin-tab-btn" data-tab="abandoned-tab" onclick="switchAdminTab('abandoned-tab')">🛒 ABANDONED CARTS</button>
-          <button class="admin-tab-btn" data-tab="coupons-tab" onclick="switchAdminTab('coupons-tab')">🎟️ COUPONS & PROMOS</button>
-          <button class="admin-tab-btn" data-tab="slides-tab" onclick="switchAdminTab('slides-tab')">🖼️ HERO BANNER SLIDES</button>
-          <button class="admin-tab-btn" data-tab="logo-tab" onclick="switchAdminTab('logo-tab')">🎨 BRAND LOGO</button>
-          <button class="admin-tab-btn" data-tab="users-tab" onclick="switchAdminTab('users-tab')">👤 USERS & RBAC</button>
-          <button class="admin-tab-btn" data-tab="audit-tab" onclick="switchAdminTab('audit-tab')">🛡️ SECURITY AUDIT</button>
-          <button class="admin-tab-btn" data-tab="health-tab" onclick="switchAdminTab('health-tab')">⚡ SYSTEM HEALTH</button>
-          <button class="admin-tab-btn" data-tab="settings-tab" onclick="switchAdminTab('settings-tab')">⚙️ STORE SETTINGS</button>
+        <div class="admin-tabs-nav">
+          <button class="admin-tab-btn active" data-tab="metrics-tab" onclick="switchAdminTab('metrics-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="7" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="17" rx="1"/></svg>
+            <span>OVERVIEW</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="orders-tab" onclick="switchAdminTab('orders-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+            <span>ORDERS & LOGISTICS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="products-tab" onclick="switchAdminTab('products-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r="1.5"/></svg>
+            <span>CATALOG PRODUCTS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="inventory-tab" onclick="switchAdminTab('inventory-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>STOCK & INVENTORY</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="shipping-tab" onclick="switchAdminTab('shipping-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span>SHIPROCKET HUB</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="customers-tab" onclick="switchAdminTab('customers-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>CUSTOMERS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="payments-tab" onclick="switchAdminTab('payments-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span>PAYMENTS & COD</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="returns-tab" onclick="switchAdminTab('returns-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            <span>RETURNS & REFUNDS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="abandoned-tab" onclick="switchAdminTab('abandoned-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>ABANDONED CARTS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="coupons-tab" onclick="switchAdminTab('coupons-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><line x1="12" y1="6" x2="12" y2="18" stroke-dasharray="2 2"/></svg>
+            <span>COUPONS & PROMOS</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="slides-tab" onclick="switchAdminTab('slides-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>HERO BANNER SLIDES</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="logo-tab" onclick="switchAdminTab('logo-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>BRAND LOGO</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="users-tab" onclick="switchAdminTab('users-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+            <span>USERS & RBAC</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="audit-tab" onclick="switchAdminTab('audit-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <span>SECURITY AUDIT</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="health-tab" onclick="switchAdminTab('health-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>SYSTEM HEALTH</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="settings-tab" onclick="switchAdminTab('settings-tab')">
+            <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>STORE SETTINGS</span>
+          </button>
         </div>
 
         <!-- Dashboard Content Panels -->

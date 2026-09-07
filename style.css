@@ -3280,9 +3280,71 @@ footer {
 /* ==========================================================================
    Admin Portal Dashboard Styles
    ========================================================================== */
+.admin-tabs-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-right: 1px solid var(--border-color);
+  padding-right: 20px;
+}
+
+.admin-tab-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-left: 2px solid transparent !important;
+  border-radius: 0 !important;
+  color: #666666 !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+}
+
 .admin-tab-btn:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-  color: var(--black) !important;
+  background-color: #f7f7f7 !important;
+  color: #000000 !important;
+}
+
+.admin-tab-btn.active {
+  background-color: #f2f2f2 !important;
+  border-left: 2px solid #000000 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.admin-tab-btn .admin-tab-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.admin-tab-btn:hover .admin-tab-icon,
+.admin-tab-btn.active .admin-tab-icon {
+  opacity: 1;
+}
+
+.admin-tab-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-list-item {
@@ -3332,10 +3394,15 @@ footer {
   }
   .admin-tab-btn {
     border-left: none !important;
-    border-bottom: 2px solid transparent;
+    border-bottom: 2px solid transparent !important;
+    width: auto !important;
+    flex-shrink: 0;
+    padding: 8px 14px !important;
   }
   .admin-tab-btn.active {
+    border-left: none !important;
     border-bottom: 2px solid var(--black) !important;
+    background-color: #f2f2f2 !important;
   }
 }
 

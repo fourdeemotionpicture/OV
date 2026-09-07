@@ -987,7 +987,7 @@ function setupPincodeChecker() {
     if (!/^\d{6}$/.test(code)) {
       resultDiv.className = 'pincode-result error';
       resultDiv.style.display = 'block';
-      resultDiv.textContent = '⚠ PLEASE ENTER A VALID 6-DIGIT INDIAN PINCODE (e.g. 600006)';
+      resultDiv.textContent = 'PLEASE ENTER A VALID 6-DIGIT INDIAN PINCODE (e.g. 600006)';
       return;
     }
 
@@ -999,11 +999,11 @@ function setupPincodeChecker() {
     resultDiv.style.display = 'block';
 
     if (isMetro) {
-      resultDiv.innerHTML = `✓ EXPRESS DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>2 Days (Metro Fast-track)</strong><br>• Cash on Delivery (COD) Available`;
+      resultDiv.innerHTML = `EXPRESS DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>2 Days (Metro Fast-track)</strong><br>• Cash on Delivery (COD) Available`;
     } else if (isRemote) {
-      resultDiv.innerHTML = `✓ STANDARD DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>7-9 Days (Remote Location)</strong><br>• Prepaid Orders Only (COD Not Available)`;
+      resultDiv.innerHTML = `STANDARD DELIVERY AVAILABLE<br>• Estimated Delivery: <strong>7-9 Days (Remote Location)</strong><br>• Prepaid Orders Only (COD Not Available)`;
     } else {
-      resultDiv.innerHTML = `✓ STANDARD SHIPPING AVAILABLE<br>• Estimated Delivery: <strong>4-5 Days</strong><br>• Cash on Delivery (COD) Available`;
+      resultDiv.innerHTML = `STANDARD SHIPPING AVAILABLE<br>• Estimated Delivery: <strong>4-5 Days</strong><br>• Cash on Delivery (COD) Available`;
     }
   });
 }
@@ -1403,15 +1403,15 @@ async function handleCheckoutPincodeChange(pincode) {
     if (data.success && data.data?.serviceable) {
       const topCourier = data.data.couriers?.[0];
       msgEl.style.color = '#127938';
-      msgEl.innerHTML = `✓ <strong>Express Delivery Available</strong> via ${topCourier ? topCourier.name : 'Shiprocket'} (${topCourier ? topCourier.estimated_days : '2-3 Days'})`;
+      msgEl.innerHTML = `<strong>Express Delivery Available</strong> via ${topCourier ? topCourier.name : 'Shiprocket'} (${topCourier ? topCourier.estimated_days : '2-3 Days'})`;
       renderCheckoutSummary();
     } else {
       msgEl.style.color = '#cf222e';
-      msgEl.textContent = '✕ Serviceability restricted for this pincode.';
+      msgEl.textContent = 'Serviceability restricted for this pincode.';
     }
   } catch (err) {
     msgEl.style.color = '#127938';
-    msgEl.textContent = '✓ Express Delivery Available across India';
+    msgEl.textContent = 'Express Delivery Available across India';
   }
 }
 
@@ -2546,15 +2546,10 @@ function showAdminBoard(user) {
 function switchAdminTab(tabId) {
   const buttons = document.querySelectorAll('.admin-tab-btn');
   buttons.forEach(btn => {
-    if (btn.getAttribute('data-tab') === tabId) {
-      btn.classList.add('active');
-      btn.style.borderLeft = '2px solid var(--black)';
-      btn.style.color = 'var(--black)';
-    } else {
-      btn.classList.remove('active');
-      btn.style.borderLeft = '2px solid transparent';
-      btn.style.color = 'var(--medium-gray)';
-    }
+    const isActive = btn.getAttribute('data-tab') === tabId;
+    btn.classList.toggle('active', isActive);
+    btn.style.borderLeft = '';
+    btn.style.color = '';
   });
 
   const panels = document.querySelectorAll('.admin-panel');
@@ -2609,7 +2604,7 @@ async function loadAdminMetrics() {
       const lowStockContainer = document.getElementById('admin-low-stock-list');
       if (lowStockContainer) {
         if (!m.low_stock_items || m.low_stock_items.length === 0) {
-          lowStockContainer.innerHTML = '<span style="color:#127938;">✓ All sizes and color variants are sufficiently stocked above minimum thresholds.</span>';
+          lowStockContainer.innerHTML = '<span style="color:#127938;">All sizes and color variants are sufficiently stocked above minimum thresholds.</span>';
         } else {
           lowStockContainer.innerHTML = m.low_stock_items.map(item => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
@@ -2788,7 +2783,7 @@ async function openOrderFulfillmentModal(orderNumber) {
           </div>
           <div style="margin-top:10px; display:flex; gap:10px;">
             <button class="luxury-btn gold-btn" onclick="executeAssignAWB('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
-              ⚡ AUTO-ASSIGN SHIPROCKET AWB
+              AUTO-ASSIGN SHIPROCKET AWB
             </button>
           </div>
         </div>
@@ -2805,7 +2800,7 @@ async function openOrderFulfillmentModal(orderNumber) {
           <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
             <input type="date" id="order-pickup-date-input" class="auth-input" value="${new Date(Date.now() + 86400000).toISOString().slice(0, 10)}" style="border:1px solid var(--border-color); padding:6px 10px; font-size:0.75rem;">
             <button class="luxury-btn secondary" onclick="executeSchedulePickup('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
-              📅 SCHEDULE PICKUP
+              SCHEDULE PICKUP
             </button>
           </div>
         </div>
@@ -2821,7 +2816,7 @@ async function openOrderFulfillmentModal(orderNumber) {
           </div>
           <div style="margin-top:10px;">
             <button class="luxury-btn outline-gold-btn" onclick="executePrintLabel('${order.order_number}')" style="padding:8px 14px; font-size:0.65rem;">
-              🖨️ PRINT SHIPPING LABEL (PDF)
+              PRINT SHIPPING LABEL (PDF)
             </button>
           </div>
         </div>
@@ -3021,7 +3016,7 @@ async function testCourierRates() {
     if (json.success && json.data?.serviceable) {
       const couriers = json.data.couriers || [];
       resultsEl.innerHTML = `
-        <div style="color:#127938; font-weight:600; margin-bottom:10px;">✓ PINCODE ${pin} IS SERVICEABLE</div>
+        <div style="color:#127938; font-weight:600; margin-bottom:10px;">PINCODE ${pin} IS SERVICEABLE</div>
         <div style="display:flex; flex-direction:column; gap:8px;">
           ${couriers.map(c => `
             <div style="display:flex; justify-content:space-between; padding:8px 12px; background:white; border:1px solid var(--border-color); font-size:0.75rem;">
@@ -3032,7 +3027,7 @@ async function testCourierRates() {
         </div>
       `;
     } else {
-      resultsEl.innerHTML = `<span style="color:#cf222e;">✕ Not serviceable: ${json.data?.message || 'Invalid or remote PIN code'}</span>`;
+      resultsEl.innerHTML = `<span style="color:#cf222e;">Not serviceable: ${json.data?.message || 'Invalid or remote PIN code'}</span>`;
     }
   } catch (err) {
     resultsEl.innerHTML = '<span style="color:#cf222e;">Error querying courier serviceability.</span>';
@@ -3441,11 +3436,11 @@ async function loadAdminHealth() {
 
       if (checklist) {
         checklist.innerHTML = `
-          <div>${dbInfo.is_production_ready ? '✓' : '⚠️'} <strong>PostgreSQL Database:</strong> ${dbInfo.is_production_ready ? 'Connected & Verified as Sole Source of Truth' : 'Operating in Dev Mode without DATABASE_URL'}</div>
-          <div>${payInfo.configured ? '✓' : 'ℹ️'} <strong>Razorpay Payment Gateway:</strong> ${payInfo.configured ? 'Server-Verified HMAC Verification Active' : 'Dev Mode (Set RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET for live)'}</div>
-          <div>${shipInfo.configured ? '✓' : 'ℹ️'} <strong>Shiprocket Logistics Provider:</strong> ${shipInfo.configured ? 'Official API v1 Connected' : 'Dev Mode (Set SHIPROCKET_API_EMAIL & PASSWORD for live)'}</div>
-          <div>✓ <strong>Security Hardening:</strong> Zero Plaintext Secrets in Tracked Files & Brute-Force Defense Active</div>
-          <div>✓ <strong>Logistics Workflow:</strong> Rate Check → Courier Choice → AWB Generation → Pickup → Label PDF → NDR/RTO</div>
+          <div style="display:flex; align-items:center; gap:8px;"><span class="admin-badge ${dbInfo.is_production_ready ? 'admin-badge-success' : 'admin-badge-warning'}">${dbInfo.is_production_ready ? 'CONNECTED' : 'DEV MODE'}</span> <strong>PostgreSQL Database:</strong> ${dbInfo.is_production_ready ? 'Connected & Verified as Sole Source of Truth' : 'Operating in Dev Fallback without DATABASE_URL'}</div>
+          <div style="display:flex; align-items:center; gap:8px;"><span class="admin-badge ${payInfo.configured ? 'admin-badge-success' : 'admin-badge-warning'}">${payInfo.configured ? 'ACTIVE' : 'DEV MODE'}</span> <strong>Razorpay Payment Gateway:</strong> ${payInfo.configured ? 'Server-Verified HMAC Verification Active' : 'Dev Mode (Set RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET for live)'}</div>
+          <div style="display:flex; align-items:center; gap:8px;"><span class="admin-badge ${shipInfo.configured ? 'admin-badge-success' : 'admin-badge-warning'}">${shipInfo.configured ? 'ACTIVE' : 'DEV MODE'}</span> <strong>Shiprocket Logistics Provider:</strong> ${shipInfo.configured ? 'Official API v1 Connected' : 'Dev Mode (Set SHIPROCKET_API_EMAIL & PASSWORD for live)'}</div>
+          <div style="display:flex; align-items:center; gap:8px;"><span class="admin-badge admin-badge-success">ACTIVE</span> <strong>Security Hardening:</strong> Zero Plaintext Secrets in Tracked Files & Brute-Force Defense Active</div>
+          <div style="display:flex; align-items:center; gap:8px;"><span class="admin-badge admin-badge-success">ACTIVE</span> <strong>Logistics Workflow:</strong> Rate Check &bull; Courier Choice &bull; AWB Generation &bull; Pickup &bull; Label PDF &bull; NDR/RTO</div>
         `;
       }
     }
