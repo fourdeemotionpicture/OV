@@ -192,8 +192,8 @@ const STATE = {
       tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
       title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
       desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
-      btn1Text: 'SHOP ALL PIECES →',
-      btn2Text: 'VIEW BESTSELLERS ↓'
+      btn1Text: 'SHOP ALL PIECES',
+      btn2Text: 'VIEW BESTSELLERS'
     };
   })(),
   spotlights: (() => {
@@ -4640,8 +4640,14 @@ function renderStorefrontMedia() {
     if (heroTag && hb.tag) heroTag.textContent = hb.tag;
     if (heroTitle && hb.title) heroTitle.textContent = hb.title;
     if (heroDesc && hb.desc) heroDesc.textContent = hb.desc;
-    if (heroBtn1 && hb.btn1Text) heroBtn1.innerHTML = `${hb.btn1Text} <span style="margin-left: 8px;">→</span>`;
-    if (heroBtn2 && hb.btn2Text) heroBtn2.innerHTML = `${hb.btn2Text} <span style="margin-left: 8px;">↓</span>`;
+    if (heroBtn1 && hb.btn1Text) {
+      const b1 = hb.btn1Text.replace(/[→\->]/g, '').trim();
+      heroBtn1.innerHTML = `${b1} <span style="margin-left: 8px;">→</span>`;
+    }
+    if (heroBtn2 && hb.btn2Text) {
+      const b2 = hb.btn2Text.replace(/[↓v]/g, '').trim();
+      heroBtn2.innerHTML = `${b2} <span style="margin-left: 8px;">↓</span>`;
+    }
 
     // Also update Admin Panel representation
     const adminThumbBg = document.getElementById('admin-hero-thumb-bg');

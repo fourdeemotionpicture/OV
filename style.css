@@ -4464,29 +4464,325 @@ footer {
 }
 
 @media (max-width: 768px) {
+  /* 1. Mobile Header & Search Bar */
+  .nav-container {
+    padding: 4px 14px !important;
+  }
+
+  .logo-uploaded-img {
+    height: 26px !important;
+    max-height: 26px !important;
+  }
+
+  .nav-right {
+    gap: 8px !important;
+  }
+
+  .search-container {
+    width: 100px !important;
+    padding: 2px 0 !important;
+  }
+
+  .search-container:focus-within {
+    width: 130px !important;
+  }
+
+  .search-input {
+    font-size: 0.65rem !important;
+  }
+
+  .search-icon {
+    width: 12px !important;
+    height: 12px !important;
+    margin-right: 4px !important;
+  }
+
+  .icon-button {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .icon-button svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* 2. Hero Banner on Mobile (Fix Model Cutoff & Layout) */
+  #home-page {
+    padding-top: var(--header-height, 66px) !important;
+  }
+
+  .ecommerce-hero-section {
+    height: auto !important;
+    min-height: calc(100vh - var(--header-height, 66px) - 60px) !important;
+    max-height: none !important;
+    padding: 36px 0 30px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .ecommerce-hero-bg {
+    /* Focus directly on the model on portrait mobile screens */
+    background-position: 72% 10% !important;
+  }
+
+  .ecommerce-hero-overlay {
+    background: linear-gradient(180deg, rgba(8,8,10,0.72) 0%, rgba(8,8,10,0.5) 45%, rgba(8,8,10,0.9) 100%) !important;
+  }
+
   .ecommerce-hero-content {
-    padding: 0 24px;
+    padding: 0 18px !important;
+    max-width: 100% !important;
   }
+
+  .ecommerce-hero-tag {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.1em !important;
+    padding: 4px 10px !important;
+    margin-bottom: 10px !important;
+    display: inline-block !important;
+  }
+
   .ecommerce-hero-title {
-    font-size: 2.2rem;
+    font-size: 1.65rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.03em !important;
+    margin-bottom: 10px !important;
   }
-  .features-bar-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+
+  .ecommerce-hero-desc {
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 18px !important;
+    max-width: 100% !important;
+    opacity: 0.9 !important;
   }
-  .fit-spotlight-grid {
-    grid-template-columns: 1fr;
+
+  .ecommerce-hero-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
   }
-  .ecommerce-product-grid {
-    grid-template-columns: 1fr;
+
+  .ecommerce-hero-actions .hero-cta-btn {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 13px 20px !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.12em !important;
   }
-  .featured-products-section,
-  .brand-story-section,
-  .fit-spotlight-section {
-    padding: 60px 20px;
+
+  .ecommerce-hero-meta {
+    flex-direction: column !important;
+    gap: 6px !important;
+    font-size: 0.7rem !important;
+    margin-top: 16px !important;
   }
+
+  .admin-banner-floating-edit-btn {
+    top: 10px !important;
+    right: 10px !important;
+    padding: 6px 10px !important;
+    font-size: 0.6rem !important;
+  }
+
+  .admin-banner-floating-edit-btn span {
+    display: none !important;
+  }
+
+  /* 3. Features & Trust Bar */
   .ecommerce-features-bar {
-    padding: 30px 20px;
+    padding: 24px 18px !important;
+  }
+
+  .features-bar-container {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .feature-bar-item {
+    padding: 8px 0 !important;
+  }
+
+  /* 4. Fit Spotlight Cards */
+  .fit-spotlight-section {
+    padding: 45px 18px !important;
+  }
+
+  .fit-spotlight-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .spotlight-card {
+    height: 400px !important;
+  }
+
+  .spotlight-card-content {
+    padding: 24px 20px !important;
+  }
+
+  .spotlight-title {
+    font-size: 1.35rem !important;
+  }
+
+  /* 5. Featured Products Grid */
+  .featured-products-section {
+    padding: 45px 18px !important;
+  }
+
+  .section-title-wrap h2 {
+    font-size: 1.8rem !important;
+  }
+
+  .ecommerce-product-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .modern-product-card {
+    height: auto !important;
+    min-height: 460px !important;
+  }
+
+  /* On mobile touch devices, show Add to Bag and Quick View permanently */
+  .modern-card-actions {
+    opacity: 1 !important;
+    transform: none !important;
+    position: static !important;
+    margin-top: 12px !important;
+    padding: 0 !important;
+  }
+
+  /* 6. Brand Story (Fix Sliced Image Graphic in media_1789807851351.png) */
+  .brand-story-section {
+    padding: 45px 18px !important;
+  }
+
+  .brand-story-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .brand-story-media {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #111 !important;
+  }
+
+  .brand-story-img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 320px !important;
+    object-fit: contain !important; /* Preserves entire graphic without cutting off text on the right! */
+    display: block !important;
+    margin: 0 auto !important;
+  }
+
+  .brand-story-badge {
+    position: static !important;
+    display: inline-block !important;
+    margin: 12px 12px 0 !important;
+    font-size: 0.62rem !important;
+    padding: 6px 14px !important;
+  }
+
+  .brand-story-info .luxury-heading {
+    font-size: 1.7rem !important;
+    line-height: 1.22 !important;
+    margin-top: 14px !important;
+  }
+
+  .brand-story-info p {
+    font-size: 0.85rem !important;
+  }
+
+  /* 7. Lookbook Marquee */
+  .editorial-marquee-section {
+    padding: 40px 0 !important;
+  }
+
+  .editorial-card {
+    width: 220px !important;
+    height: 300px !important;
+  }
+
+  /* 8. Active Promo Codes & Benefits (Fix 3-Column Squeeze in media_1789807867383.png) */
+  .promo-portal-section {
+    padding: 45px 18px !important;
+  }
+
+  .promo-portal-section h2 {
+    font-size: 1.5rem !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+    line-height: 1.2 !important;
+  }
+
+  .promo-portal-grid {
+    grid-template-columns: 1fr !important; /* Stack 1 card per row */
+    gap: 16px !important;
+  }
+
+  .promo-card {
+    padding: 24px 20px !important;
+    min-height: auto !important;
+  }
+
+  .promo-card h3 {
+    font-size: 1.35rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  .promo-card p {
+    font-size: 0.82rem !important;
+    margin-bottom: 16px !important;
+  }
+
+  .promo-code-box {
+    padding: 10px 14px !important;
+  }
+
+  .promo-code-text {
+    font-size: 0.85rem !important;
+  }
+
+  .promo-copy-btn {
+    padding: 8px 14px !important;
+    font-size: 0.68rem !important;
+  }
+
+  /* 9. Reviews Section */
+  .reviews-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .review-card {
+    padding: 20px 18px !important;
+  }
+
+  /* 10. Modals & Drag Studio on Mobile */
+  .modal-panel {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+    max-height: 90vh !important;
+  }
+
+  #admin-banner-drag-modal .modal-body > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .banner-drag-stage {
+    height: 250px !important;
+  }
+
+  .banner-mini-mockup {
+    height: 130px !important;
   }
 }
 
