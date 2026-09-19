@@ -34,6 +34,16 @@
     </div>
     <button class="audio-toggle-loader" onclick="this.textContent='AMBIENT ACTIVE'">PLAY AMBIENT</button>
   </div>
+  <script>
+    // Bulletproof Opening Loader Dismissal Failsafe
+    setTimeout(function() {
+      var ldr = document.getElementById('opening-loader');
+      if (ldr && !ldr.classList.contains('loaded')) {
+        ldr.classList.add('loaded');
+        document.body.classList.remove('no-scroll');
+      }
+    }, 3500);
+  </script>
 
   <!-- ===== 2. Sticky Header & Navigation ===== -->
   <header>

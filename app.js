@@ -5336,7 +5336,7 @@ function deleteCurrentHeroBannerSlide() {
   }
 }
 
-function saveHeroBannerFromModal(event) {
+async function saveHeroBannerFromModal(event) {
   if (event) event.preventDefault();
 
   syncStudioFormToMemory();
