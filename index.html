@@ -39,66 +39,20 @@
   <header>
     <div class="announcement-bar">
       <div class="announcement-slider">
-        <div class="announcement-item">FREE SHIPPING OVER ₹2,999 · 15-DAY RETURNS</div>
-        <div class="announcement-item">FORM 02 — THE BOXY CAPSULE IS LIVE</div>
-        <div class="announcement-item">ORIGINAL IS THE ONLY VERSION</div>
+        <div class="announcement-item">DROP 01: "GRACE" 240 GSM DUNE BEIGE — NOW LIVE (₹999)</div>
+        <div class="announcement-item">DROP 02: "NOIR" 280 GSM WASHED BLACK — LIMITED ANTIGRAVITY DROP (₹1,199)</div>
+        <div class="announcement-item">COMPLIMENTARY SHIPPING OVER ₹1,999 · 15-DAY EDITORIAL RETURNS</div>
       </div>
     </div>
     
     <div class="nav-container">
       <div class="nav-left">
         <ul class="nav-menu">
-          <!-- Item 1 with Mega Menu -->
-          <li class="nav-item">
-            <a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Collections</a>
-            <div class="mega-menu-panel">
-              <div class="mega-column">
-                <h4>CLOTHING</h4>
-                <ul>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Heavyweight Tees</a></li>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Boxy Hoodies</a></li>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">French Terry Sweatshirts</a></li>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Cargo Pants</a></li>
-                </ul>
-              </div>
-              <div class="mega-column">
-                <h4>SHOP BY BRAND</h4>
-                <ul>
-                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ BLACK LABEL'); return false;">OV™ Black Label</a></li>
-                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ ESSENTIALS'); return false;">OV™ Essentials</a></li>
-                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ STUDIO'); return false;">OV™ Studio</a></li>
-                  <li><a href="#" onclick="routeAndFilterByBrand('OV™ ACTIVE'); return false;">OV™ Active</a></li>
-                </ul>
-              </div>
-              <div class="mega-column">
-                <h4>ACCESSORIES</h4>
-                <ul>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Premium Caps</a></li>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Studio Tote Bags</a></li>
-                  <li><a href="#" onclick="navigateTo('shop'); return false;">Gift Cards</a></li>
-                </ul>
-              </div>
-              <div class="mega-column">
-                <h4>EXPLORE</h4>
-                <ul>
-                  <li><a href="#">The Journal</a></li>
-                  <li><a href="#">Visual Lookbook</a></li>
-                  <li><a href="#">Our Craftsmanship</a></li>
-                </ul>
-              </div>
-              <div class="mega-promo-banner" style="background-image: url('https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80')">
-                <div class="mega-promo-overlay"></div>
-                <div class="mega-promo-content">
-                  <div class="mega-promo-title">FORM 02 COLLECTION</div>
-                  <a href="#" class="mega-promo-btn" onclick="navigateTo('shop'); return false;">Shop The Drop</a>
-                </div>
-              </div>
-            </div>
-          </li>
-          
-          <li class="nav-item"><a href="#" class="nav-link" onclick="navigateTo('shop'); return false;">Shop</a></li>
-          <li class="nav-item"><a href="#" class="nav-link" onclick="routeAndFilterByBrand('OV™ BLACK LABEL'); return false;">Black Label</a></li>
-          <li class="nav-item"><a href="#" class="nav-link" onclick="routeAndFilterByBrand('OV™ ESSENTIALS'); return false;">Essentials</a></li>
+          <li class="nav-item"><a href="#drop-grace-section" class="nav-link" onclick="scrollToSection('drop-grace-section'); return false;">Drop 01: Grace</a></li>
+          <li class="nav-item"><a href="#drop-noir-section" class="nav-link" onclick="scrollToSection('drop-noir-section'); return false;">Drop 02: Noir</a></li>
+          <li class="nav-item"><a href="#webgl-3d-studio" class="nav-link" onclick="scrollToSection('webgl-3d-studio'); return false;">3D Atelier</a></li>
+          <li class="nav-item"><a href="#fabric-matrix-section" class="nav-link" onclick="scrollToSection('fabric-matrix-section'); return false;">Fabric Lab</a></li>
+          <li class="nav-item"><a href="#visual-lookbook-section" class="nav-link" onclick="scrollToSection('visual-lookbook-section'); return false;">Lookbook</a></li>
         </ul>
       </div>
       
@@ -163,168 +117,463 @@
   <!-- ==================== PAGE: HOME ==================== -->
   <main id="home-page" class="page-route active">
     
-    <!-- Full-Bleed Hero Slider Carousel -->
-    <section class="hero-slider-section">
-      <div class="hero-slider-wrapper">
-        <!-- Slide 1 (Mockup Sunglasses) -->
-        <div class="hero-slide active">
-          <div class="hero-slide-bg" style="background-image: url('images/model_sunglasses.jpg'); background-position: right 20% top 0%;"></div>
-          <div class="hero-slide-overlay" style="background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);"></div>
-          <div class="hero-slide-content layout-split">
-            <div class="slide-left-panel">
-              <div class="large-logo-graphic logo-container-render-large">
-                <img src="images/logo_white.png" alt="OV™ — ORIGINAL VERSION" class="logo-uploaded-img-large" style="max-height: 220px; width: auto; object-fit: contain; margin-bottom: 25px;">
-              </div>
-              <p class="slide-editorial-desc">Discover statement pieces that blend elegance with individuality. Designed for the modern muse.</p>
-              <button class="luxury-btn gold-btn" onclick="navigateTo('shop')">SHOP NOW <span style="margin-left: 10px;">→</span></button>
-              
-              <div class="slide-features-row">
-                <div class="feature-icon-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  <span>PREMIUM QUALITY</span>
-                </div>
-                <div class="feature-icon-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  <span>TIMELESS DESIGNS</span>
-                </div>
-                <div class="feature-icon-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                  <span>MADE FOR YOU</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="slide-right-panel">
-              <div class="watch-collection-btn" onclick="navigateTo('shop')">
-                <div class="play-icon-circle">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <span>WATCH COLLECTION</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 2 (Mockup White Tee) -->
-        <div class="hero-slide">
-          <div class="hero-slide-bg" style="background-image: url('images/model2.jpg'); background-position: right 20% top 0%;"></div>
-          <div class="hero-slide-overlay" style="background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);"></div>
-          <div class="hero-slide-content layout-split">
-            <div class="slide-left-panel">
-              <div class="slide-title-wrap">
-                <span class="eyebrow" style="color: var(--gold-accent); margin-bottom: 10px;">FESTIVE SPECIFICATION</span>
-                <h1 class="slide-large-title">ELEVATE YOUR STYLE</h1>
-                <h2 class="slide-script-title">Define Your Story</h2>
-              </div>
-              <p class="slide-editorial-desc">Timeless elegance. Modern sophistication. Crafted for the woman who inspires.</p>
-              <button class="luxury-btn outline-gold-btn" onclick="navigateTo('shop')">EXPLORE COLLECTION <span style="margin-left: 10px;">→</span></button>
-            </div>
-            
-            <div class="slide-right-panel justify-end">
-              <div class="vertical-features-list">
-                <div class="v-feature-item">
-                  <div class="v-feature-num">01</div>
-                  <div class="v-feature-text">
-                    <h4>PREMIUM QUALITY</h4>
-                    <p>Double-combed heavy cotton</p>
-                  </div>
-                </div>
-                <div class="v-feature-item">
-                  <div class="v-feature-num">02</div>
-                  <div class="v-feature-text">
-                    <h4>MODERN DESIGNS</h4>
-                    <p>Designed for the modern muse</p>
-                  </div>
-                </div>
-                <div class="v-feature-item">
-                  <div class="v-feature-num">03</div>
-                  <div class="v-feature-text">
-                    <h4>TIMELESS ELEGANCE</h4>
-                    <p>Crafted to outlast trends</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 3 (Hoodie collection) -->
-        <div class="hero-slide">
-          <div class="hero-slide-bg" style="background-image: url('images/diwali_banner.png'); background-position: right 20% center;"></div>
-          <div class="hero-slide-overlay" style="background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);"></div>
-          <div class="hero-slide-content layout-split">
-            <div class="slide-left-panel">
-              <div class="slide-title-wrap">
-                <span class="eyebrow" style="color: var(--gold-accent); margin-bottom: 10px;">ORIGINAL FIT</span>
-                <h1 class="slide-large-title">BLACK LABEL</h1>
-                <h2 class="slide-script-title">Original Never Copies</h2>
-              </div>
-              <p class="slide-editorial-desc">French Terry Sweats & Heavyweight Hoodies Engineered to Outlast Trends.</p>
-              <button class="luxury-btn outline-gold-btn" onclick="navigateTo('shop')">VIEW ESSENTIALS <span style="margin-left: 10px;">→</span></button>
-            </div>
-            
-            <div class="slide-right-panel justify-end">
-              <div class="vertical-features-list">
-                <div class="v-feature-item">
-                  <div class="v-feature-num">04</div>
-                  <div class="v-feature-text">
-                    <h4>HEAVY WEIGHT</h4>
-                    <p>450 GSM Organic French Terry</p>
-                  </div>
-                </div>
-                <div class="v-feature-item">
-                  <div class="v-feature-num">05</div>
-                  <div class="v-feature-text">
-                    <h4>MINIMAL LUXURY</h4>
-                    <p>Designed for daily comfort</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- 1. Cinematic Split Hero (Drop 01 vs Drop 02) -->
+    <section class="split-hero-container">
+      <!-- Left Wing: Drop 01 (Grace Dune Beige) -->
+      <div class="split-hero-wing" onclick="scrollToSection('drop-grace-section')">
+        <div class="split-hero-bg" style="background-image: url('images/product_beige_front_model.jpg');"></div>
+        <div class="split-hero-overlay"></div>
+        <div class="split-hero-content">
+          <span class="split-hero-badge">DROP 01 · 240 GSM HEAVYWEIGHT · ₹999</span>
+          <h1 class="split-hero-title">GRACE IS HER GREATEST STRENGTH</h1>
+          <p class="split-hero-desc">Bespoke drop-shoulder boxy silhouette in 100% combed compact cotton. Empowering photographic floral muse back graphic.</p>
+          <button class="split-hero-btn" onclick="event.stopPropagation(); scrollToSection('drop-grace-section');">
+            EXPLORE GRACE <span>→</span>
+          </button>
         </div>
       </div>
 
-      <!-- Carousel Navigation buttons -->
-      <button class="slider-arrow prev" aria-label="Previous slide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6" /></svg>
-      </button>
-      <button class="slider-arrow next" aria-label="Next slide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6" /></svg>
-      </button>
-      
-      <!-- Dots Index indicators -->
-      <div class="slider-dots"></div>
-    </section>
+      <div class="split-hero-divider"></div>
 
-    <!-- Brand Segment Grid -->
-    <section class="brands-section">
-      <div class="brands-header">
-        <span class="eyebrow">SHOP BY COLLECTION LINE</span>
-        <h2>THE BRANDS OF OV™</h2>
-      </div>
-      
-      <div class="brands-grid">
-        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ BLACK LABEL')">
-          <div class="brand-card-logo">BLACK LABEL</div>
-          <span class="brand-card-desc">Boxy Heavyweight Tees</span>
-        </div>
-        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ ESSENTIALS')">
-          <div class="brand-card-logo">ESSENTIALS</div>
-          <span class="brand-card-desc">Heavyweight Hoodies</span>
-        </div>
-        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ STUDIO')">
-          <div class="brand-card-logo">STUDIO</div>
-          <span class="brand-card-desc">Cargos & Canvas Totes</span>
-        </div>
-        <div class="brand-card" onclick="routeAndFilterByBrand('OV™ ACTIVE')">
-          <div class="brand-card-logo">ACTIVE</div>
-          <span class="brand-card-desc">Premium Caps & Gear</span>
+      <!-- Right Wing: Drop 02 (Noir Washed Black) -->
+      <div class="split-hero-wing" onclick="scrollToSection('drop-noir-section')">
+        <div class="split-hero-bg" style="background-image: url('images/antigravity_tshirts_float.jpg');"></div>
+        <div class="split-hero-overlay"></div>
+        <div class="split-hero-content">
+          <span class="split-hero-badge" style="color: #fff; border-color: rgba(255,255,255,0.35);">DROP 02 · 280 GSM ANTIGRAVITY · ₹1,199</span>
+          <h1 class="split-hero-title">NOIR STRUCTURAL INTERLOCK</h1>
+          <p class="split-hero-desc">Engineered 280 GSM mineral enzyme washed interlock cotton. Architectural boxy drape that never collapses.</p>
+          <button class="split-hero-btn" onclick="event.stopPropagation(); scrollToSection('drop-noir-section');">
+            EXPLORE NOIR <span>→</span>
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- Exclusive Offers & Promo Codes Portal -->
+    <!-- 2. Three.js 3D WebGL Virtual Atelier -->
+    <section class="webgl-studio-section" id="webgl-3d-studio">
+      <div class="studio-header-wrap">
+        <span class="eyebrow" style="color: var(--gold-accent);">REAL-TIME 3D SIMULATOR</span>
+        <h2 class="luxury-heading" style="font-size: 2.8rem; margin-top: 8px;">OV™ 3D VIRTUAL ATELIER</h2>
+        <p style="color: rgba(255,255,255,0.65); font-size: 0.92rem; margin-top: 10px;">
+          Inspect every thread, seam, and contour in 360° real-time WebGL. Toggle lighting presets, view angles, and examine structural garment engineering.
+        </p>
+      </div>
+
+      <div class="studio-canvas-stage">
+        <canvas id="threejs-webgl-canvas"></canvas>
+
+        <div class="studio-hint-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          DRAG TO ROTATE 360° · SCROLL TO ZOOM
+        </div>
+
+        <div class="studio-specs-floating" id="studio-floating-card">
+          <span class="studio-specs-tag" id="studio-specs-drop-tag">DROP 01 · IN STOCK</span>
+          <div class="studio-specs-title" id="studio-specs-name">GRACE DUNE BEIGE</div>
+          <div class="studio-specs-price" id="studio-specs-price">₹999 <span style="font-size:0.8rem; text-decoration:line-through; opacity:0.5; margin-left:6px;">₹2,999</span></div>
+          <button class="luxury-btn gold-btn" id="studio-quick-buy-btn" style="width:100%; padding:10px; font-size:0.75rem;" onclick="quickAddToCartFromStudio()">
+            QUICK ADD TO BAG
+          </button>
+        </div>
+
+        <div class="studio-overlay-controls">
+          <!-- Control Group 1: Drop & Color Swatch -->
+          <div class="studio-control-group">
+            <span style="font-size:0.65rem; color:rgba(255,255,255,0.5); font-weight:700; padding-left:6px;">DROP:</span>
+            <button class="studio-btn gold active" id="studio-btn-grace" onclick="switch3DStudioDrop('grace')">
+              ● Dune Beige (240 GSM)
+            </button>
+            <button class="studio-btn" id="studio-btn-noir" onclick="switch3DStudioDrop('noir')">
+              ● Washed Black (280 GSM)
+            </button>
+          </div>
+
+          <!-- Control Group 2: Camera Angles -->
+          <div class="studio-control-group">
+            <span style="font-size:0.65rem; color:rgba(255,255,255,0.5); font-weight:700; padding-left:6px;">ANGLE:</span>
+            <button class="studio-btn active" id="cam-angle-front" onclick="set3DStudioCamera('front')">Front</button>
+            <button class="studio-btn" id="cam-angle-back" onclick="set3DStudioCamera('back')">Back Muse</button>
+            <button class="studio-btn" id="cam-angle-iso" onclick="set3DStudioCamera('iso')">3D Iso</button>
+            <button class="studio-btn" id="cam-angle-collar" onclick="set3DStudioCamera('collar')">Rib Collar</button>
+          </div>
+
+          <!-- Control Group 3: Lighting & Wireframe -->
+          <div class="studio-control-group">
+            <span style="font-size:0.65rem; color:rgba(255,255,255,0.5); font-weight:700; padding-left:6px;">LIGHT:</span>
+            <button class="studio-btn active" id="light-mode-studio" onclick="set3DStudioLight('studio')">Studio</button>
+            <button class="studio-btn" id="light-mode-noir" onclick="set3DStudioLight('noir')">Cinema Noir</button>
+            <button class="studio-btn" id="light-mode-golden" onclick="set3DStudioLight('golden')">Golden Dune</button>
+            <button class="studio-btn" id="wireframe-toggle-btn" onclick="toggle3DWireframe()">Wireframe: Off</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Drop 01 Deep-Dive: The "GRACE" Capsule -->
+    <section class="drop-showcase-section" id="drop-grace-section">
+      <div class="drop-showcase-grid">
+        <!-- Visual Column with Front/Back Flipper & 4 Thumbs -->
+        <div>
+          <div class="flipper-card-container">
+            <img src="images/product_beige_front_model.jpg" alt="OV Grace Dune Beige Front" class="flipper-image" id="grace-flipper-image">
+            <div class="flipper-controls-bar">
+              <button class="flipper-btn active" id="grace-view-front-btn" onclick="switchGracePerspective('front')">
+                FRONT: MINIMAL CHEST
+              </button>
+              <button class="flipper-btn" id="grace-view-back-btn" onclick="switchGracePerspective('back')">
+                BACK: FLORAL MUSE
+              </button>
+            </div>
+          </div>
+          
+          <div class="thumbs-row">
+            <button class="thumb-preview-btn active" onclick="setGraceDirectImage('images/product_beige_front_model.jpg', this)">
+              <img src="images/product_beige_front_model.jpg" alt="Front Model">
+            </button>
+            <button class="thumb-preview-btn" onclick="setGraceDirectImage('images/product_beige_back_model.jpg', this)">
+              <img src="images/product_beige_back_model.jpg" alt="Back Model">
+            </button>
+            <button class="thumb-preview-btn" onclick="setGraceDirectImage('images/product_beige_front_flat.jpg', this)">
+              <img src="images/product_beige_front_flat.jpg" alt="Front Flat">
+            </button>
+            <button class="thumb-preview-btn" onclick="setGraceDirectImage('images/product_beige_back_flat.jpg', this)">
+              <img src="images/product_beige_back_flat.jpg" alt="Back Flat">
+            </button>
+          </div>
+        </div>
+
+        <!-- Info & Buy Column -->
+        <div>
+          <span class="eyebrow" style="color: var(--gold-accent);">FLAGSHIP DROP 01 · 67% OFF</span>
+          <h2 class="luxury-heading" style="font-size: 2.6rem; margin-top: 6px; margin-bottom: 12px;">
+            OV™ "GRACE" 240 GSM TEE
+          </h2>
+          <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 18px;">
+            ₹999 <span style="font-size: 1.05rem; text-decoration: line-through; color: var(--medium-gray); margin-left: 10px;">₹2,999</span>
+            <span style="font-size: 0.75rem; background: #eef7ee; color: var(--green-success); padding: 4px 10px; border-radius: 20px; margin-left: 10px; font-weight: 600;">SAVE ₹2,000</span>
+          </div>
+
+          <p style="color: var(--medium-gray); line-height: 1.7; margin-bottom: 24px;">
+            <strong>Grace Is Her Greatest Strength.</strong> Cut from 100% combed compact cotton at 240 GSM. Designed with an intentional drop-shoulder oversized drape, a 1.25" high-density ribbed neck that never bacon-curls, and an empowering photographic floral muse typographic back graphic.
+          </p>
+
+          <!-- 4 Fabric Hotspots -->
+          <div class="hotspot-pill-grid">
+            <div class="hotspot-pill">
+              <div class="hotspot-pill-num">01 · FABRIC</div>
+              <div class="hotspot-pill-title">240 GSM COMBED COTTON</div>
+              <div class="hotspot-pill-desc">Double-brushed long-staple fibers from Tirupur with zero fuzz.</div>
+            </div>
+            <div class="hotspot-pill">
+              <div class="hotspot-pill-num">02 · COLLAR</div>
+              <div class="hotspot-pill-title">1.25" HIGH-DENSITY RIB</div>
+              <div class="hotspot-pill-desc">Lycra-reinforced collar band engineered to stay crisp wash after wash.</div>
+            </div>
+            <div class="hotspot-pill">
+              <div class="hotspot-pill-num">03 · SILHOUETTE</div>
+              <div class="hotspot-pill-title">DROPPED BOXY SHOULDER</div>
+              <div class="hotspot-pill-desc">Strict angular sleeve hang creating a flattering architectural frame.</div>
+            </div>
+            <div class="hotspot-pill">
+              <div class="hotspot-pill-num">04 · ARTWORK</div>
+              <div class="hotspot-pill-title">HIGH-DENSITY MUSE BACK</div>
+              <div class="hotspot-pill-desc">Screened with durable soft-touch matte ink: "Quiet. Unbreakable. Limitless."</div>
+            </div>
+          </div>
+
+          <!-- Direct In-Place Purchase Actions -->
+          <div style="margin-bottom: 14px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">
+            SELECT SIZE:
+          </div>
+          <div class="size-buttons" id="grace-quick-size-buttons" style="gap: 8px; margin-bottom: 24px;">
+            <button class="size-btn" onclick="selectDropGraceSize('XS', this)">XS</button>
+            <button class="size-btn active" onclick="selectDropGraceSize('S', this)">S</button>
+            <button class="size-btn" onclick="selectDropGraceSize('M', this)">M</button>
+            <button class="size-btn" onclick="selectDropGraceSize('L', this)">L</button>
+            <button class="size-btn" onclick="selectDropGraceSize('XL', this)">XL</button>
+          </div>
+
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 20px;">
+            <button class="luxury-btn gold-btn" style="flex: 1; height: 50px; font-size: 0.85rem;" onclick="addDropGraceToBag()">
+              ADD GRACE TO BAG — ₹999
+            </button>
+            <button class="luxury-btn outline-btn" style="width: auto; padding: 0 20px; height: 50px;" onclick="navigateTo('product', 'ov-tee-grace-beige')">
+              DETAILS
+            </button>
+          </div>
+
+          <div style="font-size: 0.75rem; color: var(--medium-gray); display: flex; align-items: center; gap: 16px;">
+            <span>✓ In Stock (Ships in 24h)</span>
+            <span>✓ Free Express Delivery</span>
+            <span>✓ 15-Day Easy Returns</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Drop 02 Deep-Dive: The "NOIR" Antigravity Capsule -->
+    <section class="drop-showcase-section" id="drop-noir-section" style="background: #08080a; color: #fff; border-top: 1px solid rgba(255,255,255,0.06);">
+      <div class="drop-showcase-grid reverse">
+        <!-- Info & Buy Column -->
+        <div>
+          <span class="eyebrow" style="color: var(--gold-accent);">FLAGSHIP DROP 02 · LIMITED ANTIGRAVITY DROP</span>
+          <h2 class="luxury-heading" style="font-size: 2.6rem; margin-top: 6px; margin-bottom: 12px; color: #fff;">
+            OV™ "NOIR" 280 GSM TEE
+          </h2>
+          <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 18px;">
+            ₹1,199 <span style="font-size: 1.05rem; text-decoration: line-through; color: rgba(255,255,255,0.4); margin-left: 10px;">₹3,499</span>
+            <span style="font-size: 0.75rem; background: rgba(184, 151, 90, 0.2); color: var(--gold-accent); padding: 4px 10px; border-radius: 20px; margin-left: 10px; font-weight: 600;">SAVE ₹2,300</span>
+          </div>
+
+          <p style="color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 24px;">
+            <strong>The Antigravity Edition.</strong> Extreme 280 GSM interlock ring-spun cotton subjected to vintage mineral enzyme wash. Engineered with strict vertical sleeve drops and structural weight that never collapses.
+          </p>
+
+          <!-- 4 Fabric Hotspots -->
+          <div class="hotspot-pill-grid">
+            <div class="hotspot-pill" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff;">
+              <div class="hotspot-pill-num">01 · FABRIC</div>
+              <div class="hotspot-pill-title">280 GSM INTERLOCK</div>
+              <div class="hotspot-pill-desc" style="color: rgba(255,255,255,0.6);">Ultra-dense interlock weave providing unmatched structural drape.</div>
+            </div>
+            <div class="hotspot-pill" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff;">
+              <div class="hotspot-pill-num">02 · WASH</div>
+              <div class="hotspot-pill-title">MINERAL ENZYME WASH</div>
+              <div class="hotspot-pill-desc" style="color: rgba(255,255,255,0.6);">Vintage washed edges with deep graphite shadows and soft matte feel.</div>
+            </div>
+            <div class="hotspot-pill" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff;">
+              <div class="hotspot-pill-num">03 · CUT</div>
+              <div class="hotspot-pill-title">VERTICAL BOXY CUT</div>
+              <div class="hotspot-pill-desc" style="color: rgba(255,255,255,0.6);">Architectural silhouette drafted to maintain clean vertical lines.</div>
+            </div>
+            <div class="hotspot-pill" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #fff;">
+              <div class="hotspot-pill-num">04 · EDGES</div>
+              <div class="hotspot-pill-title">REINFORCED STITCHING</div>
+              <div class="hotspot-pill-desc" style="color: rgba(255,255,255,0.6);">Double-needle hems and bar-tacked stress points for infinite durability.</div>
+            </div>
+          </div>
+
+          <!-- Direct In-Place Purchase Actions -->
+          <div style="margin-bottom: 14px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.8);">
+            SELECT SIZE:
+          </div>
+          <div class="size-buttons" id="noir-quick-size-buttons" style="gap: 8px; margin-bottom: 24px;">
+            <button class="size-btn" style="border-color: rgba(255,255,255,0.3); color: #fff;" onclick="selectDropNoirSize('S', this)">S</button>
+            <button class="size-btn active" style="border-color: rgba(255,255,255,0.3); color: #fff;" onclick="selectDropNoirSize('M', this)">M</button>
+            <button class="size-btn" style="border-color: rgba(255,255,255,0.3); color: #fff;" onclick="selectDropNoirSize('L', this)">L</button>
+            <button class="size-btn" style="border-color: rgba(255,255,255,0.3); color: #fff;" onclick="selectDropNoirSize('XL', this)">XL</button>
+          </div>
+
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 20px;">
+            <button class="luxury-btn" style="flex: 1; height: 50px; font-size: 0.85rem; background: #fff; color: #000;" onclick="addDropNoirToBag()">
+              ADD NOIR TO BAG — ₹1,199
+            </button>
+            <button class="luxury-btn outline-btn" style="width: auto; padding: 0 20px; height: 50px; border-color: rgba(255,255,255,0.3); color: #fff;" onclick="navigateTo('product', 'ov-tee-noir-black')">
+              DETAILS
+            </button>
+          </div>
+
+          <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 16px;">
+            <span>✓ Limited Drop (First 100 copies)</span>
+            <span>✓ Free Express Delivery</span>
+            <span>✓ 15-Day Easy Returns</span>
+          </div>
+        </div>
+
+        <!-- Visual Column with Perspective Toggle -->
+        <div>
+          <div class="flipper-card-container" style="background: #111;">
+            <img src="images/antigravity_tshirts_float.jpg" alt="OV Noir Washed Black Front" class="flipper-image" id="noir-flipper-image">
+            <div class="flipper-controls-bar" style="background: rgba(20,20,24,0.9); border-color: rgba(255,255,255,0.1);">
+              <button class="flipper-btn active" style="color: #fff;" id="noir-view-float-btn" onclick="switchNoirPerspective('float')">
+                ANTIGRAVITY FLOAT
+              </button>
+              <button class="flipper-btn" style="color: #fff;" id="noir-view-runway-btn" onclick="switchNoirPerspective('runway')">
+                RUNWAY FIT
+              </button>
+            </div>
+          </div>
+          
+          <div class="thumbs-row">
+            <button class="thumb-preview-btn active" style="border-color: rgba(255,255,255,0.4);" onclick="setNoirDirectImage('images/antigravity_tshirts_float.jpg', this)">
+              <img src="images/antigravity_tshirts_float.jpg" alt="Antigravity Float">
+            </button>
+            <button class="thumb-preview-btn" onclick="setNoirDirectImage('images/antigravity_showcase.jpg', this)">
+              <img src="images/antigravity_showcase.jpg" alt="Studio Showcase">
+            </button>
+            <button class="thumb-preview-btn" onclick="setNoirDirectImage('images/model_runway.jpg', this)">
+              <img src="images/model_runway.jpg" alt="Model Runway">
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Fabric Lab & Side-By-Side Comparison Matrix -->
+    <section class="comparison-matrix-section" id="fabric-matrix-section">
+      <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <span class="eyebrow" style="color: var(--gold-accent);">THE CRAFTSMANSHIP SPECIFICATION</span>
+        <h2 class="luxury-heading" style="font-size: 2.8rem; margin-top: 8px;">DROP COMPARISON MATRIX</h2>
+        <p style="color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-top: 10px;">
+          Both drops are engineered in Tirupur, India, using zero-compromise combed yarns and custom boxy geometry.
+        </p>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">SPECIFICATION</th>
+              <th class="col-highlight" style="width: 37.5%;">DROP 01: "GRACE" DUNE BEIGE</th>
+              <th class="col-highlight" style="width: 37.5%;">DROP 02: "NOIR" WASHED BLACK</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="matrix-attr">Fabric Density (GSM)</td>
+              <td><strong>240 GSM</strong> Luxury Heavyweight</td>
+              <td><strong>280 GSM</strong> Extreme Heavyweight</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Cotton Weave & Grade</td>
+              <td>100% Combed Compact Cotton (Single Jersey)</td>
+              <td>100% Ring-Spun Interlock Weave</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Silhouette Architecture</td>
+              <td>Oversized Drop-Shoulder Relaxed Drape</td>
+              <td>Architectural Strict Vertical Boxy Fit</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Collar Engineering</td>
+              <td>1.25" High-Density Rib with Lycra Core</td>
+              <td>Thick Double-Needle Reinforced Crewneck</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Graphic Application</td>
+              <td>Minimal Front Chest + Floral Muse Back Graphic</td>
+              <td>Antigravity Minimal Typography & Art</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Enzyme & Bio-Wash</td>
+              <td>Pre-shrunk Bio-Polish (Ultra Soft Handfeel)</td>
+              <td>Vintage Mineral Enzyme Washed</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Pricing</td>
+              <td><span style="color:var(--gold-accent); font-weight:700; font-size:1.1rem;">₹999</span> (was ₹2,999)</td>
+              <td><span style="color:var(--gold-accent); font-weight:700; font-size:1.1rem;">₹1,199</span> (was ₹3,499)</td>
+            </tr>
+            <tr>
+              <td class="matrix-attr">Action</td>
+              <td>
+                <button class="studio-btn gold active" style="padding: 8px 18px;" onclick="scrollToSection('drop-grace-section')">Buy Grace</button>
+              </td>
+              <td>
+                <button class="studio-btn gold active" style="padding: 8px 18px;" onclick="scrollToSection('drop-noir-section')">Buy Noir</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. Editorial Photoshoot Reel -->
+    <section class="editorial-marquee-section" id="visual-lookbook-section">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span class="eyebrow">VISUAL JOURNAL</span>
+        <h2 class="luxury-heading" style="font-size: 2.6rem; margin-top: 6px;">EDITORIAL LOOKBOOK</h2>
+        <p style="color: var(--medium-gray); font-size: 0.88rem;">Captured on location. Real pieces, authentic drape.</p>
+      </div>
+
+      <div class="marquee-track">
+        <div class="editorial-card">
+          <img src="images/product_beige_front_model.jpg" alt="Grace Front Model">
+          <div class="editorial-card-label">GRACE · DUNE BEIGE FRONT</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/product_beige_back_model.jpg" alt="Grace Back Muse">
+          <div class="editorial-card-label">GRACE · BACK FLORAL MUSE</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/antigravity_tshirts_float.jpg" alt="Noir Float">
+          <div class="editorial-card-label">NOIR · ANTIGRAVITY FLOAT</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/model_runway.jpg" alt="Runway Drop">
+          <div class="editorial-card-label">NOIR · RUNWAY SILHOUETTE</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/model_sunglasses.jpg" alt="Editorial Shoot">
+          <div class="editorial-card-label">EDITORIAL ATELIER</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/model2.jpg" alt="Studio Model">
+          <div class="editorial-card-label">OV™ STUDIO ARCHITECTURE</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/model5.jpg" alt="Lookbook Style">
+          <div class="editorial-card-label">STREETWEAR DRAPE</div>
+        </div>
+
+        <!-- Repeated loop for infinite seamless marquee -->
+        <div class="editorial-card">
+          <img src="images/product_beige_front_model.jpg" alt="Grace Front Model">
+          <div class="editorial-card-label">GRACE · DUNE BEIGE FRONT</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/product_beige_back_model.jpg" alt="Grace Back Muse">
+          <div class="editorial-card-label">GRACE · BACK FLORAL MUSE</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/antigravity_tshirts_float.jpg" alt="Noir Float">
+          <div class="editorial-card-label">NOIR · ANTIGRAVITY FLOAT</div>
+        </div>
+        <div class="editorial-card">
+          <img src="images/model_runway.jpg" alt="Runway Drop">
+          <div class="editorial-card-label">NOIR · RUNWAY SILHOUETTE</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Verified Customer Feedback & Reviews -->
+    <section class="reviews-section">
+      <div class="reviews-grid">
+        <div class="reviews-summary">
+          <span class="eyebrow">COMMUNITY FEEDBACK</span>
+          <div class="rating-huge">4.9</div>
+          <div class="stars-row">★★★★★</div>
+          <div class="rating-count">BASED ON 142 VERIFIED COPIES</div>
+          <button class="luxury-btn write-review-btn" onclick="openModal('write-review-modal')">WRITE REVIEW</button>
+        </div>
+        
+        <div class="reviews-list" id="pdp-reviews-list-container">
+          <div class="review-card" style="padding: 24px; border: 1px solid var(--border-color); background: #fafafa; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <span style="font-weight: 700; font-size: 0.9rem;">Ananya S.</span>
+              <span style="color: var(--gold-accent);">★★★★★</span>
+            </div>
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase;">Perfection in fabric & fit (Grace Dune Beige)</div>
+            <p style="font-size: 0.8rem; color: var(--medium-gray); line-height: 1.6;">
+              "The 240 GSM weight feels incredibly premium and soft. The back floral print with Grace is so empowering! Drape is immaculate."
+            </p>
+          </div>
+          <div class="review-card" style="padding: 24px; border: 1px solid var(--border-color); background: #fafafa; border-radius: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <span style="font-weight: 700; font-size: 0.9rem;">Rohan M.</span>
+              <span style="color: var(--gold-accent);">★★★★★</span>
+            </div>
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; text-transform: uppercase;">Insane 280 GSM structure (Noir Washed Black)</div>
+            <p style="font-size: 0.8rem; color: var(--medium-gray); line-height: 1.6;">
+              "The collar does not bacon, and the boxy drop sits perfectly on the shoulders. Heavy streetwear at its best."
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Exclusive Promo Portal -->
     <section class="promo-portal-section">
       <div class="brands-header">
         <span class="eyebrow">EXCLUSIVE ACCESS PORTAL</span>
@@ -335,7 +584,7 @@
           <div class="promo-card-content">
             <span class="promo-tag">FIRST DROP OFFER</span>
             <h3 style="font-family: var(--font-heading); font-size:1.4rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">FLAT ₹500 OFF</h3>
-            <p>Get ₹500 off on your first order. Minimum purchase ₹2,999.</p>
+            <p>Get ₹500 off on your order. Apply on checkout with minimum purchase ₹1,999.</p>
             <div class="promo-code-box">
               <span class="promo-code-text">WELCOME500</span>
               <button class="promo-copy-btn">COPY & APPLY</button>
@@ -344,9 +593,9 @@
         </div>
         <div class="promo-card" onclick="copyAndApplyPromo('DIWALI20')">
           <div class="promo-card-content">
-            <span class="promo-tag" style="color: var(--gold-accent); font-weight: 600;">DIWALI SPECIAL OFFER</span>
-            <h3 style="font-family: var(--font-heading); font-size:1.4rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">FLAT 20% OFF SITEWIDE</h3>
-            <p>Celebrate the festival of lights. Save 20% on all cargos, boxy tees, and hoodies.</p>
+            <span class="promo-tag" style="color: var(--gold-accent); font-weight: 600;">SPECIAL OFFER</span>
+            <h3 style="font-family: var(--font-heading); font-size:1.4rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">FLAT 20% OFF</h3>
+            <p>Save 20% across both Drop 01 & Drop 02 flagship boxes.</p>
             <div class="promo-code-box">
               <span class="promo-code-text">DIWALI20</span>
               <button class="promo-copy-btn">COPY & APPLY</button>
@@ -355,10 +604,10 @@
         </div>
         <div class="promo-card benefits">
           <div class="promo-card-content">
-            <span class="promo-tag">ORIGINAL BENEFITS</span>
+            <span class="promo-tag">ORIGINAL PRIVILEGES</span>
             <h3 style="font-family: var(--font-heading); font-size:1.4rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">MEMBER ADVANTAGES</h3>
             <ul>
-              <li>• FREE express delivery on orders over ₹2,999</li>
+              <li>• FREE express delivery on orders over ₹1,999</li>
               <li>• 15-day hassle-free editorial returns</li>
               <li>• Earn 5% loyalty credits on every order</li>
             </ul>
@@ -367,226 +616,7 @@
       </div>
     </section>
 
-    <!-- 3D T-Shirt Reveal Section -->
-    <section class="reveal-section">
-      <div class="reveal-3d-container" id="reveal-canvas-container" style="display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #ffffff;">
-        <div class="antigravity-scene" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; cursor: grab; padding: 30px;">
-          <img src="images/antigravity_tshirts_float.jpg" alt="OV™ 280 GSM Boxy Fit T-Shirts Floating in Antigravity" class="antigravity-float-img" style="max-width: 92%; max-height: 85%; object-fit: contain; user-select: none; pointer-events: none; will-change: transform;">
-        </div>
-        <div class="reveal-canvas-instructions">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Drag to Rotate</span>
-          <span>Pinch to Zoom</span>
-        </div>
-      </div>
-      
-      <div class="reveal-info-panel">
-        <span class="eyebrow">3D INTERACTIVE PREVIEW</span>
-        <h2 class="luxury-heading" style="font-size: 2.2rem; margin-bottom: 20px;">280 GSM BOXY FIT</h2>
-        <p style="color: var(--medium-gray); margin-bottom: 30px; line-height: 1.8;">
-          Experience our double-combed premium cotton in full 3D. Switch colors dynamically to see fabric draping and shadow fall under realistic studio lighting.
-        </p>
-
-        <div class="reveal-features">
-          <div class="feature-badge">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            280 GSM Heavyweight Build
-          </div>
-          <div class="feature-badge">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Premium Matte Weave Finish
-          </div>
-          <div class="feature-badge">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Drop-shoulder Boxy Silhouette
-          </div>
-        </div>
-
-        <div class="color-switch-container">
-          <span class="color-label">SELECT HUE:</span>
-          <div class="color-swatches">
-            <div class="swatch white active" onclick="switch3DColor('white', this)" title="Ivory White"></div>
-            <div class="swatch black" onclick="switch3DColor('black', this)" title="Onyx Black"></div>
-            <div class="swatch cream" onclick="switch3DColor('cream', this)" title="Sand Cream"></div>
-          </div>
-        </div>
-
-        <button class="luxury-btn" style="margin-top: 15px;" onclick="navigateTo('product', 'tee-01')">Customize & Buy</button>
-      </div>
-    </section>
-
-    <!-- Story Section -->
-    <section class="story-section">
-      <span class="eyebrow">OUR PHILOSOPHY</span>
-      <h2 class="story-heading">WE DON'T SELL TSHIRTS. WE CREATE IDENTITY.</h2>
-      <p class="story-text">
-        Every original version stands alone. We build architecture for the body, engineered to endure. No trends. Just clean canvases.
-      </p>
-    </section>
-
-    <!-- Collection Section (Horizontal Scroll) -->
-    <section class="horizontal-scroll-container">
-      <div class="horizontal-scroll-header">
-        <div>
-          <span class="eyebrow" style="color: rgba(255,255,255,0.4)">CURATED DROPS</span>
-          <h2>THE INITIAL LINEUP</h2>
-        </div>
-        <a href="#" style="color: white; border-bottom: 1px solid white; padding-bottom: 4px; font-size: 0.8rem; letter-spacing: 0.15em;" onclick="navigateTo('shop'); return false;">SHOP CATALOG</a>
-      </div>
-      
-      <div class="collection-slider-wrapper" id="plp-products-grid">
-        <!-- Collection Cards injected dynamically by app.js -->
-      </div>
-    </section>
-
-    <!-- Fabric Experience (Scroll linked macro zoom) -->
-    <section class="fabric-section">
-      <div class="fabric-zoom-bg" style="background-image: url('https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=1200&q=80')"></div>
-      <div class="fabric-content scroll-reveal">
-        <span class="eyebrow" style="color: rgba(255,255,255,0.6);">MACRO TEXTURE DETAILS</span>
-        <h2 class="fabric-heading luxury-heading">280 GSM CLOSEUP</h2>
-        <p class="fabric-desc">
-          Double-brushed organic fibers. Feel the weight, structure, and pre-shrunk density that defines minimal streetwear luxury.
-        </p>
-      </div>
-    </section>
-
-    <!-- Craftsmanship Timeline -->
-    <section class="crafts-section">
-      <div class="crafts-header">
-        <span class="eyebrow">THE PROCESS</span>
-        <h2>MADE IN SMALL BATCHES</h2>
-      </div>
-      
-      <div class="timeline-container">
-        <div class="timeline-line"></div>
-        <div class="timeline-progress"></div>
-        
-        <!-- Step 1 -->
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-item-side">
-            <span class="timeline-step">STEP 01</span>
-            <h3 class="timeline-title">ARCHITECTURAL DESIGN</h3>
-            <p class="timeline-desc">Every fit is drafted individually, balancing shoulder drops with strict vertical sleeve cuts to form the ultimate boxy shape.</p>
-          </div>
-          <div class="timeline-visual">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-item-side">
-            <span class="timeline-step">STEP 02</span>
-            <h3 class="timeline-title">PRECISION CUTTING</h3>
-            <p class="timeline-desc">Double-combed 100% cotton panels are cut with laser precision to prevent warp or sizing variation between batches.</p>
-          </div>
-          <div class="timeline-visual">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="9.8" y1="8.2" x2="21" y2="12.4"/><line x1="9.8" y1="15.8" x2="21" y2="11.6"/></svg>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-item-side">
-            <span class="timeline-step">STEP 03</span>
-            <h3 class="timeline-title">DEEP GARMENT DYE</h3>
-            <p class="timeline-desc">Dyed post-stitch inside specialized high-pressure drums. This ensures washed texture edges and vintage color depths.</p>
-          </div>
-          <div class="timeline-visual">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-item-side">
-            <span class="timeline-step">STEP 04</span>
-            <h3 class="timeline-title">HANDPACKED LOGISTICS</h3>
-            <p class="timeline-desc">Pieces are lint-brushed, packed inside raw organic canvas dust bags, and wrapped inside custom matte silver boxes.</p>
-          </div>
-          <div class="timeline-visual">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Lifestyle Gallery -->
-    <section class="lifestyle-gallery">
-      <div class="gallery-cell">
-        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80" alt="OV Model 1">
-        <div class="gallery-overlay">LOOSE FITS</div>
-      </div>
-      <div class="gallery-cell">
-        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80" alt="OV Model 2">
-        <div class="gallery-overlay">STUDIO SHOOT</div>
-      </div>
-      <div class="gallery-cell">
-        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80" alt="OV Model 3">
-        <div class="gallery-overlay">EDITORIAL SHAPE</div>
-      </div>
-      <div class="gallery-cell">
-        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80" alt="OV Model 4">
-        <div class="gallery-overlay">BLACK DROP</div>
-      </div>
-    </section>
-
-    <!-- Customer Reviews Grid -->
-    <section class="reviews-section">
-      <div class="reviews-grid">
-        <div class="reviews-summary">
-          <span class="eyebrow">FEEDBACK</span>
-          <div class="rating-huge">4.8</div>
-          <div class="stars-row">★★★★★</div>
-          <div class="rating-count">BASED ON 142 VERIFIED COPIES</div>
-          <button class="luxury-btn write-review-btn" onclick="openModal('write-review-modal')">WRITE REVIEW</button>
-        </div>
-        
-        <div class="reviews-list" id="pdp-reviews-list-container">
-          <!-- User feedback cards injected dynamically -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Instagram Feed Grid -->
-    <section class="instagram-section">
-      <span class="eyebrow">FOLLOW THE STORY</span>
-      <h2>#BECOMEANORIGINAL</h2>
-      <a href="https://instagram.com" class="instagram-handle" target="_blank">@OV.ORIGINALVERSION</a>
-      
-      <div class="instagram-grid">
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80" alt="Insta 1">
-          <div class="instagram-overlay">View Post</div>
-        </div>
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80" alt="Insta 2">
-          <div class="instagram-overlay">View Reel</div>
-        </div>
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=400&q=80" alt="Insta 3">
-          <div class="instagram-overlay">View Post</div>
-        </div>
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80" alt="Insta 4">
-          <div class="instagram-overlay">View Post</div>
-        </div>
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?auto=format&fit=crop&w=400&q=80" alt="Insta 5">
-          <div class="instagram-overlay">View Reel</div>
-        </div>
-        <div class="instagram-item">
-          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80" alt="Insta 6">
-          <div class="instagram-overlay">View Post</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Newsletter -->
+    <!-- 9. Newsletter -->
     <section class="newsletter-section">
       <h2>BECOME AN ORIGINAL.</h2>
       <p>Subscribe to secure early access pass codes to future capsules.</p>
@@ -621,19 +651,18 @@
           </div>
 
           <div>
-            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">CATEGORIES</h4>
+            <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">FLAGSHIP DROPS</h4>
             <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'tee')"> Oversized Tees</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'hoodie')"> Boxy Hoodies</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'pants')"> Cargo Bottoms</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'cap')"> Premium Caps</label>
-              <label style="display:flex; gap:10px; cursor:pointer;"><input type="checkbox" onchange="toggleSidebarFilterCheckbox(this, 'category', 'bag')"> Canvas Totes</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="radio" name="drop-filter" checked onchange="STATE.filters.brand = ''; filterCatalogProducts();"> All Drops</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="radio" name="drop-filter" onchange="STATE.filters.brand = 'OV™ FEMME'; filterCatalogProducts();"> Drop 01: Grace (240 GSM)</label>
+              <label style="display:flex; gap:10px; cursor:pointer;"><input type="radio" name="drop-filter" onchange="STATE.filters.brand = 'OV™ BLACK LABEL'; filterCatalogProducts();"> Drop 02: Noir (280 GSM)</label>
             </div>
           </div>
 
           <div>
             <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">SIZES</h4>
             <div class="size-buttons" style="flex-wrap:wrap; gap:8px;">
+              <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'XS')">XS</button>
               <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'S')">S</button>
               <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'M')">M</button>
               <button class="size-btn catalog-filter-size-btn" style="width:40px; height:40px;" onclick="toggleSidebarFilterSize(this, 'L')">L</button>
@@ -643,10 +672,10 @@
 
           <div>
             <h4 style="font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom: 15px;">PRICE RANGE</h4>
-            <input type="range" id="catalog-price-slider" min="1500" max="6000" value="6000" style="width:100%;">
+            <input type="range" id="catalog-price-slider" min="900" max="1500" value="1500" style="width:100%;">
             <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px; color:#666;">
               <span>MAX PRICE:</span>
-              <span id="catalog-price-slider-value" style="font-weight:600; color:black;">₹6,000</span>
+              <span id="catalog-price-slider-value" style="font-weight:600; color:black;">₹1,500</span>
             </div>
           </div>
         </aside>
@@ -1655,12 +1684,12 @@
             
             <div class="admin-form-group" style="margin-bottom:18px;">
               <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Image (URL / Path or Upload)</label>
-              <input type="text" id="product-form-image-url" class="auth-input" placeholder="e.g. images/product_beige_front.png or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateProductPreviewFromUrl(this.value)">
+              <input type="text" id="product-form-image-url" class="auth-input" placeholder="e.g. images/product_beige_front_model.jpg or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateProductPreviewFromUrl(this.value)">
 
               <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center;">
                 <span style="font-size:0.65rem; color:var(--medium-gray); font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('/images/product_beige_front.png')">Beige Tee</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('/images/product_noir_front.png')">Noir Tee</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/product_beige_front_model.jpg')">Beige Tee</button>
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/antigravity_tshirts_float.jpg')">Noir / Float Tee</button>
                 <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model_runway.jpg')">Runway Hoodie</button>
                 <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model2.jpg')">Model 2</button>
               </div>
@@ -2133,7 +2162,23 @@
     </div>
   </div>
 
+  <!-- ===== Floating Glassmorphic Quick-Action Pill ===== -->
+  <div class="floating-quick-pill" id="floating-quick-pill">
+    <img src="images/product_beige_front_model.jpg" alt="Active Drop" class="quick-pill-thumb" id="quick-pill-img">
+    <div class="quick-pill-meta">
+      <span class="quick-pill-title" id="quick-pill-title">GRACE DUNE BEIGE</span>
+      <span class="quick-pill-price" id="quick-pill-price">₹999</span>
+    </div>
+    <select class="quick-pill-size-select" id="quick-pill-size-select">
+      <option value="S">Size: S</option>
+      <option value="M" selected>Size: M</option>
+      <option value="L">Size: L</option>
+      <option value="XL">Size: XL</option>
+    </select>
+    <button class="quick-pill-btn" onclick="executeQuickPillPurchase()">ADD TO BAG</button>
+  </div>
+
   <!-- JavaScript Entry Point -->
-  <script src="app.js?v=4.2"></script>
+  <script src="app.js?v=4.3"></script>
 </body>
 </html>

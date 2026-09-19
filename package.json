@@ -2,7 +2,12 @@
   "name": "ov-original-version",
   "version": "2.0.0",
   "description": "Production-ready D2C Clothing E-Commerce Platform for OV™ — Original Version",
-  "main": "app.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node lib/test-runner.js"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",

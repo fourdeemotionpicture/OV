@@ -12,8 +12,8 @@ const DEFAULT_PRODUCTS = [
     originalPrice: 2999,
     type: 'tee',
     brand: 'OV™ FEMME',
-    badge: '67% OFF',
-    stock: 15,
+    badge: 'DROP 01 · 67% OFF',
+    stock: 25,
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     reviews: [
       { author: 'Ananya S.', rating: 5, date: '2 days ago', title: 'Perfection in fabric & fit', comment: 'The 240 GSM weight feels incredibly premium and soft. The back floral print with Grace is so empowering!' },
@@ -24,101 +24,54 @@ const DEFAULT_PRODUCTS = [
     gallery: [
       'images/product_beige_front_model.jpg',
       'images/product_beige_back_model.jpg',
-      'images/product_beige_back_flat.jpg',
-      'images/product_beige_front_flat.jpg'
+      'images/product_beige_front_flat.jpg',
+      'images/product_beige_back_flat.jpg'
     ],
-    fit: 'Oversize',
-    fabric: '240 GSM Heavyweight Combed Cotton',
-    neck: 'Round Neck',
-    color: 'Beige',
-    desc: 'Grace Is Her Greatest Strength. 240 GSM heavyweight combed cotton cut in an intentional drop-shoulder oversized silhouette. Features signature minimal front script and high-density typographic back floral muse graphic: "Quite. Unbreakable. Limitless."',
+    fit: 'Oversized Boxy Drop-Shoulder',
+    fabric: '240 GSM Luxury Combed Compact Cotton',
+    neck: '1.25" High-Density Ribbed Collar',
+    color: 'Dune Beige',
+    desc: 'Grace Is Her Greatest Strength. 240 GSM heavyweight combed compact cotton cut in an intentional drop-shoulder oversized silhouette. Features signature minimal front script and high-density photographic floral muse back graphic: "Quiet. Unbreakable. Limitless."',
     isUpcoming: false
   },
   {
-    id: 'hoodie-01',
-    name: 'OV™ 450 GSM French Terry Boxy Hoodie — Slate Noir',
-    baseName: 'Boxy Fit Hoodie',
-    price: 4299,
-    originalPrice: 5499,
-    type: 'hoodie',
-    brand: 'OV™ ESSENTIALS',
-    badge: 'UPCOMING',
-    stock: 0,
+    id: 'ov-tee-noir-black',
+    name: 'OV™ "NOIR" 280 GSM Boxy Heavyweight Tee — Washed Black',
+    baseName: 'Noir Boxy Fit Tee',
+    price: 1199,
+    originalPrice: 3499,
+    type: 'tee',
+    brand: 'OV™ BLACK LABEL',
+    badge: 'DROP 02 · ANTIGRAVITY',
+    stock: 20,
     sizes: ['S', 'M', 'L', 'XL'],
-    reviews: [],
-    rating: 4.9,
-    image: 'images/model_runway.jpg',
-    gallery: ['images/model_runway.jpg'],
-    fit: 'Boxy Relaxed',
-    fabric: '450 GSM French Terry',
-    color: 'Slate Noir',
-    isUpcoming: true
-  },
-  {
-    id: 'pants-01',
-    name: 'OV™ Signature Tailored Cargo — Noir',
-    baseName: 'Signature Cargo',
-    price: 3799,
-    originalPrice: 4499,
-    type: 'pants',
-    brand: 'OV™ STUDIO',
-    badge: 'UPCOMING',
-    stock: 0,
-    sizes: ['M', 'L', 'XL'],
-    reviews: [],
-    rating: 4.8,
-    image: 'images/model5.jpg',
-    gallery: ['images/model5.jpg'],
-    fit: 'Relaxed Tapered',
-    fabric: 'Heavy Cotton Twill',
-    color: 'Noir',
-    isUpcoming: true
-  },
-  {
-    id: 'cap-01',
-    name: 'OV™ Monogram Embroidered Cap — Noir',
-    baseName: 'Premium Cap',
-    price: 1599,
-    originalPrice: 1999,
-    type: 'cap',
-    brand: 'OV™ ACCESSORIES',
-    badge: 'UPCOMING',
-    stock: 0,
-    sizes: ['O/S'],
-    reviews: [],
-    rating: 4.6,
-    image: 'images/model2.jpg',
-    gallery: ['images/model2.jpg'],
-    color: 'Noir',
-    isUpcoming: true
-  },
-  {
-    id: 'bag-01',
-    name: 'OV™ Heavy Canvas Studio Tote — Raw Bone',
-    baseName: 'Studio Canvas Tote',
-    price: 1899,
-    originalPrice: 2299,
-    type: 'bag',
-    brand: 'OV™ ACCESSORIES',
-    badge: 'UPCOMING',
-    stock: 0,
-    sizes: ['O/S'],
-    reviews: [],
-    rating: 4.7,
-    image: 'images/model4.jpg',
-    gallery: ['images/model4.jpg'],
-    color: 'Bone',
-    isUpcoming: true
+    reviews: [
+      { author: 'Rohan M.', rating: 5, date: '3 days ago', title: 'Insane 280 GSM structure', comment: 'The collar does not bacon, and the boxy drop sits perfectly on the shoulders. Heavy streetwear at its best.' },
+      { author: 'Kabir V.', rating: 5, date: '2 weeks ago', title: 'Mineral wash is top tier', comment: 'The washed black enzyme finish looks like vintage luxury designer tier.' }
+    ],
+    rating: 4.95,
+    image: 'images/antigravity_tshirts_float.jpg',
+    gallery: [
+      'images/antigravity_tshirts_float.jpg',
+      'images/antigravity_showcase.jpg',
+      'images/model_runway.jpg'
+    ],
+    fit: 'Architectural Boxy Fit with Vertical Sleeve Drape',
+    fabric: '280 GSM Extreme Heavyweight Interlock Cotton',
+    neck: 'Double-Needle Reinforced High Crew',
+    color: 'Washed Black',
+    desc: 'The Antigravity Edition. 280 GSM interlock ring-spun cotton treated with vintage mineral enzyme wash. Engineered with strict vertical sleeve drops and structural weight that never collapses.',
+    isUpcoming: false
   }
 ];
 
 const STATE = {
   products: (() => {
-    const saved = localStorage.getItem('ov_custom_products_v3');
+    const saved = localStorage.getItem('ov_custom_products_v5');
     if (saved) {
       try { return JSON.parse(saved); } catch(e) {}
     }
-    localStorage.setItem('ov_custom_products_v3', JSON.stringify(DEFAULT_PRODUCTS));
+    localStorage.setItem('ov_custom_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
   })(),
   slides: (() => {
@@ -555,103 +508,529 @@ function setupHeroSlider() {
 }
 
 /* ==========================================================================
-   6. Three.js 3D T-Shirt Reveal Canvas
+   6. True Three.js WebGL 3D Virtual Atelier Engine
    ========================================================================== */
-let scene3D, camera3D, renderer3D, tshirtMesh;
-let lights = {};
+let studio3D = {
+  scene: null,
+  camera: null,
+  renderer: null,
+  controls: null,
+  tshirtGroup: null,
+  frontMesh: null,
+  backMesh: null,
+  pedestal: null,
+  ringMesh: null,
+  particles: null,
+  lights: {
+    spot: null,
+    rim1: null,
+    rim2: null,
+    ambient: null
+  },
+  currentDrop: 'grace',
+  isWireframe: false,
+  textures: {}
+};
 
 function setupThreeJSReveal() {
-  const container = document.getElementById('reveal-canvas-container');
-  if (!container) return;
-  const floatImg = container.querySelector('.antigravity-float-img');
-  if (!floatImg) return;
-
-  let isDragging = false;
-  let startX = 0, startY = 0;
-  let currentRotY = 0, currentRotX = 0;
-  let targetRotY = 0, targetRotX = 0;
-
-  container.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    container.style.cursor = 'grabbing';
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    if (container) container.style.cursor = 'grab';
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
-      targetRotY += deltaX * 0.22;
-      targetRotX -= deltaY * 0.22;
-      startX = e.clientX;
-      startY = e.clientY;
-    } else {
-      const rect = container.getBoundingClientRect();
-      if (e.clientY >= rect.top && e.clientY <= rect.bottom && e.clientX >= rect.left && e.clientX <= rect.right) {
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        targetRotY = x * 18;
-        targetRotX = -y * 14;
-      }
-    }
-  });
-
-  // Touch handlers for mobile
-  container.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      isDragging = true;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  window.addEventListener('touchend', () => {
-    isDragging = false;
-  });
-
-  window.addEventListener('touchmove', (e) => {
-    if (isDragging && e.touches.length === 1) {
-      const deltaX = e.touches[0].clientX - startX;
-      const deltaY = e.touches[0].clientY - startY;
-      targetRotY += deltaX * 0.25;
-      targetRotX -= deltaY * 0.25;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  function updateParallax() {
-    currentRotY += (targetRotY - currentRotY) * 0.08;
-    currentRotX += (targetRotX - currentRotX) * 0.08;
-    currentRotX = Math.max(-20, Math.min(20, currentRotX));
-    floatImg.style.transform = `perspective(1200px) rotateY(${currentRotY.toFixed(2)}deg) rotateX(${currentRotX.toFixed(2)}deg) scale(1.02)`;
-    requestAnimationFrame(updateParallax);
-  }
-  updateParallax();
+  initThreeJSStudio();
+  setupFloatingQuickPill();
 }
 
-function switch3DColor(colorName, element) {
-  const swatches = document.querySelectorAll('.swatch');
-  swatches.forEach(s => s.classList.remove('active'));
-  if (element) element.classList.add('active');
+function initThreeJSStudio() {
+  const canvas = document.getElementById('threejs-webgl-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
 
-  STATE.activeColor = colorName;
-  const floatImg = document.querySelector('.antigravity-float-img');
-  if (floatImg) {
-    if (colorName === 'white') {
-      gsap.to(floatImg, { filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.12)) brightness(1.05) contrast(1)', duration: 0.5 });
-    } else if (colorName === 'black') {
-      gsap.to(floatImg, { filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.3)) brightness(0.95) contrast(1.15)', duration: 0.5 });
-    } else if (colorName === 'cream') {
-      gsap.to(floatImg, { filter: 'drop-shadow(0 20px 40px rgba(180,150,110,0.25)) sepia(0.18)', duration: 0.5 });
-    }
+  const container = canvas.parentElement;
+  const width = container.clientWidth || 800;
+  const height = container.clientHeight || 650;
+
+  // 1. Scene
+  studio3D.scene = new THREE.Scene();
+  studio3D.scene.background = new THREE.Color(0x0c0c0e);
+  studio3D.scene.fog = new THREE.FogExp2(0x0c0c0e, 0.035);
+
+  // 2. Camera
+  studio3D.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+  studio3D.camera.position.set(0, 0.4, 5.2);
+
+  // 3. Renderer
+  studio3D.renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: false,
+    powerPreference: 'high-performance'
+  });
+  studio3D.renderer.setSize(width, height);
+  studio3D.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  studio3D.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  studio3D.renderer.toneMappingExposure = 1.1;
+  studio3D.renderer.shadowMap.enabled = true;
+  studio3D.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // 4. OrbitControls
+  if (typeof THREE.OrbitControls !== 'undefined') {
+    studio3D.controls = new THREE.OrbitControls(studio3D.camera, canvas);
+    studio3D.controls.enableDamping = true;
+    studio3D.controls.dampingFactor = 0.05;
+    studio3D.controls.minDistance = 3.0;
+    studio3D.controls.maxDistance = 8.5;
+    studio3D.controls.maxPolarAngle = Math.PI / 2 + 0.15;
+    studio3D.controls.autoRotate = true;
+    studio3D.controls.autoRotateSpeed = 1.0;
+    studio3D.controls.target.set(0, 0.3, 0);
   }
+
+  // 5. Lighting Setup
+  studio3D.lights.ambient = new THREE.AmbientLight(0xffffff, 1.4);
+  studio3D.scene.add(studio3D.lights.ambient);
+
+  studio3D.lights.spot = new THREE.SpotLight(0xfff3e0, 3.8);
+  studio3D.lights.spot.position.set(2, 6, 4);
+  studio3D.lights.spot.angle = Math.PI / 4;
+  studio3D.lights.spot.penumbra = 0.6;
+  studio3D.lights.spot.castShadow = true;
+  studio3D.scene.add(studio3D.lights.spot);
+
+  studio3D.lights.rim1 = new THREE.DirectionalLight(0xb8975a, 2.2);
+  studio3D.lights.rim1.position.set(-4, 3, -3);
+  studio3D.scene.add(studio3D.lights.rim1);
+
+  studio3D.lights.rim2 = new THREE.DirectionalLight(0x7090ff, 1.4);
+  studio3D.lights.rim2.position.set(4, 2, -2);
+  studio3D.scene.add(studio3D.lights.rim2);
+
+  // 6. Texture Loader
+  const textureLoader = new THREE.TextureLoader();
+  studio3D.textures = {
+    graceFront: textureLoader.load('images/product_beige_front_flat.jpg'),
+    graceBack: textureLoader.load('images/product_beige_back_flat.jpg'),
+    noirFloat: textureLoader.load('images/antigravity_tshirts_float.jpg'),
+    noirShowcase: textureLoader.load('images/antigravity_showcase.jpg')
+  };
+
+  // 7. Architectural Pedestal
+  const pedestalGeo = new THREE.CylinderGeometry(2.2, 2.4, 0.4, 48);
+  const pedestalMat = new THREE.MeshStandardMaterial({
+    color: 0x141418,
+    roughness: 0.7,
+    metalness: 0.3
+  });
+  studio3D.pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
+  studio3D.pedestal.position.set(0, -1.8, 0);
+  studio3D.pedestal.receiveShadow = true;
+  studio3D.scene.add(studio3D.pedestal);
+
+  // Pedestal Glowing Rim Ring
+  const ringGeo = new THREE.TorusGeometry(2.22, 0.025, 16, 64);
+  const ringMat = new THREE.MeshStandardMaterial({
+    color: 0xb8975a,
+    emissive: 0xb8975a,
+    emissiveIntensity: 0.6,
+    roughness: 0.2,
+    metalness: 0.8
+  });
+  studio3D.ringMesh = new THREE.Mesh(ringGeo, ringMat);
+  studio3D.ringMesh.rotation.x = Math.PI / 2;
+  studio3D.ringMesh.position.set(0, -1.6, 0);
+  studio3D.scene.add(studio3D.ringMesh);
+
+  // 8. Procedural 3D Streetwear Garment Group
+  studio3D.tshirtGroup = new THREE.Group();
+  studio3D.tshirtGroup.position.set(0, 0.3, 0);
+
+  // Front Panel
+  const frontGeo = new THREE.PlaneGeometry(2.1, 2.6, 16, 16);
+  // Give subtle boxy curve
+  const pos = frontGeo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = Math.cos((x / 1.05) * (Math.PI / 3)) * 0.15 - 0.1;
+    pos.setZ(i, z);
+  }
+  frontGeo.computeVertexNormals();
+
+  const frontMat = new THREE.MeshStandardMaterial({
+    map: studio3D.textures.graceFront,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.FrontSide
+  });
+  studio3D.frontMesh = new THREE.Mesh(frontGeo, frontMat);
+  studio3D.frontMesh.position.set(0, 0, 0.08);
+  studio3D.frontMesh.castShadow = true;
+  studio3D.tshirtGroup.add(studio3D.frontMesh);
+
+  // Back Panel
+  const backGeo = new THREE.PlaneGeometry(2.1, 2.6, 16, 16);
+  const backPos = backGeo.attributes.position;
+  for (let i = 0; i < backPos.count; i++) {
+    const x = backPos.getX(i);
+    const z = -Math.cos((x / 1.05) * (Math.PI / 3)) * 0.15 + 0.1;
+    backPos.setZ(i, z);
+  }
+  backGeo.computeVertexNormals();
+
+  const backMat = new THREE.MeshStandardMaterial({
+    map: studio3D.textures.graceBack,
+    roughness: 0.85,
+    metalness: 0.05,
+    side: THREE.BackSide
+  });
+  studio3D.backMesh = new THREE.Mesh(backGeo, backMat);
+  studio3D.backMesh.position.set(0, 0, -0.08);
+  studio3D.tshirtGroup.add(studio3D.backMesh);
+
+  // Architectural Hanger Bar
+  const hangerGeo = new THREE.CylinderGeometry(0.04, 0.04, 2.2, 16);
+  const hangerMat = new THREE.MeshStandardMaterial({
+    color: 0x222226,
+    metalness: 0.85,
+    roughness: 0.2
+  });
+  const hanger = new THREE.Mesh(hangerGeo, hangerMat);
+  hanger.rotation.z = Math.PI / 2;
+  hanger.position.set(0, 1.34, 0);
+  studio3D.tshirtGroup.add(hanger);
+
+  studio3D.scene.add(studio3D.tshirtGroup);
+
+  // 9. Floating Atmosphere Dust Particles
+  const particleCount = 200;
+  const particleGeo = new THREE.BufferGeometry();
+  const particlePositions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount * 3; i += 3) {
+    particlePositions[i] = (Math.random() - 0.5) * 8;
+    particlePositions[i + 1] = (Math.random() - 0.5) * 6;
+    particlePositions[i + 2] = (Math.random() - 0.5) * 8;
+  }
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  const particleMat = new THREE.PointsMaterial({
+    color: 0xb8975a,
+    size: 0.035,
+    transparent: true,
+    opacity: 0.55
+  });
+  studio3D.particles = new THREE.Points(particleGeo, particleMat);
+  studio3D.scene.add(studio3D.particles);
+
+  // 10. Responsive resize
+  window.addEventListener('resize', onStudioResize);
+
+  // 11. Animation Render Loop
+  let clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    const elapsed = clock.getElapsedTime();
+
+    if (studio3D.controls) {
+      studio3D.controls.update();
+    }
+
+    // Subtle breathing/floating motion
+    if (studio3D.tshirtGroup) {
+      studio3D.tshirtGroup.position.y = 0.3 + Math.sin(elapsed * 1.5) * 0.06;
+    }
+
+    // Particles slow drift
+    if (studio3D.particles) {
+      studio3D.particles.rotation.y = elapsed * 0.02;
+    }
+
+    studio3D.renderer.render(studio3D.scene, studio3D.camera);
+  }
+  animate();
+}
+
+function onStudioResize() {
+  const canvas = document.getElementById('threejs-webgl-canvas');
+  if (!canvas || !studio3D.renderer || !studio3D.camera) return;
+  const container = canvas.parentElement;
+  const w = container.clientWidth || 800;
+  const h = container.clientHeight || 650;
+  studio3D.camera.aspect = w / h;
+  studio3D.camera.updateProjectionMatrix();
+  studio3D.renderer.setSize(w, h);
+}
+
+function switch3DStudioDrop(drop) {
+  studio3D.currentDrop = drop;
+  const btnGrace = document.getElementById('studio-btn-grace');
+  const btnNoir = document.getElementById('studio-btn-noir');
+  const specsTag = document.getElementById('studio-specs-drop-tag');
+  const specsName = document.getElementById('studio-specs-name');
+  const specsPrice = document.getElementById('studio-specs-price');
+
+  if (drop === 'grace') {
+    if (btnGrace) { btnGrace.classList.add('gold', 'active'); }
+    if (btnNoir) { btnNoir.classList.remove('gold', 'active'); }
+    if (studio3D.frontMesh) studio3D.frontMesh.material.map = studio3D.textures.graceFront;
+    if (studio3D.backMesh) studio3D.backMesh.material.map = studio3D.textures.graceBack;
+    if (studio3D.ringMesh) studio3D.ringMesh.material.color.setHex(0xb8975a);
+    if (specsTag) specsTag.textContent = 'DROP 01 · IN STOCK';
+    if (specsName) specsName.textContent = 'GRACE DUNE BEIGE';
+    if (specsPrice) specsPrice.innerHTML = '₹999 <span style="font-size:0.8rem; text-decoration:line-through; opacity:0.5; margin-left:6px;">₹2,999</span>';
+    set3DStudioLight('golden');
+  } else {
+    if (btnNoir) { btnNoir.classList.add('gold', 'active'); }
+    if (btnGrace) { btnGrace.classList.remove('gold', 'active'); }
+    if (studio3D.frontMesh) studio3D.frontMesh.material.map = studio3D.textures.noirFloat;
+    if (studio3D.backMesh) studio3D.backMesh.material.map = studio3D.textures.noirShowcase;
+    if (studio3D.ringMesh) studio3D.ringMesh.material.color.setHex(0x555566);
+    if (specsTag) specsTag.textContent = 'DROP 02 · ANTIGRAVITY';
+    if (specsName) specsName.textContent = 'NOIR WASHED BLACK';
+    if (specsPrice) specsPrice.innerHTML = '₹1,199 <span style="font-size:0.8rem; text-decoration:line-through; opacity:0.5; margin-left:6px;">₹3,499</span>';
+    set3DStudioLight('noir');
+  }
+  if (studio3D.frontMesh) studio3D.frontMesh.material.needsUpdate = true;
+  if (studio3D.backMesh) studio3D.backMesh.material.needsUpdate = true;
+}
+
+function set3DStudioCamera(angle) {
+  if (!studio3D.camera || !studio3D.controls) return;
+  const btns = ['cam-angle-front', 'cam-angle-back', 'cam-angle-iso', 'cam-angle-collar'];
+  btns.forEach(b => {
+    const el = document.getElementById(b);
+    if (el) el.classList.remove('active');
+  });
+  const activeEl = document.getElementById(`cam-angle-${angle}`);
+  if (activeEl) activeEl.classList.add('active');
+
+  studio3D.controls.autoRotate = false;
+
+  let targetPos = { x: 0, y: 0.4, z: 5.2 };
+  if (angle === 'front') targetPos = { x: 0, y: 0.4, z: 5.2 };
+  if (angle === 'back') targetPos = { x: 0, y: 0.4, z: -5.2 };
+  if (angle === 'iso') targetPos = { x: 3.6, y: 2.2, z: 3.8 };
+  if (angle === 'collar') targetPos = { x: 0, y: 1.4, z: 2.4 };
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to(studio3D.camera.position, {
+      x: targetPos.x,
+      y: targetPos.y,
+      z: targetPos.z,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      onUpdate: () => studio3D.controls.update()
+    });
+  } else {
+    studio3D.camera.position.set(targetPos.x, targetPos.y, targetPos.z);
+    studio3D.controls.update();
+  }
+}
+
+function set3DStudioLight(mode) {
+  const btns = ['light-mode-studio', 'light-mode-noir', 'light-mode-golden'];
+  btns.forEach(b => {
+    const el = document.getElementById(b);
+    if (el) el.classList.remove('active');
+  });
+  const activeEl = document.getElementById(`light-mode-${mode}`);
+  if (activeEl) activeEl.classList.add('active');
+
+  if (!studio3D.lights.spot) return;
+
+  if (mode === 'studio') {
+    studio3D.scene.background.setHex(0x111114);
+    studio3D.lights.spot.color.setHex(0xffffff);
+    studio3D.lights.spot.intensity = 4.2;
+    studio3D.lights.rim1.color.setHex(0xffffff);
+    studio3D.lights.rim2.color.setHex(0xcccccc);
+    studio3D.lights.ambient.intensity = 1.8;
+  } else if (mode === 'noir') {
+    studio3D.scene.background.setHex(0x08080a);
+    studio3D.lights.spot.color.setHex(0xe6f0ff);
+    studio3D.lights.spot.intensity = 3.0;
+    studio3D.lights.rim1.color.setHex(0x6080ff);
+    studio3D.lights.rim2.color.setHex(0xb8975a);
+    studio3D.lights.ambient.intensity = 0.9;
+  } else if (mode === 'golden') {
+    studio3D.scene.background.setHex(0x0e0d0c);
+    studio3D.lights.spot.color.setHex(0xffebc2);
+    studio3D.lights.spot.intensity = 3.6;
+    studio3D.lights.rim1.color.setHex(0xd4af37);
+    studio3D.lights.rim2.color.setHex(0xff9944);
+    studio3D.lights.ambient.intensity = 1.4;
+  }
+}
+
+function toggle3DWireframe() {
+  studio3D.isWireframe = !studio3D.isWireframe;
+  const btn = document.getElementById('wireframe-toggle-btn');
+  if (btn) {
+    btn.textContent = studio3D.isWireframe ? 'Wireframe: ON' : 'Wireframe: OFF';
+    if (studio3D.isWireframe) btn.classList.add('active');
+    else btn.classList.remove('active');
+  }
+  if (studio3D.frontMesh) studio3D.frontMesh.material.wireframe = studio3D.isWireframe;
+  if (studio3D.backMesh) studio3D.backMesh.material.wireframe = studio3D.isWireframe;
+}
+
+function quickAddToCartFromStudio() {
+  const prodId = studio3D.currentDrop === 'grace' ? 'ov-tee-grace-beige' : 'ov-tee-noir-black';
+  const prod = STATE.products.find(p => p.id === prodId) || STATE.products[0];
+  addToCart(prod, 'M', 1);
+  toggleDrawer('cart-drawer');
+  showNotification(`ADDED ${prod.baseName.toUpperCase()} (SIZE M) TO BAG`);
+}
+
+/* ==========================================================================
+   Interactive Drop Showcase & Quick Actions
+   ========================================================================== */
+let activeGraceSize = 'S';
+let activeNoirSize = 'M';
+
+function scrollToSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  const navHeight = 70;
+  const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+function switchGracePerspective(view) {
+  const img = document.getElementById('grace-flipper-image');
+  const btnFront = document.getElementById('grace-view-front-btn');
+  const btnBack = document.getElementById('grace-view-back-btn');
+  if (!img) return;
+
+  if (view === 'front') {
+    img.src = 'images/product_beige_front_model.jpg';
+    if (btnFront) btnFront.classList.add('active');
+    if (btnBack) btnBack.classList.remove('active');
+  } else {
+    img.src = 'images/product_beige_back_model.jpg';
+    if (btnBack) btnBack.classList.add('active');
+    if (btnFront) btnFront.classList.remove('active');
+  }
+}
+
+function setGraceDirectImage(src, btn) {
+  const img = document.getElementById('grace-flipper-image');
+  if (img) img.src = src;
+  const parent = btn.parentElement;
+  if (parent) {
+    parent.querySelectorAll('.thumb-preview-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function selectDropGraceSize(size, btn) {
+  activeGraceSize = size;
+  const container = document.getElementById('grace-quick-size-buttons');
+  if (container) {
+    container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function addDropGraceToBag() {
+  const prod = STATE.products.find(p => p.id === 'ov-tee-grace-beige') || STATE.products[0];
+  addToCart(prod, activeGraceSize, 1);
+  toggleDrawer('cart-drawer');
+  showNotification(`ADDED GRACE DUNE BEIGE (SIZE ${activeGraceSize}) TO BAG`);
+}
+
+function switchNoirPerspective(view) {
+  const img = document.getElementById('noir-flipper-image');
+  const btnFloat = document.getElementById('noir-view-float-btn');
+  const btnRunway = document.getElementById('noir-view-runway-btn');
+  if (!img) return;
+
+  if (view === 'float') {
+    img.src = 'images/antigravity_tshirts_float.jpg';
+    if (btnFloat) btnFloat.classList.add('active');
+    if (btnRunway) btnRunway.classList.remove('active');
+  } else {
+    img.src = 'images/model_runway.jpg';
+    if (btnRunway) btnRunway.classList.add('active');
+    if (btnFloat) btnFloat.classList.remove('active');
+  }
+}
+
+function setNoirDirectImage(src, btn) {
+  const img = document.getElementById('noir-flipper-image');
+  if (img) img.src = src;
+  const parent = btn.parentElement;
+  if (parent) {
+    parent.querySelectorAll('.thumb-preview-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function selectDropNoirSize(size, btn) {
+  activeNoirSize = size;
+  const container = document.getElementById('noir-quick-size-buttons');
+  if (container) {
+    container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function addDropNoirToBag() {
+  const prod = STATE.products.find(p => p.id === 'ov-tee-noir-black') || STATE.products[1] || STATE.products[0];
+  addToCart(prod, activeNoirSize, 1);
+  toggleDrawer('cart-drawer');
+  showNotification(`ADDED NOIR WASHED BLACK (SIZE ${activeNoirSize}) TO BAG`);
+}
+
+/* ==========================================================================
+   Floating Glassmorphic Quick-Action Pill
+   ========================================================================== */
+function setupFloatingQuickPill() {
+  const pill = document.getElementById('floating-quick-pill');
+  if (!pill) return;
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollY > 400) {
+      pill.classList.add('visible');
+
+      // Check if scrolled into Drop 02 Noir territory
+      const noirSection = document.getElementById('drop-noir-section');
+      if (noirSection) {
+        const rect = noirSection.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= 0) {
+          updateQuickPillProduct('noir');
+          return;
+        }
+      }
+      updateQuickPillProduct('grace');
+    } else {
+      pill.classList.remove('visible');
+    }
+  }, { passive: true });
+}
+
+let activePillDrop = 'grace';
+function updateQuickPillProduct(drop) {
+  if (activePillDrop === drop) return;
+  activePillDrop = drop;
+  const img = document.getElementById('quick-pill-img');
+  const title = document.getElementById('quick-pill-title');
+  const price = document.getElementById('quick-pill-price');
+
+  if (drop === 'grace') {
+    if (img) img.src = 'images/product_beige_front_model.jpg';
+    if (title) title.textContent = 'GRACE DUNE BEIGE';
+    if (price) price.textContent = '₹999';
+  } else {
+    if (img) img.src = 'images/antigravity_tshirts_float.jpg';
+    if (title) title.textContent = 'NOIR WASHED BLACK';
+    if (price) price.textContent = '₹1,199';
+  }
+}
+
+function executeQuickPillPurchase() {
+  const select = document.getElementById('quick-pill-size-select');
+  const size = select ? select.value : 'M';
+  const prodId = activePillDrop === 'grace' ? 'ov-tee-grace-beige' : 'ov-tee-noir-black';
+  const prod = STATE.products.find(p => p.id === prodId) || STATE.products[0];
+
+  addToCart(prod, size, 1);
+  toggleDrawer('cart-drawer');
+  showNotification(`ADDED ${prod.baseName.toUpperCase()} (SIZE ${size}) TO BAG`);
 }
 
 /* ==========================================================================

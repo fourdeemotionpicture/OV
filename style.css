@@ -3712,3 +3712,697 @@ footer {
   flex-shrink: 0;
 }
 
+/* ==========================================================================
+   OV™ LUXURY 3D STUDIO & DUAL-DROP FLAGSHIP SUITE STYLES
+   ========================================================================== */
+
+/* ===== 1. Cinematic Split Hero ===== */
+.split-hero-container {
+  display: flex;
+  width: 100%;
+  height: 92vh;
+  min-height: 640px;
+  max-height: 960px;
+  position: relative;
+  overflow: hidden;
+  background: var(--black);
+}
+
+.split-hero-wing {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: flex 0.7s var(--ease-premium);
+  display: flex;
+  align-items: flex-end;
+  padding: 60px 48px;
+}
+
+.split-hero-wing:hover {
+  flex: 1.35;
+}
+
+.split-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  transition: transform 1.2s var(--ease-premium), filter 0.8s ease;
+  transform: scale(1.03);
+}
+
+.split-hero-wing:hover .split-hero-bg {
+  transform: scale(1.08);
+}
+
+.split-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.92) 100%);
+  transition: opacity 0.5s ease;
+}
+
+.split-hero-content {
+  position: relative;
+  z-index: 5;
+  color: var(--white);
+  max-width: 520px;
+}
+
+.split-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold-accent);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(184, 151, 90, 0.4);
+  margin-bottom: 16px;
+}
+
+.split-hero-title {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.split-hero-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 24px;
+}
+
+.split-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.split-hero-wing:hover .split-hero-btn {
+  background: var(--gold-accent);
+  color: var(--white);
+  box-shadow: 0 10px 30px rgba(184, 151, 90, 0.35);
+}
+
+.split-hero-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ===== 2. Three.js 3D WebGL Virtual Atelier ===== */
+.webgl-studio-section {
+  background: #09090b;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+  padding: 100px 40px;
+}
+
+.studio-header-wrap {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  position: relative;
+  z-index: 10;
+}
+
+.studio-canvas-stage {
+  width: 100%;
+  height: 680px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #18181f 0%, #0c0c0e 65%, #050506 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 0 100px rgba(0,0,0,0.8);
+}
+
+#threejs-webgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  cursor: grab;
+}
+
+#threejs-webgl-canvas:active {
+  cursor: grabbing;
+}
+
+.studio-overlay-controls {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.studio-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 14, 18, 0.85);
+  backdrop-filter: blur(14px);
+  padding: 6px 10px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  pointer-events: auto;
+}
+
+.studio-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-btn:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.studio-btn.active {
+  background: var(--white);
+  color: var(--black);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.25);
+}
+
+.studio-btn.gold.active {
+  background: var(--gold-accent);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(184, 151, 90, 0.4);
+}
+
+.studio-hint-badge {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: rgba(14, 14, 18, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.studio-specs-floating {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(14, 14, 18, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 16px 20px;
+  border-radius: 12px;
+  max-width: 280px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.studio-specs-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.studio-specs-tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-accent);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.studio-specs-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+/* ===== 3. Flagship Drop Deep-Dive Showcases ===== */
+.drop-showcase-section {
+  padding: 120px 48px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.drop-showcase-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.drop-showcase-grid.reverse {
+  grid-template-columns: 1fr 1.15fr;
+}
+
+.flipper-card-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--light-gray);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.flipper-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.4s ease, transform 0.8s var(--ease-premium);
+  display: block;
+}
+
+.flipper-controls-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  padding: 8px 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  z-index: 10;
+}
+
+.flipper-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--medium-gray);
+}
+
+.flipper-btn.active {
+  background: var(--black);
+  color: var(--white);
+}
+
+.thumbs-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.thumb-preview-btn {
+  width: 70px;
+  height: 90px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: all 0.25s ease;
+}
+
+.thumb-preview-btn.active {
+  border-color: var(--black);
+  transform: translateY(-2px);
+}
+
+.thumb-preview-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hotspot-pill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.hotspot-pill {
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  background: #fafafa;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.hotspot-pill:hover {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+  transform: translateY(-2px);
+}
+
+.hotspot-pill-num {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--gold-accent);
+  margin-bottom: 4px;
+}
+
+.hotspot-pill-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.hotspot-pill-desc {
+  font-size: 0.75rem;
+  color: var(--medium-gray);
+  line-height: 1.4;
+}
+
+.hotspot-pill:hover .hotspot-pill-desc {
+  color: rgba(255,255,255,0.7);
+}
+
+/* ===== 4. Fabric Lab Comparison Matrix ===== */
+.comparison-matrix-section {
+  padding: 100px 48px;
+  background: #0d0d10;
+  color: var(--white);
+}
+
+.matrix-table-wrap {
+  max-width: 1200px;
+  margin: 40px auto 0;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.matrix-table th {
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.matrix-table th.col-highlight {
+  color: var(--gold-accent);
+}
+
+.matrix-table td {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.matrix-table tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.matrix-attr {
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+/* ===== 5. Editorial Marquee Gallery ===== */
+.editorial-marquee-section {
+  padding: 100px 0;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: marqueeScroll 45s linear infinite;
+  padding: 20px 0;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.editorial-card {
+  width: 320px;
+  height: 440px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+}
+
+.editorial-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--ease-premium);
+}
+
+.editorial-card:hover img {
+  transform: scale(1.08);
+}
+
+.editorial-card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 18px 14px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%);
+  color: #fff;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ===== 6. Floating Glassmorphic Quick-Action Pill ===== */
+.floating-quick-pill {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s var(--ease-premium);
+  z-index: 999;
+  background: rgba(15, 15, 18, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50px;
+  padding: 8px 12px 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+.floating-quick-pill.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quick-pill-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.quick-pill-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-pill-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.quick-pill-price {
+  font-size: 0.78rem;
+  color: var(--gold-accent);
+  font-weight: 600;
+}
+
+.quick-pill-size-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.quick-pill-size-select option {
+  background: #111;
+  color: #fff;
+}
+
+.quick-pill-btn {
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.quick-pill-btn:hover {
+  background: var(--gold-accent);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(184, 151, 90, 0.4);
+}
+
+/* Mobile Responsiveness for 3D & Split Hero */
+@media (max-width: 900px) {
+  .split-hero-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 750px;
+  }
+  .split-hero-wing {
+    min-height: 380px;
+    padding: 40px 24px;
+  }
+  .split-hero-title {
+    font-size: 2.1rem;
+  }
+  .drop-showcase-grid, .drop-showcase-grid.reverse {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .studio-canvas-stage {
+    height: 520px;
+  }
+  .studio-overlay-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .studio-control-group {
+    justify-content: center;
+  }
+  .studio-specs-floating {
+    display: none;
+  }
+  .floating-quick-pill {
+    width: 92%;
+    max-width: 400px;
+    justify-content: space-between;
+  }
+  .quick-pill-meta {
+    max-width: 110px;
+    overflow: hidden;
+  }
+  .quick-pill-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+
