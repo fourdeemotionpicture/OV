@@ -2730,7 +2730,7 @@ function renderLogoMarks() {
     if (!img) {
       img = document.createElement('img');
       img.className = 'logo-uploaded-img';
-      img.style.height = '54px';
+      img.style.height = '32px';
       img.style.width = 'auto';
       img.style.objectFit = 'contain';
       const link = headerContainer.querySelector('a');
