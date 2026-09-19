@@ -534,7 +534,6 @@ let studio3D = {
 
 function setupThreeJSReveal() {
   initThreeJSStudio();
-  setupFloatingQuickPill();
 }
 
 function initThreeJSStudio() {
@@ -876,10 +875,12 @@ function quickAddToCartFromStudio() {
 }
 
 /* ==========================================================================
-   Interactive Drop Showcase & Quick Actions
+   Interactive Standard E-Commerce Product Card & Quick Actions
    ========================================================================== */
-let activeGraceSize = 'S';
-let activeNoirSize = 'M';
+const selectedCardSizes = {
+  'ov-tee-grace-beige': 'M',
+  'ov-tee-noir-black': 'M'
+};
 
 function scrollToSection(sectionId) {
   const el = document.getElementById(sectionId);
@@ -889,148 +890,52 @@ function scrollToSection(sectionId) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
-function switchGracePerspective(view) {
-  const img = document.getElementById('grace-flipper-image');
-  const btnFront = document.getElementById('grace-view-front-btn');
-  const btnBack = document.getElementById('grace-view-back-btn');
-  if (!img) return;
-
-  if (view === 'front') {
-    img.src = 'images/product_beige_front_model.jpg';
-    if (btnFront) btnFront.classList.add('active');
-    if (btnBack) btnBack.classList.remove('active');
-  } else {
-    img.src = 'images/product_beige_back_model.jpg';
-    if (btnBack) btnBack.classList.add('active');
-    if (btnFront) btnFront.classList.remove('active');
-  }
-}
-
-function setGraceDirectImage(src, btn) {
-  const img = document.getElementById('grace-flipper-image');
-  if (img) img.src = src;
-  const parent = btn.parentElement;
-  if (parent) {
-    parent.querySelectorAll('.thumb-preview-btn').forEach(b => b.classList.remove('active'));
+function selectCardSize(prodId, size, btn) {
+  selectedCardSizes[prodId] = size;
+  if (btn && btn.parentElement) {
+    btn.parentElement.querySelectorAll('.card-size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
 }
 
-function selectDropGraceSize(size, btn) {
-  activeGraceSize = size;
-  const container = document.getElementById('grace-quick-size-buttons');
-  if (container) {
-    container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-}
-
-function addDropGraceToBag() {
-  const prod = STATE.products.find(p => p.id === 'ov-tee-grace-beige') || STATE.products[0];
-  addToCart(prod, activeGraceSize, 1);
-  toggleDrawer('cart-drawer');
-  showNotification(`ADDED GRACE DUNE BEIGE (SIZE ${activeGraceSize}) TO BAG`);
-}
-
-function switchNoirPerspective(view) {
-  const img = document.getElementById('noir-flipper-image');
-  const btnFloat = document.getElementById('noir-view-float-btn');
-  const btnRunway = document.getElementById('noir-view-runway-btn');
-  if (!img) return;
-
-  if (view === 'float') {
-    img.src = 'images/antigravity_tshirts_float.jpg';
-    if (btnFloat) btnFloat.classList.add('active');
-    if (btnRunway) btnRunway.classList.remove('active');
-  } else {
-    img.src = 'images/model_runway.jpg';
-    if (btnRunway) btnRunway.classList.add('active');
-    if (btnFloat) btnFloat.classList.remove('active');
-  }
-}
-
-function setNoirDirectImage(src, btn) {
-  const img = document.getElementById('noir-flipper-image');
-  if (img) img.src = src;
-  const parent = btn.parentElement;
-  if (parent) {
-    parent.querySelectorAll('.thumb-preview-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-}
-
-function selectDropNoirSize(size, btn) {
-  activeNoirSize = size;
-  const container = document.getElementById('noir-quick-size-buttons');
-  if (container) {
-    container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-}
-
-function addDropNoirToBag() {
-  const prod = STATE.products.find(p => p.id === 'ov-tee-noir-black') || STATE.products[1] || STATE.products[0];
-  addToCart(prod, activeNoirSize, 1);
-  toggleDrawer('cart-drawer');
-  showNotification(`ADDED NOIR WASHED BLACK (SIZE ${activeNoirSize}) TO BAG`);
-}
-
-/* ==========================================================================
-   Floating Glassmorphic Quick-Action Pill
-   ========================================================================== */
-function setupFloatingQuickPill() {
-  const pill = document.getElementById('floating-quick-pill');
-  if (!pill) return;
-
-  window.addEventListener('scroll', () => {
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    if (scrollY > 400) {
-      pill.classList.add('visible');
-
-      // Check if scrolled into Drop 02 Noir territory
-      const noirSection = document.getElementById('drop-noir-section');
-      if (noirSection) {
-        const rect = noirSection.getBoundingClientRect();
-        if (rect.top <= window.innerHeight / 2 && rect.bottom >= 0) {
-          updateQuickPillProduct('noir');
-          return;
-        }
-      }
-      updateQuickPillProduct('grace');
-    } else {
-      pill.classList.remove('visible');
-    }
-  }, { passive: true });
-}
-
-let activePillDrop = 'grace';
-function updateQuickPillProduct(drop) {
-  if (activePillDrop === drop) return;
-  activePillDrop = drop;
-  const img = document.getElementById('quick-pill-img');
-  const title = document.getElementById('quick-pill-title');
-  const price = document.getElementById('quick-pill-price');
-
-  if (drop === 'grace') {
-    if (img) img.src = 'images/product_beige_front_model.jpg';
-    if (title) title.textContent = 'GRACE DUNE BEIGE';
-    if (price) price.textContent = '₹999';
-  } else {
-    if (img) img.src = 'images/antigravity_tshirts_float.jpg';
-    if (title) title.textContent = 'NOIR WASHED BLACK';
-    if (price) price.textContent = '₹1,199';
-  }
-}
-
-function executeQuickPillPurchase() {
-  const select = document.getElementById('quick-pill-size-select');
-  const size = select ? select.value : 'M';
-  const prodId = activePillDrop === 'grace' ? 'ov-tee-grace-beige' : 'ov-tee-noir-black';
-  const prod = STATE.products.find(p => p.id === prodId) || STATE.products[0];
+function addCardProductToBag(prodId, btn) {
+  const size = selectedCardSizes[prodId] || 'M';
+  const prod = STATE.products.find(p => p.id === prodId) || (prodId === 'ov-tee-noir-black' ? STATE.products[1] : STATE.products[0]);
+  if (!prod) return;
 
   addToCart(prod, size, 1);
   toggleDrawer('cart-drawer');
   showNotification(`ADDED ${prod.baseName.toUpperCase()} (SIZE ${size}) TO BAG`);
+
+  if (btn) {
+    const origText = btn.textContent;
+    btn.textContent = '✓ ADDED';
+    setTimeout(() => { btn.textContent = origText; }, 1400);
+  }
+}
+
+function openTrackOrderModal() {
+  const container = document.getElementById('track-order-modal-body');
+  if (container) {
+    container.innerHTML = `
+      <div style="padding: 10px 0;">
+        <div style="font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">TRACK YOUR DISPATCH & AWB</div>
+        <p style="font-size: 0.82rem; color: var(--medium-gray); margin-bottom: 20px; line-height: 1.5;">
+          Enter your <strong>OV Order Number</strong> (e.g. <code>OV-10006</code>) to fetch live Shiprocket courier status, tracking scans, and expected delivery date.
+        </p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+          <input type="text" id="manual-track-order-number" placeholder="ENTER ORDER # (e.g. OV-10006)" class="auth-input" style="flex: 1; text-transform: uppercase; padding: 12px 16px;">
+          <button class="luxury-btn gold-btn" style="padding: 0 24px; font-size: 0.75rem;" onclick="const val = document.getElementById('manual-track-order-number').value.trim(); if(val) trackSpecificOrder(val); else showNotification('PLEASE ENTER AN ORDER NUMBER');">
+            TRACK
+          </button>
+        </div>
+        <div style="font-size: 0.75rem; color: #888;">
+          💡 Need assistance? Contact our central dispatch desk at <strong>support@originalversion.in</strong>
+        </div>
+      </div>
+    `;
+  }
+  openModal('track-order-modal');
 }
 
 /* ==========================================================================
