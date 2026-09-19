@@ -67,11 +67,18 @@ const DEFAULT_PRODUCTS = [
 
 const STATE = {
   products: (() => {
-    const saved = localStorage.getItem('ov_custom_products_v5');
+    const saved = localStorage.getItem('ov_custom_products_v5') || 
+                  localStorage.getItem('ov_custom_products_v3') || 
+                  localStorage.getItem('ov_custom_products');
     if (saved) {
-      try { return JSON.parse(saved); } catch(e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch(e) {}
     }
-    localStorage.setItem('ov_custom_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
+    try {
+      localStorage.setItem('ov_custom_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
+    } catch(e) {}
     return DEFAULT_PRODUCTS;
   })(),
   slides: (() => {
@@ -283,12 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render initial feeds
   try { initBannerDragEngine(); } catch(e) { console.error("Banner Drag Error: ", e); }
   try { renderStorefrontMedia(); } catch(e) { console.error("Storefront Media Error: ", e); }
-  try { renderProductGrid('plp-products-grid', STATE.products); } catch(e) { console.error(e); }
+  try { renderHomePageProducts(); } catch(e) { console.error("Homepage Products Error: ", e); }
+  try { renderLookbookMarquee(); } catch(e) { console.error("Lookbook Marquee Error: ", e); }
+  try { renderShopCatalog(); } catch(e) { console.error("Shop Catalog Error: ", e); }
   try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { updateCartBadge(); } catch(e) { console.error(e); }
   try { updateWishlistBadge(); } catch(e) { console.error(e); }
 
-  // Fetch remote settings (slides, brand logo, etc.) to ensure 100% cross-browser consistency
+  // Fetch remote settings (slides, brand logo, custom products, etc.) to ensure 100% cross-browser consistency
   fetch('/api/settings')
     .then(r => r.json())
     .then(res => {
@@ -310,6 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (rerenderSlider) {
           renderHeroSlider();
+        }
+        // Sync custom products from remote server if present
+        if (Array.isArray(res.data.custom_products) && res.data.custom_products.length > 0) {
+          const hasLocalProd = !!localStorage.getItem('ov_custom_products_v5');
+          if (!hasLocalProd || res.data.custom_products_saved) {
+            STATE.products = res.data.custom_products;
+            try { localStorage.setItem('ov_custom_products_v5', JSON.stringify(STATE.products)); } catch(e) {}
+            try { renderHomePageProducts(); } catch(e) {}
+            try { renderLookbookMarquee(); } catch(e) {}
+            try { renderShopCatalog(); } catch(e) {}
+            try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) {}
+            try { renderAdminDashboard(); } catch(e) {}
+          }
         }
       }
     })
@@ -1159,11 +1181,27 @@ function setupEcommerce() {
   }
 }
 
-function addToCart(productId, color, size, qty) {
-  const item = STATE.products.find(p => p.id === productId);
+function addToCart(productOrId, arg1, arg2, arg3) {
+  const prodId = (typeof productOrId === 'object' && productOrId) ? productOrId.id : productOrId;
+  const item = STATE.products.find(p => p.id === prodId);
   if (!item) return;
 
-  const existingItemIndex = STATE.cart.findIndex(i => i.id === productId && i.color === color && i.size === size);
+  let color = item.color || 'Standard';
+  let size = 'M';
+  let qty = 1;
+
+  if (typeof arg1 === 'string' && typeof arg2 === 'string') {
+    color = arg1;
+    size = arg2;
+    qty = typeof arg3 === 'number' ? arg3 : 1;
+  } else if (typeof arg1 === 'string' && typeof arg2 === 'number') {
+    size = arg1;
+    qty = arg2;
+  } else if (typeof arg1 === 'string') {
+    size = arg1;
+  }
+
+  const existingItemIndex = STATE.cart.findIndex(i => i.id === item.id && i.size === size);
 
   if (existingItemIndex > -1) {
     STATE.cart[existingItemIndex].qty += qty;
@@ -2325,6 +2363,121 @@ function renderProductGrid(containerId, productList) {
     `;
     container.appendChild(card);
   });
+}
+
+function renderHomePageProducts() {
+  const container = document.getElementById('homepage-products-grid');
+  if (!container) return;
+
+  if (!Array.isArray(STATE.products) || STATE.products.length === 0) {
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--medium-gray);">NO PRODUCTS AVAILABLE</div>';
+    return;
+  }
+
+  container.innerHTML = STATE.products.map(p => {
+    const primaryImg = p.image || (p.gallery && p.gallery[0]) || 'images/product_beige_front_model.jpg';
+    const secondaryImg = (p.gallery && p.gallery.length > 1) ? p.gallery[1] : primaryImg;
+    const sizes = Array.isArray(p.sizes) && p.sizes.length > 0 ? p.sizes : ['S', 'M', 'L', 'XL'];
+    const activeSize = (typeof selectedCardSizes !== 'undefined' && selectedCardSizes[p.id]) || sizes[0] || 'M';
+
+    // Badge pills
+    let badgeHTML = '';
+    if (p.badge) {
+      const isGold = p.badge.toUpperCase().includes('BEST') || p.badge.includes('01');
+      badgeHTML += `<span class="product-badge-pill ${isGold ? 'gold' : 'dark'}">${p.badge}</span>`;
+    }
+    if (p.originalPrice > p.price) {
+      const pct = Math.round((1 - p.price / p.originalPrice) * 100);
+      badgeHTML += `<span class="product-badge-pill discount">${pct}% OFF</span>`;
+    }
+
+    const sizesHTML = sizes.map(s => `
+      <button type="button" class="card-size-btn ${s === activeSize ? 'active' : ''}" onclick="selectCardSize('${p.id}', '${s}', this)">${s}</button>
+    `).join('');
+
+    const reviewsCount = (p.reviews && p.reviews.length > 0) ? p.reviews.length * 71 : 142;
+    const isWishlisted = Array.isArray(STATE.wishlist) && STATE.wishlist.includes(p.id);
+
+    return `
+      <div class="standard-product-card" id="card-prod-${p.id}">
+        <div class="product-card-visual" onclick="navigateTo('product', '${p.id}')">
+          ${badgeHTML}
+          <button class="product-card-wishlist ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}');" title="Save to Wishlist" style="${isWishlisted ? 'color: var(--gold-accent);' : ''}">
+            <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <img src="${primaryImg}" alt="${p.name} Front" class="product-img-primary" onerror="this.src='images/product_beige_front_model.jpg'">
+          <img src="${secondaryImg}" alt="${p.name} Back / Angle" class="product-img-secondary" onerror="this.src='images/product_beige_back_model.jpg'">
+        </div>
+
+        <div class="product-card-details">
+          <div class="product-card-brand">${p.brand} · ${p.fabric || '240 GSM'}</div>
+          <h3 class="product-card-title" onclick="navigateTo('product', '${p.id}')">
+            ${p.name}
+          </h3>
+          <div class="product-card-rating">
+            <span class="stars">★★★★★</span>
+            <span class="rating-val">${p.rating || 4.9}</span>
+            <span class="reviews-count">(${reviewsCount} reviews)</span>
+          </div>
+          <div class="product-card-pricing">
+            <span class="current-price">₹${p.price.toLocaleString('en-IN')}</span>
+            ${p.originalPrice > p.price ? `
+              <span class="original-price">₹${p.originalPrice.toLocaleString('en-IN')}</span>
+              <span class="save-badge">SAVE ₹${(p.originalPrice - p.price).toLocaleString('en-IN')}</span>
+            ` : ''}
+          </div>
+
+          <!-- Size Selector -->
+          <div class="product-card-sizes" data-prod="${p.id}">
+            <span class="size-label">SIZE:</span>
+            ${sizesHTML}
+          </div>
+
+          <div class="product-card-actions">
+            <button type="button" class="luxury-btn gold-btn card-add-bag-btn" onclick="addCardProductToBag('${p.id}', this)">
+              ADD TO BAG
+            </button>
+            <button type="button" class="luxury-btn outline-btn card-quick-btn" onclick="navigateTo('product', '${p.id}')">
+              QUICK VIEW
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLookbookMarquee() {
+  const track = document.getElementById('editorial-marquee-track');
+  if (!track) return;
+
+  const items = [];
+  if (Array.isArray(STATE.products)) {
+    STATE.products.forEach(p => {
+      const gallery = (p.gallery && p.gallery.length > 0) ? p.gallery : [p.image];
+      gallery.forEach((imgSrc, idx) => {
+        items.push({
+          img: imgSrc,
+          label: `${p.baseName || p.name} · ANGLE ${idx + 1}`
+        });
+      });
+    });
+  }
+
+  const stockEditorial = [
+    { img: 'images/model_sunglasses.jpg', label: 'EDITORIAL ATELIER' },
+    { img: 'images/model2.jpg', label: 'OV™ STUDIO ARCHITECTURE' },
+    { img: 'images/model5.jpg', label: 'STREETWEAR DRAPE' }
+  ];
+  const allItems = [...items, ...stockEditorial];
+  const loopItems = [...allItems, ...allItems];
+
+  track.innerHTML = loopItems.map(item => `
+    <div class="editorial-card">
+      <img src="${item.img}" alt="${item.label}" onerror="this.src='images/product_beige_front_model.jpg'">
+      <div class="editorial-card-label">${item.label.toUpperCase()}</div>
+    </div>
+  `).join('');
 }
 
 function renderFeaturedGrid(containerId, productList) {
@@ -4432,16 +4585,25 @@ function deleteProduct(id) {
   if (confirm('Are you sure you want to delete this product?')) {
     STATE.products = STATE.products.filter(p => p.id !== id);
     try {
-      localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+      localStorage.setItem('ov_custom_products_v5', JSON.stringify(STATE.products));
       localStorage.setItem('ov_custom_products_v3', JSON.stringify(STATE.products));
+      localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
     } catch(e) {}
     
-    // Re-render grids
+    // Re-render all storefront product grids
+    renderHomePageProducts();
+    renderLookbookMarquee();
     renderShopCatalog();
     renderProductGrid('plp-products-grid', STATE.products);
     renderFeaturedGrid('featured-products-grid', STATE.products);
     renderAdminDashboard();
     showNotification('PRODUCT REMOVED');
+
+    fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+      body: JSON.stringify({ custom_products: STATE.products, custom_products_saved: true })
+    }).catch(() => {});
   }
 }
 
@@ -4505,26 +4667,35 @@ function saveProductForm(event) {
   }
 
   try {
-    localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
+    localStorage.setItem('ov_custom_products_v5', JSON.stringify(STATE.products));
     localStorage.setItem('ov_custom_products_v3', JSON.stringify(STATE.products));
+    localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
   } catch(e) {
     console.warn('LocalStorage limit for products:', e);
   }
   
-  // Re-render grids
+  // Re-render all storefront grids immediately
+  renderHomePageProducts();
+  renderLookbookMarquee();
   renderShopCatalog();
   renderProductGrid('plp-products-grid', STATE.products);
   renderFeaturedGrid('featured-products-grid', STATE.products);
   renderAdminDashboard();
   
   // If user is currently looking at this product's PDP, refresh it live!
-  if (STATE.currentPage === 'product-page' && STATE.activeProduct && STATE.activeProduct.id === productData.id) {
+  if (STATE.currentRoute === 'product' || (STATE.activeProduct && STATE.activeProduct.id === productData.id)) {
     STATE.activeProduct = productData;
     renderProductDetailPage(productData);
   }
 
   closeAdminModal('admin-product-modal');
   showNotification(`PRODUCT SAVED WITH ${finalGallery.length} PHOTO${finalGallery.length > 1 ? 'S' : ''}`);
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ custom_products: STATE.products, custom_products_saved: true })
+  }).catch(() => {});
 }
 
 function removeUploadedLogoImage() {
