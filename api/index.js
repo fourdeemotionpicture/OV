@@ -53,7 +53,9 @@ const handlers = {
   'admin/coupons': require('../lib/handlers/admin/coupons'),
   'admin/audit-logs': require('../lib/handlers/admin/audit-logs'),
   'admin/settings': require('../lib/handlers/admin/settings'),
-  'settings': require('../lib/handlers/admin/settings')
+  'settings': require('../lib/handlers/admin/settings'),
+  'upload': require('../lib/handlers/upload'),
+  'admin/upload': require('../lib/handlers/upload')
 };
 
 module.exports = async function handler(req, res) {

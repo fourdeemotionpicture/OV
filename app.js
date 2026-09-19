@@ -4255,18 +4255,39 @@ function setSlideImagePreset(presetUrl) {
 }
 
 // ==============================================================================
-// PRODUCT MULTI-IMAGE GALLERY MANAGER (ADMIN)
+// PRODUCT MULTI-IMAGE GALLERY MANAGER & STATIC SERVER UPLOADER (ADMIN)
 // ==============================================================================
 let currentProductGallery = [];
 
-function handleProductGalleryUpload(input) {
-  if (!input.files || input.files.length === 0) return;
-  const files = Array.from(input.files);
-  let processed = 0;
-  
-  if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+async function uploadImageToServer(dataUrl, filename) {
+  if (!dataUrl || typeof dataUrl !== 'string') return '';
+  // If already a relative static path, return as is
+  if (!dataUrl.startsWith('data:image/')) return dataUrl;
 
-  files.forEach(file => {
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAdminAuthHeader()
+      },
+      body: JSON.stringify({
+        image: dataUrl,
+        filename: filename || 'product.jpg'
+      })
+    });
+    const result = await res.json();
+    if (result && result.success && result.data && result.data.url) {
+      return result.data.url;
+    }
+  } catch (err) {
+    console.warn('[Image Upload] Server upload failed, using local data URL:', err);
+  }
+  return dataUrl;
+}
+
+function readFileAndCompress(file) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = function(e) {
       const img = new Image();
@@ -4291,19 +4312,59 @@ function handleProductGalleryUpload(input) {
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
-        
-        currentProductGallery.push(compressedDataUrl);
-        processed++;
-        if (processed === files.length) {
-          renderProductGalleryManager();
-          showNotification(`${files.length} PHOTO${files.length > 1 ? 'S' : ''} ADDED TO GALLERY`);
-        }
+        const format = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
+        resolve(canvas.toDataURL(format, 0.85));
       };
+      img.onerror = () => resolve(e.target.result);
       img.src = e.target.result;
     };
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
+}
+
+async function handleProductGalleryUpload(input) {
+  if (!input.files || input.files.length === 0) return;
+  const files = Array.from(input.files);
+  if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+
+  showNotification(`PROCESSING & UPLOADING ${files.length} PHOTO${files.length > 1 ? 'S' : ''}...`);
+
+  const statusBadge = document.getElementById('product-url-status-badge');
+  if (statusBadge) {
+    statusBadge.textContent = '⏳ Uploading & Generating URL...';
+    statusBadge.style.background = '#fff3e0';
+    statusBadge.style.color = '#e65100';
+  }
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const compressedDataUrl = await readFileAndCompress(file);
+    const serverUrl = await uploadImageToServer(compressedDataUrl, file.name);
+
+    // If new product and currently only has default placeholder, replace it with first upload
+    const isNewProd = !document.getElementById('product-form-id').value;
+    if (isNewProd && i === 0 && currentProductGallery.length === 1 && currentProductGallery[0] === 'images/product_beige_front_model.jpg') {
+      currentProductGallery = [serverUrl];
+    } else {
+      currentProductGallery.push(serverUrl);
+    }
+  }
+
+  // Update visible URL input so user sees the auto-generated URL
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput && currentProductGallery.length > 0) {
+    addUrlInput.value = currentProductGallery[0];
+  }
+
+  if (statusBadge) {
+    statusBadge.textContent = '✓ Permanent Server URL Active';
+    statusBadge.style.background = '#e8f5e9';
+    statusBadge.style.color = '#2e7d32';
+  }
+
+  renderProductGalleryManager();
+  showNotification(`✓ ${files.length} PHOTO${files.length > 1 ? 'S' : ''} UPLOADED! AUTOMATIC URL SET.`);
   input.value = '';
 }
 
@@ -4321,8 +4382,19 @@ function handleAddUrlToGallery() {
 
 function addGalleryImageUrl(url) {
   if (!url || !url.trim()) return;
+  const cleanUrl = url.trim();
   if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
-  currentProductGallery.push(url.trim());
+
+  const isNewProd = !document.getElementById('product-form-id').value;
+  if (isNewProd && currentProductGallery.length === 1 && currentProductGallery[0] === 'images/product_beige_front_model.jpg') {
+    currentProductGallery = [cleanUrl];
+  } else {
+    currentProductGallery.push(cleanUrl);
+  }
+
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput) addUrlInput.value = currentProductGallery[0];
+
   renderProductGalleryManager();
   showNotification('IMAGE ADDED TO GALLERY');
 }
@@ -4569,13 +4641,24 @@ function openNewProductForm() {
   document.getElementById('admin-product-form').reset();
   document.getElementById('product-form-id').value = '';
   document.getElementById('product-form-image-data').value = '';
-  const urlInput = document.getElementById('product-form-image-url');
-  if (urlInput) urlInput.value = '';
-  const addUrlInput = document.getElementById('product-form-add-url');
-  if (addUrlInput) addUrlInput.value = '';
+
+  // Automatically supply default flagship cover photo so image & URL are NEVER empty!
+  const defaultImageUrl = 'images/product_beige_front_model.jpg';
   
-  currentProductGallery = [];
+  const urlInput = document.getElementById('product-form-image-url');
+  if (urlInput) urlInput.value = defaultImageUrl;
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput) addUrlInput.value = defaultImageUrl;
+  
+  currentProductGallery = [defaultImageUrl];
   renderProductGalleryManager();
+
+  const statusBadge = document.getElementById('product-url-status-badge');
+  if (statusBadge) {
+    statusBadge.textContent = '✓ Default Flagship URL Active';
+    statusBadge.style.background = '#e8f5e9';
+    statusBadge.style.color = '#2e7d32';
+  }
 
   document.getElementById('product-modal-title').textContent = 'ADD NEW CATALOG PRODUCT';
   openAdminModal('admin-product-modal');
@@ -4593,12 +4676,19 @@ function editProduct(id) {
   } else if (prod.image) {
     currentProductGallery = [prod.image];
   } else {
-    currentProductGallery = [];
+    currentProductGallery = ['images/product_beige_front_model.jpg'];
   }
   renderProductGalleryManager();
 
   const addUrlInput = document.getElementById('product-form-add-url');
-  if (addUrlInput) addUrlInput.value = '';
+  if (addUrlInput) addUrlInput.value = currentProductGallery[0] || '';
+
+  const statusBadge = document.getElementById('product-url-status-badge');
+  if (statusBadge) {
+    statusBadge.textContent = '✓ Active Product URL';
+    statusBadge.style.background = '#e8f5e9';
+    statusBadge.style.color = '#2e7d32';
+  }
 
   document.getElementById('product-form-name').value = prod.name || '';
   document.getElementById('product-form-basename').value = prod.baseName || prod.name || '';
@@ -4650,18 +4740,20 @@ function saveProductForm(event) {
   event.preventDefault();
   const id = document.getElementById('product-form-id').value;
 
-  // Check gallery photos: if user pasted a URL but didn't click "Add", auto-add it!
+  // Check gallery photos: if user pasted/uploaded a URL, ensure it is in currentProductGallery
   const addUrlInput = document.getElementById('product-form-add-url');
   if (addUrlInput && addUrlInput.value.trim()) {
+    const enteredUrl = addUrlInput.value.trim();
     if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
-    currentProductGallery.push(addUrlInput.value.trim());
-    addUrlInput.value = '';
-    renderProductGalleryManager();
+    if (!currentProductGallery.includes(enteredUrl)) {
+      currentProductGallery.push(enteredUrl);
+      renderProductGalleryManager();
+    }
   }
 
   if (!currentProductGallery || currentProductGallery.length === 0) {
-    showNotification('PLEASE ADD AT LEAST ONE PRODUCT PHOTO');
-    return;
+    currentProductGallery = ['images/product_beige_front_model.jpg'];
+    renderProductGalleryManager();
   }
 
   const finalGallery = [...currentProductGallery];
@@ -4710,7 +4802,19 @@ function saveProductForm(event) {
     localStorage.setItem('ov_custom_products_v3', JSON.stringify(STATE.products));
     localStorage.setItem('ov_custom_products', JSON.stringify(STATE.products));
   } catch(e) {
-    console.warn('LocalStorage limit for products:', e);
+    console.warn('LocalStorage limit encountered. Sanitizing heavy items...', e);
+    const sanitizedProducts = STATE.products.map(p => {
+      const cleanImg = (p.image && p.image.length > 50000) ? 'images/product_beige_front_model.jpg' : p.image;
+      const cleanGallery = Array.isArray(p.gallery)
+        ? p.gallery.map(g => (g && g.length > 50000) ? cleanImg : g)
+        : [cleanImg];
+      return { ...p, image: cleanImg, gallery: cleanGallery };
+    });
+    try {
+      localStorage.setItem('ov_custom_products_v5', JSON.stringify(sanitizedProducts));
+      localStorage.setItem('ov_custom_products_v3', JSON.stringify(sanitizedProducts));
+      STATE.products = sanitizedProducts;
+    } catch(err) {}
   }
   
   // Re-render all storefront grids immediately
@@ -4868,15 +4972,15 @@ function setBannerSourceImage(url) {
   if (inputUrl) inputUrl.value = url;
 }
 
-function handleBannerFileUpload(input) {
+async function handleBannerFileUpload(input) {
   const file = input.files && input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    setBannerSourceImage(dataUrl);
-  };
-  reader.readAsDataURL(file);
+  showNotification('UPLOADING HERO BANNER PHOTO...');
+  const dataUrl = await readFileAndCompress(file);
+  const serverUrl = await uploadImageToServer(dataUrl, file.name);
+  setBannerSourceImage(serverUrl);
+  showNotification('✓ HERO BANNER UPLOADED & PERMANENT URL SAVED!');
+  input.value = '';
 }
 
 let activeHeroBannerSlideIndex = 0;

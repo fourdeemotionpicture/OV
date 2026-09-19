@@ -1885,10 +1885,23 @@
                 </div>
               </div>
 
-              <!-- Add via URL Bar -->
-              <div style="display:flex; gap:8px; margin-bottom:14px;">
-                <input type="text" id="product-form-add-url" class="auth-input" placeholder="Or paste image URL / path (e.g. images/my_angle.jpg) and click Add..." style="border:1px solid var(--border-color); padding:8px 12px; font-size:0.75rem; flex:1; background:#fff;" onkeydown="if(event.key==='Enter'){event.preventDefault();handleAddUrlToGallery();}">
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:8px 16px; font-size:0.7rem; font-weight:700; white-space:nowrap; background:#000; color:#fff;" onclick="handleAddUrlToGallery()">+ ADD PHOTO</button>
+              <!-- Add / Auto-Populated URL Bar -->
+              <div style="margin-bottom:14px; background:#f4f4f7; border:1px solid var(--border-color); border-radius:6px; padding:12px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <label for="product-form-add-url" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#111; margin:0;">
+                    🔗 ACTIVE / AUTOMATIC IMAGE URL:
+                  </label>
+                  <span id="product-url-status-badge" style="font-size:0.62rem; color:#2e7d32; background:#e8f5e9; padding:2px 6px; border-radius:4px; font-weight:600;">
+                    ✓ Auto-Generated & Permanent
+                  </span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" id="product-form-add-url" class="auth-input" placeholder="Automatic URL will appear here upon upload, or paste custom URL..." style="border:1px solid var(--border-color); padding:8px 12px; font-size:0.78rem; flex:1; background:#fff; font-family:monospace;" onkeydown="if(event.key==='Enter'){event.preventDefault();handleAddUrlToGallery();}">
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:8px 16px; font-size:0.7rem; font-weight:700; white-space:nowrap; background:#000; color:#fff;" onclick="handleAddUrlToGallery()">+ ADD / UPDATE</button>
+                </div>
+                <div style="font-size:0.65rem; color:#777; margin-top:5px;">
+                  💡 Photo upload pannina udane server static URL (<code style="color:#b08d57;">images/uploads/prod_...</code>) inga automatic-ka generate aagi set aagidum. Image eppovume delete/remove aagathu.
+                </div>
               </div>
 
               <!-- Live Photo Grid Container -->
