@@ -5003,5 +5003,172 @@ footer {
   border-color: var(--gold-accent) !important;
 }
 
+/* ==========================================================================
+   ADMIN PRODUCT GALLERY MANAGER
+   ========================================================================== */
+.admin-gallery-dropzone {
+  border: 2px dashed #b08d57;
+  background: #ffffff;
+  padding: 14px 18px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
 
+.admin-gallery-dropzone:hover {
+  background: #fdfaf3;
+  border-color: #8f6e3a;
+  transform: translateY(-1px);
+}
 
+.product-gallery-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.gallery-admin-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gallery-admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.gallery-admin-card.is-cover {
+  border: 2px solid #b08d57;
+}
+
+.gallery-admin-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 135px;
+  background: #cab8aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gallery-admin-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #cab8aa;
+}
+
+.gallery-cover-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: #111111;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.gallery-set-cover-btn {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 3px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.gallery-set-cover-btn:hover {
+  background: #b08d57;
+  border-color: #b08d57;
+  color: #000;
+}
+
+.gallery-del-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.72);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-del-btn:hover {
+  background: #d9383a;
+  transform: scale(1.1);
+}
+
+.gallery-admin-card-footer {
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fdfdfd;
+  border-top: 1px solid #eee;
+}
+
+.gallery-card-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.gallery-card-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.order-btn {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s ease;
+}
+
+.order-btn:hover:not(:disabled) {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}

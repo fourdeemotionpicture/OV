@@ -1805,7 +1805,7 @@
 
     <!-- ADMIN MODAL: ADD/EDIT PRODUCT -->
     <div id="admin-product-modal" class="modal-overlay">
-      <div class="modal-panel" style="max-width: 650px; background-color:var(--white);">
+      <div class="modal-panel" style="max-width: 760px; background-color:var(--white);">
         <div class="modal-header" style="padding:20px 30px;">
           <h3 id="product-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT CATALOG PRODUCT</h3>
           <button class="close-drawer-btn" onclick="closeAdminModal('admin-product-modal')">×</button>
@@ -1813,23 +1813,54 @@
         <div class="modal-body" style="padding:30px; max-height:calc(90vh - 80px); overflow-y:auto;">
           <form id="admin-product-form" onsubmit="saveProductForm(event)">
             <input type="hidden" id="product-form-id">
+            <input type="hidden" id="product-form-image-data">
+            <input type="hidden" id="product-form-image-url">
             
-            <div class="admin-form-group" style="margin-bottom:18px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Product Image (URL / Path or Upload)</label>
-              <input type="text" id="product-form-image-url" class="auth-input" placeholder="e.g. images/product_beige_front_model.jpg or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateProductPreviewFromUrl(this.value)">
+            <!-- MULTI-IMAGE PRODUCT GALLERY SECTION -->
+            <div class="admin-form-group product-gallery-admin-section" style="margin-bottom:22px; background:#fbfbfb; border:1px solid var(--border-color); border-radius:6px; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                <label style="font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin:0; display:inline-flex; align-items:center; gap:8px;">
+                  <span>Product Photos & Gallery</span>
+                  <span id="product-gallery-count-badge" style="background:#111; color:#fff; font-size:0.65rem; padding:2px 8px; border-radius:10px; font-weight:600;">0 Photos</span>
+                </label>
+                <span style="font-size:0.68rem; color:#b08d57; font-weight:600; letter-spacing:0.04em;">★ Photo #1 is the Primary Catalog Cover</span>
+              </div>
+              <p style="font-size:0.72rem; color:#666; margin:0 0 14px 0; line-height:1.45;">
+                Add multiple high-resolution photos for this product (Front model, Back model, Flat lay, Detail close-ups). All photos render as interactive clickable thumbnails on the Product Detail Page.
+              </p>
 
-              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center;">
-                <span style="font-size:0.65rem; color:var(--medium-gray); font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/product_beige_front_model.jpg')">Beige Tee</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/antigravity_tshirts_float.jpg')">Noir / Float Tee</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model_runway.jpg')">Runway Hoodie</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setProductImagePreset('images/model2.jpg')">Model 2</button>
+              <!-- Upload & Action Bar -->
+              <div style="display:grid; grid-template-columns:1fr auto; gap:12px; margin-bottom:12px; align-items:stretch;">
+                <label for="product-form-gallery-files" class="admin-gallery-dropzone">
+                  <div style="font-size:1.3rem; margin-bottom:3px;">📁 📸</div>
+                  <div style="font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#111;">CHOOSE MULTIPLE PHOTOS AT ONCE</div>
+                  <div style="font-size:0.65rem; color:#777; margin-top:2px;">Click to select 1 or multiple photos simultaneously (JPG, PNG, WebP)</div>
+                  <input type="file" id="product-form-gallery-files" multiple accept="image/*" onchange="handleProductGalleryUpload(this)" style="display:none;">
+                </label>
+
+                <div style="display:flex; flex-direction:column; gap:4px; min-width:170px; justify-content:center;">
+                  <span style="font-size:0.63rem; color:#888; font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/product_beige_front_model.jpg')">+ Beige Front</button>
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/product_beige_back_model.jpg')">+ Beige Back</button>
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/product_beige_front_flat.jpg')">+ Beige Flat</button>
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/product_beige_back_flat.jpg')">+ Flat Back</button>
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/antigravity_tshirts_float.jpg')">+ Noir Tee</button>
+                    <button type="button" class="admin-stepper-btn" style="width:100%; font-size:0.62rem; padding:5px 4px; text-align:center;" onclick="addGalleryImageUrl('images/model_runway.jpg')">+ Runway</button>
+                  </div>
+                </div>
               </div>
 
-              <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px; font-weight:500;">OR UPLOAD FROM COMPUTER:</div>
-              <input type="file" id="product-form-file" class="auth-input" accept="image/*" onchange="handleFileAsCompressedBase64(this, 'product-form-img-preview', 'product-form-image-data', 'product-form-image-url')" style="border:1px solid var(--border-color); padding:8px; width:100%;">
-              <input type="hidden" id="product-form-image-data">
-              <img id="product-form-img-preview" src="" style="width: 100px; height: 130px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
+              <!-- Add via URL Bar -->
+              <div style="display:flex; gap:8px; margin-bottom:14px;">
+                <input type="text" id="product-form-add-url" class="auth-input" placeholder="Or paste image URL / path (e.g. images/my_angle.jpg) and click Add..." style="border:1px solid var(--border-color); padding:8px 12px; font-size:0.75rem; flex:1; background:#fff;" onkeydown="if(event.key==='Enter'){event.preventDefault();handleAddUrlToGallery();}">
+                <button type="button" class="admin-stepper-btn" style="width:auto; padding:8px 16px; font-size:0.7rem; font-weight:700; white-space:nowrap; background:#000; color:#fff;" onclick="handleAddUrlToGallery()">+ ADD PHOTO</button>
+              </div>
+
+              <!-- Live Photo Grid Container -->
+              <div id="product-gallery-preview-grid" class="product-gallery-preview-grid">
+                <!-- Rendered dynamically by renderProductGalleryManager() -->
+              </div>
             </div>
 
             <div class="admin-form-group" style="margin-bottom:15px;">

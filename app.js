@@ -3969,14 +3969,21 @@ function renderAdminDashboard() {
     item.style.border = '1px solid var(--border-color)';
     item.style.alignItems = 'center';
 
+    const photoCount = (Array.isArray(prod.gallery) && prod.gallery.length > 0) ? prod.gallery.length : 1;
+
     item.innerHTML = `
-      <img src="${prod.image}" style="width: 60px; height: 80px; object-fit: cover; border: 1px solid var(--border-color);">
+      <img src="${prod.image}" style="width: 60px; height: 80px; object-fit: cover; border: 1px solid var(--border-color); background:#cab8aa;">
       <div style="flex: 1;">
         <h4 style="font-size:0.85rem; letter-spacing:0.1em; text-transform:uppercase;">${prod.name}</h4>
-        <p style="font-size:0.75rem; color:var(--medium-gray); margin-top:3px;">₹${prod.price} | Category: ${prod.type} | Stock: ${prod.stock}</p>
+        <p style="font-size:0.75rem; color:var(--medium-gray); margin-top:3px;">
+          ₹${prod.price.toLocaleString('en-IN')} | Category: ${prod.type} | Stock: ${prod.stock} | 
+          <span style="display:inline-flex; align-items:center; gap:4px; font-weight:600; color:#b08d57;">
+            📷 ${photoCount} Photo${photoCount > 1 ? 's' : ''} in Gallery
+          </span>
+        </p>
       </div>
       <div style="display:flex; gap:10px;">
-        <button class="luxury-btn outline-gold-btn" onclick="editProduct('${prod.id}')" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">EDIT</button>
+        <button class="luxury-btn outline-gold-btn" onclick="editProduct('${prod.id}')" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">EDIT & PHOTOS</button>
         <button class="luxury-btn secondary" onclick="deleteProduct('${prod.id}')" style="padding: 8px 15px; font-size:0.6rem; min-width:unset;">DELETE</button>
       </div>
     `;
@@ -4055,22 +4062,166 @@ function setSlideImagePreset(presetUrl) {
   updateSlidePreviewFromUrl(presetUrl);
 }
 
-function updateProductPreviewFromUrl(url) {
-  const preview = document.getElementById('product-form-img-preview');
-  const hidden = document.getElementById('product-form-image-data');
-  if (url && url.trim()) {
-    if (preview) {
-      preview.src = url.trim();
-      preview.style.display = 'block';
-    }
-    if (hidden) hidden.value = url.trim();
+// ==============================================================================
+// PRODUCT MULTI-IMAGE GALLERY MANAGER (ADMIN)
+// ==============================================================================
+let currentProductGallery = [];
+
+function handleProductGalleryUpload(input) {
+  if (!input.files || input.files.length === 0) return;
+  const files = Array.from(input.files);
+  let processed = 0;
+  
+  if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        let w = img.width;
+        let h = img.height;
+
+        if (w > maxWidth || h > maxHeight) {
+          if (w / h > maxWidth / maxHeight) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          } else {
+            w = Math.round((w * maxHeight) / h);
+            h = maxHeight;
+          }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
+        
+        currentProductGallery.push(compressedDataUrl);
+        processed++;
+        if (processed === files.length) {
+          renderProductGalleryManager();
+          showNotification(`${files.length} PHOTO${files.length > 1 ? 'S' : ''} ADDED TO GALLERY`);
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function handleAddUrlToGallery() {
+  const urlInput = document.getElementById('product-form-add-url');
+  if (!urlInput) return;
+  const val = urlInput.value.trim();
+  if (!val) {
+    showNotification('PLEASE ENTER AN IMAGE URL OR PATH');
+    return;
   }
+  addGalleryImageUrl(val);
+  urlInput.value = '';
+}
+
+function addGalleryImageUrl(url) {
+  if (!url || !url.trim()) return;
+  if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+  currentProductGallery.push(url.trim());
+  renderProductGalleryManager();
+  showNotification('IMAGE ADDED TO GALLERY');
+}
+
+function removeGalleryImage(idx) {
+  if (!Array.isArray(currentProductGallery)) return;
+  if (idx < 0 || idx >= currentProductGallery.length) return;
+  currentProductGallery.splice(idx, 1);
+  renderProductGalleryManager();
+  showNotification('PHOTO REMOVED');
+}
+
+function setAsMainGalleryImage(idx) {
+  if (!Array.isArray(currentProductGallery)) return;
+  if (idx <= 0 || idx >= currentProductGallery.length) return;
+  const item = currentProductGallery.splice(idx, 1)[0];
+  currentProductGallery.unshift(item);
+  renderProductGalleryManager();
+  showNotification('★ PRIMARY COVER PHOTO UPDATED');
+}
+
+function moveGalleryImage(idx, dir) {
+  if (!Array.isArray(currentProductGallery)) return;
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= currentProductGallery.length) return;
+  const temp = currentProductGallery[idx];
+  currentProductGallery[idx] = currentProductGallery[targetIdx];
+  currentProductGallery[targetIdx] = temp;
+  renderProductGalleryManager();
+}
+
+function renderProductGalleryManager() {
+  const grid = document.getElementById('product-gallery-preview-grid');
+  const badge = document.getElementById('product-gallery-count-badge');
+  if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+
+  if (badge) {
+    badge.textContent = `${currentProductGallery.length} Photo${currentProductGallery.length === 1 ? '' : 's'}`;
+    badge.style.background = currentProductGallery.length > 0 ? '#b08d57' : '#222';
+  }
+
+  // Keep hidden inputs in sync for any legacy scripts
+  const hiddenData = document.getElementById('product-form-image-data');
+  const hiddenUrl = document.getElementById('product-form-image-url');
+  if (hiddenData) hiddenData.value = currentProductGallery[0] || '';
+  if (hiddenUrl) hiddenUrl.value = currentProductGallery[0] || '';
+
+  if (!grid) return;
+
+  if (currentProductGallery.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 26px 15px; text-align: center; border: 1px dashed var(--border-color); background: #ffffff; border-radius: 4px; color: #777; font-size: 0.74rem;">
+        <span style="font-size: 1.4rem; display:block; margin-bottom:6px;">📷</span>
+        <strong style="color:#222;">NO PHOTOS ADDED YET</strong><br>
+        Click <span style="text-decoration:underline;">"CHOOSE MULTIPLE PHOTOS AT ONCE"</span> above or pick from quick presets to add front, back, and detail images.
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = currentProductGallery.map((imgSrc, idx) => {
+    const isCover = idx === 0;
+    return `
+      <div class="gallery-admin-card ${isCover ? 'is-cover' : ''}">
+        <div class="gallery-admin-card-img-wrap">
+          <img src="${imgSrc}" alt="Product Photo ${idx + 1}" onerror="this.src='images/product_beige_front_model.jpg'">
+          ${isCover ? '<div class="gallery-cover-tag">★ MAIN COVER</div>' : `
+            <button type="button" class="gallery-set-cover-btn" onclick="setAsMainGalleryImage(${idx})">
+              SET COVER
+            </button>
+          `}
+          <button type="button" class="gallery-del-btn" onclick="removeGalleryImage(${idx})" title="Delete image">✕</button>
+        </div>
+        <div class="gallery-admin-card-footer">
+          <span class="gallery-card-label">${isCover ? '1 (Cover)' : '#' + (idx + 1)}</span>
+          <div class="gallery-card-controls">
+            <button type="button" class="order-btn" onclick="moveGalleryImage(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Move Earlier">◀</button>
+            <button type="button" class="order-btn" onclick="moveGalleryImage(${idx}, 1)" ${idx === currentProductGallery.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Move Later">▶</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateProductPreviewFromUrl(url) {
+  if (url && url.trim()) addGalleryImageUrl(url.trim());
 }
 
 function setProductImagePreset(presetUrl) {
-  const urlInput = document.getElementById('product-form-image-url');
-  if (urlInput) urlInput.value = presetUrl;
-  updateProductPreviewFromUrl(presetUrl);
+  addGalleryImageUrl(presetUrl);
 }
 
 function openAdminModal(modalId) {
@@ -4228,8 +4379,12 @@ function openNewProductForm() {
   document.getElementById('product-form-image-data').value = '';
   const urlInput = document.getElementById('product-form-image-url');
   if (urlInput) urlInput.value = '';
-  const preview = document.getElementById('product-form-img-preview');
-  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput) addUrlInput.value = '';
+  
+  currentProductGallery = [];
+  renderProductGalleryManager();
+
   document.getElementById('product-modal-title').textContent = 'ADD NEW CATALOG PRODUCT';
   openAdminModal('admin-product-modal');
 }
@@ -4239,16 +4394,19 @@ function editProduct(id) {
   if (!prod) return;
 
   document.getElementById('product-form-id').value = prod.id;
-  document.getElementById('product-form-image-data').value = prod.image || '';
   
-  const urlInput = document.getElementById('product-form-image-url');
-  if (urlInput) urlInput.value = prod.image || '';
-
-  const preview = document.getElementById('product-form-img-preview');
-  if (preview) {
-    preview.src = prod.image;
-    preview.style.display = prod.image ? 'block' : 'none';
+  // Populate multi-image gallery
+  if (Array.isArray(prod.gallery) && prod.gallery.length > 0) {
+    currentProductGallery = [...prod.gallery];
+  } else if (prod.image) {
+    currentProductGallery = [prod.image];
+  } else {
+    currentProductGallery = [];
   }
+  renderProductGalleryManager();
+
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput) addUrlInput.value = '';
 
   document.getElementById('product-form-name').value = prod.name || '';
   document.getElementById('product-form-basename').value = prod.baseName || prod.name || '';
@@ -4290,17 +4448,30 @@ function deleteProduct(id) {
 function saveProductForm(event) {
   event.preventDefault();
   const id = document.getElementById('product-form-id').value;
-  const urlInput = document.getElementById('product-form-image-url');
-  let imageData = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : document.getElementById('product-form-image-data').value;
-  
-  if (!imageData) {
-    showNotification('PLEASE PROVIDE A PRODUCT IMAGE');
+
+  // Check gallery photos: if user pasted a URL but didn't click "Add", auto-add it!
+  const addUrlInput = document.getElementById('product-form-add-url');
+  if (addUrlInput && addUrlInput.value.trim()) {
+    if (!Array.isArray(currentProductGallery)) currentProductGallery = [];
+    currentProductGallery.push(addUrlInput.value.trim());
+    addUrlInput.value = '';
+    renderProductGalleryManager();
+  }
+
+  if (!currentProductGallery || currentProductGallery.length === 0) {
+    showNotification('PLEASE ADD AT LEAST ONE PRODUCT PHOTO');
     return;
   }
+
+  const finalGallery = [...currentProductGallery];
+  const primaryImage = finalGallery[0];
 
   // Get selected sizes
   const checkboxes = document.querySelectorAll('input[name="product-form-sizes"]:checked');
   const sizes = Array.from(checkboxes).map(cb => cb.value);
+
+  // Preserve existing product details if editing
+  const existingProduct = id ? STATE.products.find(p => p.id === id) : null;
 
   const productData = {
     id: id || 'custom-' + Date.now(),
@@ -4313,15 +4484,21 @@ function saveProductForm(event) {
     stock: parseInt(document.getElementById('product-form-stock').value, 10) || 5,
     badge: document.getElementById('product-form-badge').value.trim() || null,
     sizes: sizes.length > 0 ? sizes : ['M'],
-    reviews: [],
-    rating: 4.8,
-    image: imageData
+    reviews: existingProduct ? (existingProduct.reviews || []) : [],
+    rating: existingProduct ? (existingProduct.rating || 4.8) : 4.8,
+    fit: existingProduct ? (existingProduct.fit || 'Oversized Boxy Fit') : 'Oversized Boxy Fit',
+    fabric: existingProduct ? (existingProduct.fabric || '240 GSM Luxury Combed Cotton') : '240 GSM Luxury Combed Cotton',
+    desc: existingProduct ? (existingProduct.desc || '') : '',
+    image: primaryImage,
+    gallery: finalGallery
   };
 
   if (id !== '') {
     // Edit existing
     const idx = STATE.products.findIndex(p => p.id === id);
-    if (idx !== -1) STATE.products[idx] = productData;
+    if (idx !== -1) {
+      STATE.products[idx] = { ...existingProduct, ...productData };
+    }
   } else {
     // Add new
     STATE.products.unshift(productData);
@@ -4340,8 +4517,14 @@ function saveProductForm(event) {
   renderFeaturedGrid('featured-products-grid', STATE.products);
   renderAdminDashboard();
   
+  // If user is currently looking at this product's PDP, refresh it live!
+  if (STATE.currentPage === 'product-page' && STATE.activeProduct && STATE.activeProduct.id === productData.id) {
+    STATE.activeProduct = productData;
+    renderProductDetailPage(productData);
+  }
+
   closeAdminModal('admin-product-modal');
-  showNotification('PRODUCT INVENTORY UPDATED');
+  showNotification(`PRODUCT SAVED WITH ${finalGallery.length} PHOTO${finalGallery.length > 1 ? 'S' : ''}`);
 }
 
 function removeUploadedLogoImage() {
