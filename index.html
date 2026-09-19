@@ -119,19 +119,19 @@
     
     <!-- 1. Modern Animated E-Commerce Hero Banner -->
     <section class="ecommerce-hero-section" id="hero-banner">
-      <div class="ecommerce-hero-bg" style="background-image: url('images/product_beige_front_model.jpg');"></div>
+      <div class="ecommerce-hero-bg" id="hero-banner-bg" style="background-image: url('images/product_beige_front_model.jpg'); background-position: center 10%;"></div>
       <div class="ecommerce-hero-overlay"></div>
       <div class="ecommerce-hero-content">
-        <span class="ecommerce-hero-tag">NEW SEASON 2026 // LUXURY STREETWEAR</span>
-        <h1 class="ecommerce-hero-title">OVERSIZED HEAVYWEIGHT ESSENTIALS</h1>
-        <p class="ecommerce-hero-desc">
+        <span class="ecommerce-hero-tag" id="hero-banner-tag">NEW SEASON 2026 // LUXURY STREETWEAR</span>
+        <h1 class="ecommerce-hero-title" id="hero-banner-title">OVERSIZED HEAVYWEIGHT ESSENTIALS</h1>
+        <p class="ecommerce-hero-desc" id="hero-banner-desc">
           Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.
         </p>
         <div class="ecommerce-hero-actions">
-          <button class="luxury-btn gold-btn hero-cta-btn" onclick="navigateTo('shop')">
+          <button class="luxury-btn gold-btn hero-cta-btn" id="hero-banner-btn1" onclick="navigateTo('shop')">
             SHOP ALL PIECES <span style="margin-left: 8px;">→</span>
           </button>
-          <button class="luxury-btn outline-light-btn hero-cta-btn" onclick="scrollToSection('featured-products')">
+          <button class="luxury-btn outline-light-btn hero-cta-btn" id="hero-banner-btn2" onclick="scrollToSection('featured-products')">
             VIEW BESTSELLERS <span style="margin-left: 8px;">↓</span>
           </button>
         </div>
@@ -141,6 +141,12 @@
           <span>✓ Free Express Delivery Over ₹999</span>
         </div>
       </div>
+
+      <!-- Quick Edit Floating Button for Admin -->
+      <button class="admin-banner-floating-edit-btn" id="admin-hero-quick-edit-btn" onclick="openHeroBannerDragModal()" title="Adjust Banner Position & Image">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        <span>DRAG & ADJUST BANNER CROP</span>
+      </button>
     </section>
 
     <!-- 2. E-Commerce Trust & Value Proposition Bar -->
@@ -193,13 +199,13 @@
       <div class="fit-spotlight-grid">
         <!-- Spotlight Card 1 -->
         <div class="spotlight-card" onclick="navigateTo('product', 'ov-tee-grace-beige')">
-          <div class="spotlight-card-bg" style="background-image: url('images/product_beige_front_model.jpg');"></div>
+          <div class="spotlight-card-bg" id="spotlight-bg-1" style="background-image: url('images/product_beige_front_model.jpg'); background-position: center 20%;"></div>
           <div class="spotlight-card-overlay"></div>
           <div class="spotlight-card-content">
-            <span class="spotlight-tag">240 GSM COMBED COTTON</span>
-            <h3 class="spotlight-title">OVERSIZED "GRACE" DUNE BEIGE</h3>
-            <p class="spotlight-desc">Relaxed drop-shoulder silhouette with empowering floral muse back graphic.</p>
-            <div class="spotlight-price">₹999 <span class="old">₹1,999</span></div>
+            <span class="spotlight-tag" id="spotlight-tag-1">240 GSM COMBED COTTON</span>
+            <h3 class="spotlight-title" id="spotlight-title-1">OVERSIZED "GRACE" DUNE BEIGE</h3>
+            <p class="spotlight-desc" id="spotlight-desc-1">Relaxed drop-shoulder silhouette with empowering floral muse back graphic.</p>
+            <div class="spotlight-price" id="spotlight-price-1">₹999 <span class="old">₹1,999</span></div>
             <button class="spotlight-btn" onclick="event.stopPropagation(); navigateTo('product', 'ov-tee-grace-beige');">
               EXPLORE PIECE <span>→</span>
             </button>
@@ -208,13 +214,13 @@
 
         <!-- Spotlight Card 2 -->
         <div class="spotlight-card" onclick="navigateTo('product', 'ov-tee-noir-black')">
-          <div class="spotlight-card-bg" style="background-image: url('images/antigravity_tshirts_float.jpg');"></div>
+          <div class="spotlight-card-bg" id="spotlight-bg-2" style="background-image: url('images/antigravity_tshirts_float.jpg'); background-position: center center;"></div>
           <div class="spotlight-card-overlay"></div>
           <div class="spotlight-card-content">
-            <span class="spotlight-tag">280 GSM ANTIGRAVITY KNIT</span>
-            <h3 class="spotlight-title">BOXY "NOIR" WASHED BLACK</h3>
-            <p class="spotlight-desc">Extreme heavyweight interlock structure with vintage mineral enzyme wash.</p>
-            <div class="spotlight-price">₹1,199 <span class="old">₹2,399</span></div>
+            <span class="spotlight-tag" id="spotlight-tag-2">280 GSM ANTIGRAVITY KNIT</span>
+            <h3 class="spotlight-title" id="spotlight-title-2">BOXY "NOIR" WASHED BLACK</h3>
+            <p class="spotlight-desc" id="spotlight-desc-2">Extreme heavyweight interlock structure with vintage mineral enzyme wash.</p>
+            <div class="spotlight-price" id="spotlight-price-2">₹1,199 <span class="old">₹2,399</span></div>
             <button class="spotlight-btn" onclick="event.stopPropagation(); navigateTo('product', 'ov-tee-noir-black');">
               EXPLORE PIECE <span>→</span>
             </button>
@@ -336,18 +342,18 @@
     <section class="brand-story-section" id="brand-story-section">
       <div class="brand-story-grid">
         <div class="brand-story-media">
-          <img src="images/antigravity_showcase.jpg" alt="OV Craftsmanship Tirupur" class="brand-story-img">
+          <img src="images/antigravity_showcase.jpg" alt="OV Craftsmanship Tirupur" class="brand-story-img" id="brand-story-img-el">
           <div class="brand-story-badge">
-            <span>BORN IN TIRUPUR · 100% COMBED COTTON</span>
+            <span id="brand-story-badge-el">BORN IN TIRUPUR · 100% COMBED COTTON</span>
           </div>
         </div>
 
         <div class="brand-story-info">
           <span class="eyebrow">THE ORIGINAL VERSION DIFFERENCE</span>
-          <h2 class="luxury-heading" style="font-size: 2.5rem; margin-top: 6px; margin-bottom: 16px;">
+          <h2 class="luxury-heading" id="brand-story-title-el" style="font-size: 2.5rem; margin-top: 6px; margin-bottom: 16px;">
             STREETWEAR WITH ARCHITECTURAL SUBSTANCE
           </h2>
-          <p style="color: var(--medium-gray); line-height: 1.7; margin-bottom: 24px;">
+          <p id="brand-story-desc-el" style="color: var(--medium-gray); line-height: 1.7; margin-bottom: 24px;">
             Most modern t-shirts lose their shape after two washes or feel thin and clingy. At OV™, we rejected fast-fashion synthetics to engineer heavyweight cotton streetwear crafted with intention.
           </p>
 
@@ -814,7 +820,7 @@
           </button>
           <button class="admin-tab-btn" data-tab="slides-tab" onclick="switchAdminTab('slides-tab')">
             <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>HERO BANNER SLIDES</span>
+            <span>MEDIA & BANNERS (DRAG CROP)</span>
           </button>
           <button class="admin-tab-btn" data-tab="logo-tab" onclick="switchAdminTab('logo-tab')">
             <svg class="admin-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
@@ -1161,16 +1167,160 @@
             </div>
           </div>
 
-          <!-- TAB 8: HERO BANNER SLIDES (Original functionality preserved) -->
+          <!-- TAB 8: WEBSITE MEDIA & BANNERS (DRAG CROP CMS) -->
           <div id="slides-tab" class="admin-panel" style="display:none;">
-            <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin-bottom:10px;">HERO BANNER SLIDES</h3>
-            <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; line-height:1.6; margin-bottom:30px;">Customize your full-bleed home carousel. Add slides, upload images, specify cropping coordinates, and write editorial captions.</p>
-            
-            <div id="admin-slides-list" class="admin-items-list" style="display:flex; flex-direction:column; gap:20px;">
-              <!-- Dynamically populated by app.js -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; flex-wrap:wrap; gap:15px;">
+              <div>
+                <h3 class="admin-panel-title" style="font-size:1.4rem; letter-spacing:0.1em; margin:0 0 6px;">WEBSITE MEDIA & BANNER CMS</h3>
+                <p class="admin-panel-desc" style="color:var(--medium-gray); font-size:0.85rem; margin:0;">
+                  Manage Hero Banner, Fit Spotlight cards, Brand Story imagery, and Lookbook gallery. Use the interactive <strong>Drag-to-Position</strong> tool to set exact focal alignment without cutting off faces.
+                </p>
+              </div>
+              <button class="luxury-btn gold-btn" onclick="openHeroBannerDragModal()" style="padding:12px 22px; font-size:0.75rem;">
+                🎨 DRAG & ADJUST HERO BANNER
+              </button>
             </div>
-            
-            <button class="luxury-btn gold-btn" onclick="openNewSlideForm()" style="margin-top:30px;">ADD NEW SLIDE</button>
+
+            <!-- 1. Hero Banner Visual Card -->
+            <div class="admin-media-card" style="background:#fff; border:1px solid var(--border-color); border-radius:12px; padding:24px; margin-bottom:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                <div>
+                  <span class="eyebrow" style="color:var(--gold-accent);">HOMEPAGE ATTRACTION</span>
+                  <h4 style="font-size:1.15rem; letter-spacing:0.08em; text-transform:uppercase; margin:4px 0 0;">ACTIVE HERO BANNER</h4>
+                </div>
+                <span class="admin-badge admin-badge-success" id="admin-hero-pos-badge">FOCAL: CENTER 10%</span>
+              </div>
+
+              <div style="display:grid; grid-template-columns:320px 1fr; gap:24px; align-items:center;">
+                <!-- Thumbnail Preview -->
+                <div style="position:relative; width:100%; height:180px; border-radius:8px; overflow:hidden; border:1px solid var(--border-color); background:#111;">
+                  <div id="admin-hero-thumb-bg" style="width:100%; height:100%; background-image:url('images/product_beige_front_model.jpg'); background-size:cover; background-position:center 10%;"></div>
+                  <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.75); color:#fff; padding:3px 8px; font-size:0.65rem; border-radius:4px;">
+                    LIVE DESKTOP PREVIEW
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-size:0.72rem; color:var(--gold-accent); font-weight:700; text-transform:uppercase; margin-bottom:4px;" id="admin-hero-meta-tag">NEW SEASON 2026 // LUXURY STREETWEAR</div>
+                  <div style="font-size:1.1rem; font-weight:700; text-transform:uppercase; margin-bottom:6px;" id="admin-hero-meta-title">OVERSIZED HEAVYWEIGHT ESSENTIALS</div>
+                  <p style="font-size:0.8rem; color:var(--medium-gray); line-height:1.5; margin-bottom:16px;" id="admin-hero-meta-desc">
+                    Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.
+                  </p>
+
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button class="luxury-btn gold-btn" onclick="openHeroBannerDragModal()" style="padding:8px 18px; font-size:0.7rem;">
+                      EDIT IMAGE & DRAG FOCAL POINT
+                    </button>
+                    <span style="font-size:0.75rem; color:#888;">Quick Align:</span>
+                    <button class="admin-stepper-btn" style="width:auto; padding:5px 12px; font-size:0.68rem;" onclick="quickSetBannerPosition('center 10%')">Face / Top (10%)</button>
+                    <button class="admin-stepper-btn" style="width:auto; padding:5px 12px; font-size:0.68rem;" onclick="quickSetBannerPosition('center 30%')">Upper Chest (30%)</button>
+                    <button class="admin-stepper-btn" style="width:auto; padding:5px 12px; font-size:0.68rem;" onclick="quickSetBannerPosition('center 50%')">Center (50%)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Fit Spotlight Banners (2 Cards) -->
+            <div style="background:#fff; border:1px solid var(--border-color); border-radius:12px; padding:24px; margin-bottom:30px;">
+              <div style="margin-bottom:20px;">
+                <span class="eyebrow">CATEGORY HIGHLIGHTS</span>
+                <h4 style="font-size:1.15rem; letter-spacing:0.08em; text-transform:uppercase; margin:4px 0 0;">FIT SPOTLIGHT BANNERS (2 TILES)</h4>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                <!-- Spotlight 1: Dune Beige -->
+                <div style="border:1px solid var(--border-color); border-radius:8px; padding:18px; background:#fafafa;">
+                  <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <span>TILE 1: OVERSIZED (240 GSM)</span>
+                    <span style="color:var(--gold-accent);">DUNE BEIGE</span>
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Image URL / Path</label>
+                    <input type="text" id="admin-spotlight-img-1" class="auth-input" value="images/product_beige_front_model.jpg" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Title</label>
+                    <input type="text" id="admin-spotlight-title-1" class="auth-input" value="OVERSIZED &quot;GRACE&quot; DUNE BEIGE" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Price Tag</label>
+                    <input type="text" id="admin-spotlight-price-1" class="auth-input" value="₹999" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px;">Or Upload from Computer:</div>
+                  <input type="file" accept="image/*" class="auth-input" onchange="handleFileAsCompressedBase64(this, null, null, 'admin-spotlight-img-1')" style="padding:6px; font-size:0.72rem; border:1px solid var(--border-color); width:100%;">
+                </div>
+
+                <!-- Spotlight 2: Washed Black -->
+                <div style="border:1px solid var(--border-color); border-radius:8px; padding:18px; background:#fafafa;">
+                  <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <span>TILE 2: BOXY (280 GSM)</span>
+                    <span style="color:var(--gold-accent);">WASHED BLACK</span>
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Image URL / Path</label>
+                    <input type="text" id="admin-spotlight-img-2" class="auth-input" value="images/antigravity_tshirts_float.jpg" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Title</label>
+                    <input type="text" id="admin-spotlight-title-2" class="auth-input" value="BOXY &quot;NOIR&quot; WASHED BLACK" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Price Tag</label>
+                    <input type="text" id="admin-spotlight-price-2" class="auth-input" value="₹1,199" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px;">Or Upload from Computer:</div>
+                  <input type="file" accept="image/*" class="auth-input" onchange="handleFileAsCompressedBase64(this, null, null, 'admin-spotlight-img-2')" style="padding:6px; font-size:0.72rem; border:1px solid var(--border-color); width:100%;">
+                </div>
+              </div>
+
+              <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+                <button class="luxury-btn gold-btn" onclick="saveSpotlightsFromAdmin()" style="padding:10px 24px; font-size:0.72rem;">
+                  SAVE SPOTLIGHT BANNERS
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. Brand Story & Craftsmanship Asset -->
+            <div style="background:#fff; border:1px solid var(--border-color); border-radius:12px; padding:24px; margin-bottom:30px;">
+              <div style="margin-bottom:20px;">
+                <span class="eyebrow">EDITORIAL STORYTELLING</span>
+                <h4 style="font-size:1.15rem; letter-spacing:0.08em; text-transform:uppercase; margin:4px 0 0;">BRAND STORY BANNER</h4>
+              </div>
+
+              <div style="display:grid; grid-template-columns:280px 1fr; gap:24px;">
+                <div>
+                  <img id="admin-brand-story-preview" src="images/antigravity_showcase.jpg" style="width:100%; height:200px; object-fit:cover; border-radius:6px; border:1px solid var(--border-color);">
+                  <div style="margin-top:10px;">
+                    <input type="file" accept="image/*" class="auth-input" onchange="handleFileAsCompressedBase64(this, 'admin-brand-story-preview', null, 'admin-brand-story-img-url')" style="padding:6px; font-size:0.72rem; border:1px solid var(--border-color); width:100%;">
+                  </div>
+                </div>
+
+                <div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Image Path / URL</label>
+                    <input type="text" id="admin-brand-story-img-url" class="auth-input" value="images/antigravity_showcase.jpg" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Badge Highlight</label>
+                    <input type="text" id="admin-brand-story-badge" class="auth-input" value="BORN IN TIRUPUR · 100% COMBED COTTON" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Headline</label>
+                    <input type="text" id="admin-brand-story-title" class="auth-input" value="STREETWEAR WITH ARCHITECTURAL SUBSTANCE" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%;">
+                  </div>
+                  <div style="margin-bottom:14px;">
+                    <label style="font-size:0.72rem; font-weight:600; display:block; margin-bottom:4px;">Description</label>
+                    <textarea id="admin-brand-story-desc" class="auth-input" rows="2" style="border:1px solid var(--border-color); padding:8px; font-size:0.78rem; width:100%; resize:none;">Most modern t-shirts lose their shape after two washes or feel thin and clingy. At OV™, we rejected fast-fashion synthetics to engineer heavyweight cotton streetwear crafted with intention.</textarea>
+                  </div>
+                  <button class="luxury-btn gold-btn" onclick="saveBrandStoryFromAdmin()" style="padding:8px 20px; font-size:0.72rem;">
+                    SAVE BRAND STORY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legacy container kept for zero-breakage -->
+            <div id="admin-slides-list" style="display:none;"></div>
           </div>
 
           <!-- TAB 9: BRAND LOGO (Original functionality preserved) -->
@@ -1495,82 +1645,160 @@
     </div>
 
 
-    <!-- ADMIN MODAL: ADD/EDIT SLIDE -->
-    <div id="admin-slide-modal" class="modal-overlay">
-      <div class="modal-panel" style="max-width: 650px; background-color:var(--white);">
-        <div class="modal-header" style="padding:20px 30px;">
-          <h3 id="slide-modal-title" style="font-size:1.1rem; letter-spacing:0.15em;">EDIT HERO SLIDE</h3>
-          <button class="close-drawer-btn" onclick="closeAdminModal('admin-slide-modal')">×</button>
+    <!-- ADMIN MODAL: DRAG-TO-POSITION HERO BANNER STUDIO -->
+    <div id="admin-banner-drag-modal" class="modal-overlay">
+      <div class="modal-panel" style="max-width: 960px; width: 95vw; background-color: var(--white); max-height: 94vh; overflow-y: auto;">
+        <div class="modal-header" style="padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span class="eyebrow" style="color: var(--gold-accent);">VISUAL FOCAL ALIGNMENT</span>
+            <h3 style="font-size: 1.25rem; letter-spacing: 0.12em; margin-top: 4px;">HERO BANNER & DRAG-TO-POSITION STUDIO</h3>
+          </div>
+          <button class="close-drawer-btn" onclick="closeAdminModal('admin-banner-drag-modal')">×</button>
         </div>
-        <div class="modal-body" style="padding:30px; max-height:calc(90vh - 80px); overflow-y:auto;">
-          <form id="admin-slide-form" onsubmit="saveSlideForm(event)">
-            <input type="hidden" id="slide-form-index">
-            
-            <div class="admin-form-group" style="margin-bottom:18px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Slide Image (URL / Path or Upload)</label>
-              <input type="text" id="slide-form-image-url" class="auth-input" placeholder="e.g. images/diwali_banner.png or full image URL" style="border:1px solid var(--border-color); padding:10px; width:100%; margin-bottom:8px;" oninput="updateSlidePreviewFromUrl(this.value)">
-              
-              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center;">
-                <span style="font-size:0.65rem; color:var(--medium-gray); font-weight:600; letter-spacing:0.05em; text-transform:uppercase;">Quick Presets:</span>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/diwali_banner.png')">Diwali Banner</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model_sunglasses.jpg')">Sunglasses Model</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model2.jpg')">Model 2</button>
-                <button type="button" class="admin-stepper-btn" style="width:auto; padding:3px 10px; font-size:0.65rem;" onclick="setSlideImagePreset('images/model_runway.jpg')">Runway Model</button>
+
+        <div class="modal-body" style="padding: 28px 32px;">
+          <!-- Top Guidance Alert -->
+          <div style="background: #fdfaf3; border: 1px solid rgba(184,151,90,0.35); border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 0.82rem; color: #6d5220;">
+            <span style="font-size: 1.2rem;">👆</span>
+            <div>
+              <strong>Drag Anywhere on the Image:</strong> Click and drag on the preview below to set where the banner image should center and focus (e.g. adjust so the model's head/face is never cut off!).
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 30px;">
+            <!-- Left Column: Interactive Drag Stage -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-size: 0.76rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">
+                  INTERACTIVE DRAG CANVAS
+                </label>
+                <span class="admin-badge admin-badge-success" id="banner-drag-coords-badge">
+                  X: 50% | Y: 10%
+                </span>
               </div>
 
-              <div style="font-size:0.68rem; color:var(--medium-gray); margin-bottom:4px; font-weight:500;">OR UPLOAD FROM COMPUTER:</div>
-              <input type="file" id="slide-form-file" class="auth-input" accept="image/*" onchange="handleFileAsCompressedBase64(this, 'slide-form-img-preview', 'slide-form-image-data', 'slide-form-image-url')" style="border:1px solid var(--border-color); padding:8px; width:100%;">
-              <input type="hidden" id="slide-form-image-data">
-              <img id="slide-form-img-preview" src="" style="width: 100%; max-height: 180px; object-fit: cover; margin-top: 10px; border: 1px solid var(--border-color); display:none;">
-            </div>
-            
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Crop / Background Position (Face alignment)</label>
-              <select id="slide-form-position" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; background-color:var(--white);">
-                <option value="right 20% center">Right 20% Center (Recommended for Black Label)</option>
-                <option value="right 20% top 0%">Right 20% Top (Recommended for portrait models)</option>
-                <option value="right top">Right Top</option>
-                <option value="center top">Center Top</option>
-                <option value="center center">Center Center</option>
-                <option value="left center">Left Center</option>
-              </select>
+              <!-- Draggable Canvas Container -->
+              <div class="banner-drag-stage" id="banner-drag-stage">
+                <img id="banner-drag-source-img" src="images/product_beige_front_model.jpg" alt="Banner Source">
+                <div class="banner-drag-overlay-grid"></div>
+                
+                <!-- Floating Draggable Focal Pin -->
+                <div class="banner-focal-pin" id="banner-focal-pin" style="left: 50%; top: 10%;">
+                  <div class="focal-pin-core"></div>
+                  <div class="focal-pin-ring"></div>
+                  <div class="focal-pin-label">FOCAL POINT</div>
+                </div>
+
+                <div class="banner-drag-hint">
+                  DRAG ME TO REPOSITION
+                </div>
+              </div>
+
+              <!-- Quick Alignment Presets -->
+              <div style="margin-top: 16px;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--medium-gray); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px;">
+                  QUICK ALIGNMENT PRESETS:
+                </span>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button type="button" class="admin-stepper-btn preset-active" id="preset-face" onclick="applyFocalPreset(50, 10, 'Face Centered', this)" style="width: auto; padding: 6px 14px; font-size: 0.7rem;">
+                    👤 Face / Head (50% 10%)
+                  </button>
+                  <button type="button" class="admin-stepper-btn" onclick="applyFocalPreset(50, 30, 'Upper Chest', this)" style="width: auto; padding: 6px 14px; font-size: 0.7rem;">
+                    👕 Chest (50% 30%)
+                  </button>
+                  <button type="button" class="admin-stepper-btn" onclick="applyFocalPreset(50, 50, 'Center', this)" style="width: auto; padding: 6px 14px; font-size: 0.7rem;">
+                    🎯 Center (50% 50%)
+                  </button>
+                  <button type="button" class="admin-stepper-btn" onclick="applyFocalPreset(75, 15, 'Right Upper', this)" style="width: auto; padding: 6px 14px; font-size: 0.7rem;">
+                    📐 Right (75% 15%)
+                  </button>
+                  <button type="button" class="admin-stepper-btn" onclick="applyFocalPreset(25, 15, 'Left Upper', this)" style="width: auto; padding: 6px 14px; font-size: 0.7rem;">
+                    📏 Left (25% 15%)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Image Source Selector -->
+              <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 18px;">
+                <label style="font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 8px;">
+                  BANNER IMAGE ASSET
+                </label>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:4px 10px; font-size:0.68rem;" onclick="setBannerSourceImage('images/product_beige_front_model.jpg')">Beige Front Model</button>
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:4px 10px; font-size:0.68rem;" onclick="setBannerSourceImage('images/product_beige_back_model.jpg')">Beige Back Muse</button>
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:4px 10px; font-size:0.68rem;" onclick="setBannerSourceImage('images/antigravity_tshirts_float.jpg')">Noir Float</button>
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:4px 10px; font-size:0.68rem;" onclick="setBannerSourceImage('images/model_runway.jpg')">Model Runway</button>
+                  <button type="button" class="admin-stepper-btn" style="width:auto; padding:4px 10px; font-size:0.68rem;" onclick="setBannerSourceImage('images/model_sunglasses.jpg')">Sunglasses</button>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                  <input type="text" id="banner-form-image-url" class="auth-input" value="images/product_beige_front_model.jpg" oninput="setBannerSourceImage(this.value)" style="border: 1px solid var(--border-color); padding: 8px 12px; font-size: 0.78rem; width: 100%;" placeholder="Paste custom Image URL or path">
+                </div>
+
+                <div style="font-size: 0.68rem; color: var(--medium-gray); margin-bottom: 4px;">OR UPLOAD NEW PHOTO FROM COMPUTER:</div>
+                <input type="file" accept="image/*" class="auth-input" onchange="handleBannerFileUpload(this)" style="border: 1px solid var(--border-color); padding: 6px; font-size: 0.72rem; width: 100%;">
+              </div>
             </div>
 
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Eyebrow Tag (e.g. 'FESTIVE SPECIFICATION')</label>
-              <input type="text" id="slide-form-eyebrow" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
-            </div>
+            <!-- Right Column: Live Mockup Preview & Text Inputs -->
+            <div>
+              <label style="font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 10px;">
+                REAL-TIME STOREFRONT MOCKUP
+              </label>
 
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Main Title (e.g. 'DIWALI CELEBRATION')</label>
-              <input type="text" id="slide-form-title" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;" required>
-            </div>
+              <!-- Mini Mockup Frame -->
+              <div class="banner-mini-mockup" id="banner-mini-mockup">
+                <div class="banner-mini-bg" id="banner-mini-mockup-bg" style="background-image: url('images/product_beige_front_model.jpg'); background-position: center 10%;"></div>
+                <div class="banner-mini-overlay"></div>
+                <div class="banner-mini-content">
+                  <div class="banner-mini-tag" id="banner-mini-tag">NEW SEASON 2026</div>
+                  <div class="banner-mini-title" id="banner-mini-title">OVERSIZED HEAVYWEIGHT</div>
+                  <div class="banner-mini-desc" id="banner-mini-desc">240 & 280 GSM combed compact cotton.</div>
+                  <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <span style="background: var(--gold-accent); color: #fff; padding: 3px 8px; font-size: 0.6rem; font-weight: 700;">SHOP</span>
+                    <span style="border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 3px 8px; font-size: 0.6rem;">VIEW</span>
+                  </div>
+                </div>
+              </div>
 
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Cursive Subtitle (e.g. 'Define Your Story')</label>
-              <input type="text" id="slide-form-script" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%;">
-            </div>
+              <form id="hero-banner-editor-form" onsubmit="saveHeroBannerFromModal(event)" style="margin-top: 20px;">
+                <input type="hidden" id="banner-form-pos-x" value="50">
+                <input type="hidden" id="banner-form-pos-y" value="10">
 
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Editorial Description</label>
-              <textarea id="slide-form-desc" class="auth-input" style="border:1px solid var(--border-color); padding:10px; width:100%; height: 60px; resize: none;" required></textarea>
-            </div>
+                <div class="admin-form-group" style="margin-bottom: 14px;">
+                  <label style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px;">Tagline / Eyebrow</label>
+                  <input type="text" id="banner-form-tag" class="auth-input" value="NEW SEASON 2026 // LUXURY STREETWEAR" oninput="document.getElementById('banner-mini-tag').textContent = this.value;" style="border: 1px solid var(--border-color); padding: 8px; font-size: 0.8rem; width: 100%;">
+                </div>
 
-            <div class="admin-form-group" style="margin-bottom:15px;">
-              <label style="display:block; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Button Text (e.g. 'SHOP COLLECTION')</label>
-              <input type="text" id="slide-form-btn-text" class="auth-input" value="SHOP NOW" style="border:1px solid var(--border-color); padding:10px; width:100%;">
-            </div>
+                <div class="admin-form-group" style="margin-bottom: 14px;">
+                  <label style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px;">Main Title</label>
+                  <input type="text" id="banner-form-title" class="auth-input" value="OVERSIZED HEAVYWEIGHT ESSENTIALS" oninput="document.getElementById('banner-mini-title').textContent = this.value;" style="border: 1px solid var(--border-color); padding: 8px; font-size: 0.8rem; width: 100%;" required>
+                </div>
 
-            <div class="admin-form-group" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
-              <input type="checkbox" id="slide-form-is-logo" style="width:20px; height:20px; cursor:pointer;">
-              <label for="slide-form-is-logo" style="margin-bottom:0; font-size:0.75rem; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0.02em;">Show Large cut O-V Logo Graphic overlay instead of titles</label>
-            </div>
+                <div class="admin-form-group" style="margin-bottom: 14px;">
+                  <label style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px;">Description</label>
+                  <textarea id="banner-form-desc" class="auth-input" rows="2" oninput="document.getElementById('banner-mini-desc').textContent = this.value;" style="border: 1px solid var(--border-color); padding: 8px; font-size: 0.8rem; width: 100%; resize: none;">Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.</textarea>
+                </div>
 
-            <div style="margin-top: 25px; display:flex; gap:10px; justify-content:flex-end;">
-              <button type="button" class="luxury-btn secondary" style="padding:10px 20px; font-size:0.65rem;" onclick="closeAdminModal('admin-slide-modal')">CANCEL</button>
-              <button type="submit" class="luxury-btn gold-btn" style="padding:10px 20px; font-size:0.65rem;">SAVE SLIDE</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                  <div>
+                    <label style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px;">Button 1 Text</label>
+                    <input type="text" id="banner-form-btn1-text" class="auth-input" value="SHOP ALL PIECES →" style="border: 1px solid var(--border-color); padding: 8px; font-size: 0.76rem; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px;">Button 2 Text</label>
+                    <input type="text" id="banner-form-btn2-text" class="auth-input" value="VIEW BESTSELLERS ↓" style="border: 1px solid var(--border-color); padding: 8px; font-size: 0.76rem; width: 100%;">
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                  <button type="button" class="luxury-btn secondary" style="padding: 10px 20px; font-size: 0.7rem;" onclick="closeAdminModal('admin-banner-drag-modal')">CANCEL</button>
+                  <button type="submit" class="luxury-btn gold-btn" style="padding: 10px 24px; font-size: 0.75rem;">SAVE & APPLY TO HOMEPAGE</button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

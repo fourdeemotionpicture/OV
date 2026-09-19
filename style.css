@@ -4474,4 +4474,222 @@ footer {
   }
 }
 
+/* ==========================================================================
+   DRAG-TO-POSITION FOCAL STUDIO & CMS STYLES (Admin Banner Engine)
+   ========================================================================== */
+
+.admin-banner-floating-edit-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 25;
+  background: rgba(18, 18, 18, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--gold-accent);
+  border: 1px solid rgba(184, 151, 90, 0.6);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-banner-floating-edit-btn:hover {
+  background: var(--gold-accent);
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(184, 151, 90, 0.4);
+}
+
+/* Interactive Drag Canvas Stage */
+.banner-drag-stage {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background-color: #121212;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px dashed rgba(184, 151, 90, 0.45);
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.6);
+  touch-action: none;
+}
+
+.banner-drag-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  display: block;
+}
+
+.banner-drag-overlay-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 33.33% 33.33%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.banner-focal-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.05s ease-out;
+}
+
+.focal-pin-core {
+  width: 16px;
+  height: 16px;
+  background: var(--gold-accent);
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(184, 151, 90, 0.9), 0 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.focal-pin-ring {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: focalPinPulse 2.4s infinite linear;
+}
+
+@keyframes focalPinPulse {
+  0% { transform: translateX(-50%) rotate(0deg) scale(1); opacity: 0.95; }
+  50% { transform: translateX(-50%) rotate(180deg) scale(1.15); opacity: 0.5; }
+  100% { transform: translateX(-50%) rotate(360deg) scale(1); opacity: 0.95; }
+}
+
+.focal-pin-label {
+  margin-top: 6px;
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--gold-accent);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(184, 151, 90, 0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.banner-drag-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  padding: 5px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mini Mockup Storefront in Modal */
+.banner-mini-mockup {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background-color: #111;
+}
+
+.banner-mini-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transition: background-position 0.05s ease-out;
+}
+
+.banner-mini-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.48) 55%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+.banner-mini-content {
+  position: absolute;
+  inset: 0;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+  color: #fff;
+}
+
+.banner-mini-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.banner-mini-title {
+  font-size: 1.05rem;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.banner-mini-desc {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 80%;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-stepper-btn.preset-active {
+  background: var(--gold-accent) !important;
+  color: #000 !important;
+  font-weight: 700 !important;
+  border-color: var(--gold-accent) !important;
+}
+
+
 

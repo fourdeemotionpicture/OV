@@ -179,7 +179,55 @@ const STATE = {
       trackingStep: 3,
       address: '24, Khader Nawaz Khan Road, Nungambakkam, Chennai - 600006'
     }
-  ]
+  ],
+  heroBanner: (() => {
+    try {
+      const saved = localStorage.getItem('ov_hero_banner');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return {
+      image: 'images/product_beige_front_model.jpg',
+      posX: 50,
+      posY: 10,
+      tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
+      title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
+      desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
+      btn1Text: 'SHOP ALL PIECES →',
+      btn2Text: 'VIEW BESTSELLERS ↓'
+    };
+  })(),
+  spotlights: (() => {
+    try {
+      const saved = localStorage.getItem('ov_spotlights');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [
+      {
+        id: 1,
+        image: 'images/product_beige_front_model.jpg',
+        title: 'OVERSIZED "GRACE" DUNE BEIGE',
+        price: '₹999'
+      },
+      {
+        id: 2,
+        image: 'images/antigravity_tshirts_float.jpg',
+        title: 'BOXY "NOIR" WASHED BLACK',
+        price: '₹1,199'
+      }
+    ];
+  })(),
+  brandStory: (() => {
+    try {
+      const saved = localStorage.getItem('ov_brand_story');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return {
+      image: 'images/antigravity_showcase.jpg',
+      badge: 'BORN IN TIRUPUR · 100% COMBED COTTON',
+      title: 'STREETWEAR WITH ARCHITECTURAL SUBSTANCE',
+      desc: 'Most modern t-shirts lose their shape after two washes or feel thin and clingy. At OV™, we rejected fast-fashion synthetics to engineer heavyweight cotton streetwear crafted with intention.'
+    };
+  })()
 };
 
 // SVG templates for icons and garments
@@ -233,6 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
   try { setupCatalogSearchAndFilters(); } catch(e) { console.error("Filters Error: ", e); }
 
   // Render initial feeds
+  try { initBannerDragEngine(); } catch(e) { console.error("Banner Drag Error: ", e); }
+  try { renderStorefrontMedia(); } catch(e) { console.error("Storefront Media Error: ", e); }
   try { renderProductGrid('plp-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { updateCartBadge(); } catch(e) { console.error(e); }
@@ -3862,6 +3912,8 @@ async function saveAdminSettings(e) {
 }
 
 function renderAdminDashboard() {
+  try { renderStorefrontMedia(); } catch(e) {}
+
   // Populate Logo Forms
   document.getElementById('admin-logo-letters-input').value = STATE.logo.letters || 'OV';
   document.getElementById('admin-logo-subtext-input').value = STATE.logo.subtext || 'ORIGINAL VERSION';
@@ -4325,3 +4377,349 @@ function saveAdminLogo() {
     body: JSON.stringify({ brand_logo: STATE.logo })
   }).catch(() => {});
 }
+
+/* ==========================================================================
+   DRAG-TO-POSITION STUDIO & WEBSITE MEDIA CMS ENGINE
+   ========================================================================== */
+
+let isBannerDragging = false;
+
+function initBannerDragEngine() {
+  const stage = document.getElementById('banner-drag-stage');
+  if (!stage) return;
+
+  function handleDragMove(e) {
+    const rect = stage.getBoundingClientRect();
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+
+    let x = Math.round(((clientX - rect.left) / rect.width) * 100);
+    let y = Math.round(((clientY - rect.top) / rect.height) * 100);
+
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+
+    setFocalCoords(x, y);
+  }
+
+  stage.addEventListener('mousedown', (e) => {
+    isBannerDragging = true;
+    handleDragMove(e);
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isBannerDragging) {
+      e.preventDefault();
+      handleDragMove(e);
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isBannerDragging = false;
+  });
+
+  stage.addEventListener('touchstart', (e) => {
+    isBannerDragging = true;
+    handleDragMove(e);
+  }, { passive: false });
+
+  window.addEventListener('touchmove', (e) => {
+    if (isBannerDragging) {
+      e.preventDefault();
+      handleDragMove(e);
+    }
+  }, { passive: false });
+
+  window.addEventListener('touchend', () => {
+    isBannerDragging = false;
+  });
+}
+
+function setFocalCoords(x, y) {
+  const pin = document.getElementById('banner-focal-pin');
+  const badge = document.getElementById('banner-drag-coords-badge');
+  const mockupBg = document.getElementById('banner-mini-mockup-bg');
+  const inputX = document.getElementById('banner-form-pos-x');
+  const inputY = document.getElementById('banner-form-pos-y');
+
+  if (pin) {
+    pin.style.left = `${x}%`;
+    pin.style.top = `${y}%`;
+  }
+  if (badge) {
+    badge.textContent = `X: ${x}% | Y: ${y}%`;
+  }
+  if (mockupBg) {
+    mockupBg.style.backgroundPosition = `${x}% ${y}%`;
+  }
+  if (inputX) inputX.value = x;
+  if (inputY) inputY.value = y;
+}
+
+function applyFocalPreset(x, y, label, btn) {
+  setFocalCoords(x, y);
+  if (btn) {
+    document.querySelectorAll('#admin-banner-drag-modal .admin-stepper-btn').forEach(b => b.classList.remove('preset-active'));
+    btn.classList.add('preset-active');
+  }
+}
+
+function setBannerSourceImage(url) {
+  if (!url) return;
+  const stageImg = document.getElementById('banner-drag-source-img');
+  const mockupBg = document.getElementById('banner-mini-mockup-bg');
+  const inputUrl = document.getElementById('banner-form-image-url');
+
+  if (stageImg) stageImg.src = url;
+  if (mockupBg) mockupBg.style.backgroundImage = `url("${url}")`;
+  if (inputUrl) inputUrl.value = url;
+}
+
+function handleBannerFileUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    setBannerSourceImage(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+function openHeroBannerDragModal() {
+  const modal = document.getElementById('admin-banner-drag-modal');
+  if (!modal) return;
+
+  const current = STATE.heroBanner || {
+    image: 'images/product_beige_front_model.jpg',
+    posX: 50,
+    posY: 10,
+    tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
+    title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
+    desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
+    btn1Text: 'SHOP ALL PIECES →',
+    btn2Text: 'VIEW BESTSELLERS ↓'
+  };
+
+  setBannerSourceImage(current.image);
+  setFocalCoords(current.posX || 50, current.posY || 10);
+
+  const tagInput = document.getElementById('banner-form-tag');
+  const titleInput = document.getElementById('banner-form-title');
+  const descInput = document.getElementById('banner-form-desc');
+  const btn1Input = document.getElementById('banner-form-btn1-text');
+  const btn2Input = document.getElementById('banner-form-btn2-text');
+
+  if (tagInput) tagInput.value = current.tag || '';
+  if (titleInput) titleInput.value = current.title || '';
+  if (descInput) descInput.value = current.desc || '';
+  if (btn1Input) btn1Input.value = current.btn1Text || 'SHOP ALL PIECES →';
+  if (btn2Input) btn2Input.value = current.btn2Text || 'VIEW BESTSELLERS ↓';
+
+  const miniTag = document.getElementById('banner-mini-tag');
+  const miniTitle = document.getElementById('banner-mini-title');
+  const miniDesc = document.getElementById('banner-mini-desc');
+  if (miniTag) miniTag.textContent = current.tag || '';
+  if (miniTitle) miniTitle.textContent = current.title || '';
+  if (miniDesc) miniDesc.textContent = current.desc || '';
+
+  openAdminModal('admin-banner-drag-modal');
+}
+
+function saveHeroBannerFromModal(event) {
+  if (event) event.preventDefault();
+
+  const imageUrl = document.getElementById('banner-form-image-url').value.trim();
+  const posX = parseInt(document.getElementById('banner-form-pos-x').value, 10) || 50;
+  const posY = parseInt(document.getElementById('banner-form-pos-y').value, 10) || 10;
+  const tag = document.getElementById('banner-form-tag').value.trim();
+  const title = document.getElementById('banner-form-title').value.trim();
+  const desc = document.getElementById('banner-form-desc').value.trim();
+  const btn1Text = document.getElementById('banner-form-btn1-text').value.trim();
+  const btn2Text = document.getElementById('banner-form-btn2-text').value.trim();
+
+  STATE.heroBanner = {
+    image: imageUrl || 'images/product_beige_front_model.jpg',
+    posX: posX,
+    posY: posY,
+    tag: tag,
+    title: title,
+    desc: desc,
+    btn1Text: btn1Text,
+    btn2Text: btn2Text
+  };
+
+  try {
+    localStorage.setItem('ov_hero_banner', JSON.stringify(STATE.heroBanner));
+  } catch(e) {
+    console.warn('LocalStorage save error:', e);
+  }
+
+  renderStorefrontMedia();
+  closeAdminModal('admin-banner-drag-modal');
+  showNotification('HERO BANNER POSITION & VISUALS SAVED');
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ hero_banner: STATE.heroBanner })
+  }).catch(() => {});
+}
+
+function quickSetBannerPosition(posStr) {
+  const parts = posStr.split(' ');
+  let x = 50;
+  let y = 10;
+  if (parts.length >= 2) {
+    if (parts[0] === 'center') x = 50;
+    else if (parts[0].includes('%')) x = parseInt(parts[0], 10);
+
+    if (parts[1].includes('%')) y = parseInt(parts[1], 10);
+  }
+
+  STATE.heroBanner.posX = x;
+  STATE.heroBanner.posY = y;
+  try {
+    localStorage.setItem('ov_hero_banner', JSON.stringify(STATE.heroBanner));
+  } catch(e) {}
+  renderStorefrontMedia();
+  showNotification(`FOCAL SET TO ${x}% ${y}%`);
+}
+
+function saveSpotlightsFromAdmin() {
+  const img1 = document.getElementById('admin-spotlight-img-1').value.trim();
+  const title1 = document.getElementById('admin-spotlight-title-1').value.trim();
+  const price1 = document.getElementById('admin-spotlight-price-1').value.trim();
+
+  const img2 = document.getElementById('admin-spotlight-img-2').value.trim();
+  const title2 = document.getElementById('admin-spotlight-title-2').value.trim();
+  const price2 = document.getElementById('admin-spotlight-price-2').value.trim();
+
+  STATE.spotlights = [
+    { id: 1, image: img1, title: title1, price: price1 },
+    { id: 2, image: img2, title: title2, price: price2 }
+  ];
+
+  try {
+    localStorage.setItem('ov_spotlights', JSON.stringify(STATE.spotlights));
+  } catch(e) {}
+  renderStorefrontMedia();
+  showNotification('SPOTLIGHT BANNERS SAVED');
+}
+
+function saveBrandStoryFromAdmin() {
+  const img = document.getElementById('admin-brand-story-img-url').value.trim();
+  const badge = document.getElementById('admin-brand-story-badge').value.trim();
+  const title = document.getElementById('admin-brand-story-title').value.trim();
+  const desc = document.getElementById('admin-brand-story-desc').value.trim();
+
+  STATE.brandStory = { image: img, badge, title, desc };
+  try {
+    localStorage.setItem('ov_brand_story', JSON.stringify(STATE.brandStory));
+  } catch(e) {}
+  renderStorefrontMedia();
+  showNotification('BRAND STORY ASSET SAVED');
+}
+
+function renderStorefrontMedia() {
+  const hb = STATE.heroBanner;
+  if (hb) {
+    const heroBg = document.getElementById('hero-banner-bg');
+    const heroTag = document.getElementById('hero-banner-tag');
+    const heroTitle = document.getElementById('hero-banner-title');
+    const heroDesc = document.getElementById('hero-banner-desc');
+    const heroBtn1 = document.getElementById('hero-banner-btn1');
+    const heroBtn2 = document.getElementById('hero-banner-btn2');
+
+    if (heroBg) {
+      if (hb.image) heroBg.style.backgroundImage = `url("${hb.image}")`;
+      const posX = hb.posX !== undefined ? hb.posX : 50;
+      const posY = hb.posY !== undefined ? hb.posY : 10;
+      heroBg.style.backgroundPosition = `${posX}% ${posY}%`;
+    }
+    if (heroTag && hb.tag) heroTag.textContent = hb.tag;
+    if (heroTitle && hb.title) heroTitle.textContent = hb.title;
+    if (heroDesc && hb.desc) heroDesc.textContent = hb.desc;
+    if (heroBtn1 && hb.btn1Text) heroBtn1.innerHTML = `${hb.btn1Text} <span style="margin-left: 8px;">→</span>`;
+    if (heroBtn2 && hb.btn2Text) heroBtn2.innerHTML = `${hb.btn2Text} <span style="margin-left: 8px;">↓</span>`;
+
+    // Also update Admin Panel representation
+    const adminThumbBg = document.getElementById('admin-hero-thumb-bg');
+    const adminPosBadge = document.getElementById('admin-hero-pos-badge');
+    const adminMetaTag = document.getElementById('admin-hero-meta-tag');
+    const adminMetaTitle = document.getElementById('admin-hero-meta-title');
+    const adminMetaDesc = document.getElementById('admin-hero-meta-desc');
+
+    if (adminThumbBg) {
+      if (hb.image) adminThumbBg.style.backgroundImage = `url("${hb.image}")`;
+      adminThumbBg.style.backgroundPosition = `${hb.posX || 50}% ${hb.posY || 10}%`;
+    }
+    if (adminPosBadge) {
+      adminPosBadge.textContent = `FOCAL: ${hb.posX || 50}% ${hb.posY || 10}%`;
+    }
+    if (adminMetaTag && hb.tag) adminMetaTag.textContent = hb.tag;
+    if (adminMetaTitle && hb.title) adminMetaTitle.textContent = hb.title;
+    if (adminMetaDesc && hb.desc) adminMetaDesc.textContent = hb.desc;
+  }
+
+  // Spotlights
+  if (Array.isArray(STATE.spotlights) && STATE.spotlights.length >= 2) {
+    const s1 = STATE.spotlights[0];
+    const s2 = STATE.spotlights[1];
+
+    const bg1 = document.getElementById('spotlight-bg-1');
+    const t1 = document.getElementById('spotlight-title-1');
+    const p1 = document.getElementById('spotlight-price-1');
+    if (bg1 && s1.image) bg1.style.backgroundImage = `url("${s1.image}")`;
+    if (t1 && s1.title) t1.textContent = s1.title;
+    if (p1 && s1.price) p1.innerHTML = `${s1.price} <span class="old">₹1,999</span>`;
+
+    const bg2 = document.getElementById('spotlight-bg-2');
+    const t2 = document.getElementById('spotlight-title-2');
+    const p2 = document.getElementById('spotlight-price-2');
+    if (bg2 && s2.image) bg2.style.backgroundImage = `url("${s2.image}")`;
+    if (t2 && s2.title) t2.textContent = s2.title;
+    if (p2 && s2.price) p2.innerHTML = `${s2.price} <span class="old">₹2,399</span>`;
+
+    const aImg1 = document.getElementById('admin-spotlight-img-1');
+    const aT1 = document.getElementById('admin-spotlight-title-1');
+    const aP1 = document.getElementById('admin-spotlight-price-1');
+    if (aImg1 && s1.image) aImg1.value = s1.image;
+    if (aT1 && s1.title) aT1.value = s1.title;
+    if (aP1 && s1.price) aP1.value = s1.price;
+
+    const aImg2 = document.getElementById('admin-spotlight-img-2');
+    const aT2 = document.getElementById('admin-spotlight-title-2');
+    const aP2 = document.getElementById('admin-spotlight-price-2');
+    if (aImg2 && s2.image) aImg2.value = s2.image;
+    if (aT2 && s2.title) aT2.value = s2.title;
+    if (aP2 && s2.price) aP2.value = s2.price;
+  }
+
+  // Brand Story
+  const bs = STATE.brandStory;
+  if (bs) {
+    const storyImg = document.getElementById('brand-story-img-el');
+    const storyBadge = document.getElementById('brand-story-badge-el');
+    const storyTitle = document.getElementById('brand-story-title-el');
+    const storyDesc = document.getElementById('brand-story-desc-el');
+
+    if (storyImg && bs.image) storyImg.src = bs.image;
+    if (storyBadge && bs.badge) storyBadge.textContent = bs.badge;
+    if (storyTitle && bs.title) storyTitle.textContent = bs.title;
+    if (storyDesc && bs.desc) storyDesc.textContent = bs.desc;
+
+    const aStoryPreview = document.getElementById('admin-brand-story-preview');
+    const aStoryUrl = document.getElementById('admin-brand-story-img-url');
+    const aStoryBadge = document.getElementById('admin-brand-story-badge');
+    const aStoryTitle = document.getElementById('admin-brand-story-title');
+    const aStoryDesc = document.getElementById('admin-brand-story-desc');
+
+    if (aStoryPreview && bs.image) aStoryPreview.src = bs.image;
+    if (aStoryUrl && bs.image) aStoryUrl.value = bs.image;
+    if (aStoryBadge && bs.badge) aStoryBadge.value = bs.badge;
+    if (aStoryTitle && bs.title) aStoryTitle.value = bs.title;
+    if (aStoryDesc && bs.desc) aStoryDesc.value = bs.desc;
+  }
+}
+
