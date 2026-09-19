@@ -326,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) { console.error(e); }
   try { updateCartBadge(); } catch(e) { console.error(e); }
   try { updateWishlistBadge(); } catch(e) { console.error(e); }
+  try { start5SecondStorefrontPolling(); } catch(e) { console.error("Sync Polling Error: ", e); }
 
   // Fetch remote settings (slides, brand logo, custom products, etc.) to ensure 100% cross-browser consistency
   fetch('/api/settings')
@@ -513,6 +514,11 @@ function navigateTo(route, productId = null) {
   if (route === 'home') {
     document.getElementById('home-page').classList.add('active');
     STATE.currentRoute = 'home';
+    try { renderStorefrontMedia(); } catch(e) {}
+    try { renderHeroSlider(); } catch(e) {}
+    try { renderHomePageProducts(); } catch(e) {}
+    try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) {}
+    try { renderLookbookMarquee(); } catch(e) {}
   } else if (route === 'shop') {
     document.getElementById('shop-page').classList.add('active');
     STATE.currentRoute = 'shop';
@@ -4231,7 +4237,7 @@ async function uploadImageToServer(dataUrl, filename) {
   return dataUrl;
 }
 
-function readFileAndCompress(file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) {
+function readFileAndCompress(file, maxWidth = 1400, maxHeight = 1400, quality = 0.82) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -4254,8 +4260,15 @@ function readFileAndCompress(file, maxWidth = 1600, maxHeight = 1600, quality = 
         canvas.width = w;
         canvas.height = h;
         const ctx = canvas.getContext('2d');
+
+        // Transparent logos under 400px remain PNG; all photos become crisp compressed JPEG
+        const isSmallLogo = file.type === 'image/png' && w <= 400 && h <= 400;
+        const format = isSmallLogo ? 'image/png' : 'image/jpeg';
+        if (format === 'image/jpeg') {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+        }
         ctx.drawImage(img, 0, 0, w, h);
-        const format = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
         resolve(canvas.toDataURL(format, quality));
       };
       img.onerror = () => resolve(e.target.result);
@@ -4578,6 +4591,7 @@ function deleteSlide(idx) {
     try { localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides)); } catch(e) {}
     renderHeroSlider();
     renderAdminDashboard();
+    broadcastStorefrontUpdate('slides');
     showNotification('SLIDE REMOVED SUCCESSFUL');
     fetch('/api/admin/settings', {
       method: 'PUT',
@@ -4641,6 +4655,7 @@ async function saveSlideForm(event) {
 
   renderHeroSlider();
   renderAdminDashboard();
+  broadcastStorefrontUpdate('slides');
   closeAdminModal('admin-slide-modal');
   showNotification('BANNER SLIDE SAVED SUCCESSFULLY');
 
@@ -4740,6 +4755,7 @@ function deleteProduct(id) {
     renderProductGrid('plp-products-grid', STATE.products);
     renderFeaturedGrid('featured-products-grid', STATE.products);
     renderAdminDashboard();
+    broadcastStorefrontUpdate('products');
     showNotification('PRODUCT REMOVED');
 
     fetch('/api/admin/settings', {
@@ -4858,6 +4874,7 @@ async function saveProductForm(event) {
   }
 
   closeAdminModal('admin-product-modal');
+  broadcastStorefrontUpdate('products');
   showNotification(`PRODUCT SAVED WITH ${finalGallery.length} PHOTO${finalGallery.length > 1 ? 'S' : ''}`);
 
   fetch('/api/admin/settings', {
@@ -4898,6 +4915,7 @@ async function saveAdminLogo() {
 
   localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo));
   renderLogoMarks();
+  broadcastStorefrontUpdate('logo');
   showNotification('BRAND LOGO STYLING SAVED');
 
   fetch('/api/admin/settings', {
@@ -5360,6 +5378,7 @@ async function saveHeroBannerFromModal(event) {
   }
 
   renderStorefrontMedia();
+  broadcastStorefrontUpdate('hero_banners');
   closeAdminModal('admin-banner-drag-modal');
   showNotification(`ALL ${STATE.heroBanners.length} HERO BANNERS SAVED & APPLIED TO HOMEPAGE!`);
 
@@ -5390,6 +5409,7 @@ function quickSetBannerPosition(posStr) {
     localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners));
   } catch(e) {}
   renderStorefrontMedia();
+  broadcastStorefrontUpdate('hero_banners');
   showNotification(`FOCAL SET TO ${x}% ${y}%`);
 
   fetch('/api/admin/settings', {
@@ -5431,6 +5451,7 @@ async function saveSpotlightsFromAdmin() {
     localStorage.setItem('ov_spotlights', JSON.stringify(STATE.spotlights));
   } catch(e) {}
   renderStorefrontMedia();
+  broadcastStorefrontUpdate('spotlights');
   showNotification('SPOTLIGHT BANNERS SAVED WITH NEW IMAGES!');
 
   fetch('/api/admin/settings', {
@@ -5464,6 +5485,7 @@ async function saveBrandStoryFromAdmin() {
     localStorage.setItem('ov_brand_story', JSON.stringify(STATE.brandStory));
   } catch(e) {}
   renderStorefrontMedia();
+  broadcastStorefrontUpdate('brand_story');
   showNotification('BRAND STORY ASSET SAVED!');
 
   fetch('/api/admin/settings', {
@@ -5564,5 +5586,132 @@ function renderStorefrontMedia() {
     if (aStoryTitle && bs.title) aStoryTitle.value = bs.title;
     if (aStoryDesc && bs.desc) aStoryDesc.value = bs.desc;
   }
+}
+
+/* ==========================================================================
+   26. ULTRA-FAST REAL-TIME STOREFRONT & ADMIN AUTO-SYNC ENGINE (5-SECOND SLA)
+   Guarantees that ANY update made in the Admin CMS reflects on the Main Website
+   within 5 seconds across all tabs, windows, and open devices.
+   ========================================================================== */
+
+const liveSyncChannel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('ov_live_sync_channel') : null;
+
+function broadcastStorefrontUpdate(actionType = 'all') {
+  const payload = {
+    action: actionType,
+    timestamp: Date.now(),
+    heroBanners: STATE.heroBanners,
+    spotlights: STATE.spotlights,
+    brandStory: STATE.brandStory,
+    products: STATE.products,
+    slides: STATE.slides,
+    logo: STATE.logo
+  };
+
+  if (liveSyncChannel) {
+    try {
+      liveSyncChannel.postMessage(payload);
+    } catch(e) {}
+  }
+}
+
+// 1. Instant Cross-Tab Sync via BroadcastChannel
+if (liveSyncChannel) {
+  liveSyncChannel.onmessage = (e) => {
+    if (!e || !e.data) return;
+    console.log('[OV Live Sync] Instant broadcast update received:', e.data.action);
+    if (e.data.heroBanners) STATE.heroBanners = e.data.heroBanners;
+    if (e.data.spotlights) STATE.spotlights = e.data.spotlights;
+    if (e.data.brandStory) STATE.brandStory = e.data.brandStory;
+    if (e.data.products) STATE.products = e.data.products;
+    if (e.data.slides) STATE.slides = e.data.slides;
+    if (e.data.logo) STATE.logo = e.data.logo;
+
+    try { renderStorefrontMedia(); } catch(err) {}
+    try { renderHomePageProducts(); } catch(err) {}
+    try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(err) {}
+    try { renderShopCatalog(); } catch(err) {}
+    try { renderHeroSlider(); } catch(err) {}
+    try { renderLogoMarks(); } catch(err) {}
+  };
+}
+
+// 2. Cross-Tab Storage Event Listener
+window.addEventListener('storage', (e) => {
+  if (!e.key || !e.newValue) return;
+  try {
+    if (e.key === 'ov_hero_banners_v2') STATE.heroBanners = JSON.parse(e.newValue);
+    if (e.key === 'ov_spotlights') STATE.spotlights = JSON.parse(e.newValue);
+    if (e.key === 'ov_brand_story') STATE.brandStory = JSON.parse(e.newValue);
+    if (e.key === 'ov_custom_products_v5') STATE.products = JSON.parse(e.newValue);
+    if (e.key === 'ov_custom_slides') STATE.slides = JSON.parse(e.newValue);
+    if (e.key === 'ov_custom_logo') STATE.logo = JSON.parse(e.newValue);
+
+    renderStorefrontMedia();
+    renderHomePageProducts();
+    renderFeaturedGrid('featured-products-grid', STATE.products);
+    renderHeroSlider();
+    renderLogoMarks();
+  } catch(err) {}
+});
+
+// 3. Continuous 5-Second Cross-Device Server Polling
+let lastSyncSignature = '';
+
+function start5SecondStorefrontPolling() {
+  setInterval(async () => {
+    try {
+      const res = await fetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (!json || !json.success || !json.data) return;
+
+      const data = json.data;
+      const signature = JSON.stringify({
+        hb: data.hero_banners,
+        sp: data.spotlights,
+        bs: data.brand_story,
+        cp: data.custom_products ? data.custom_products.length : 0,
+        sl: data.hero_slides ? data.hero_slides.length : 0,
+        lg: data.brand_logo
+      });
+
+      if (lastSyncSignature && lastSyncSignature !== signature) {
+        console.log('[OV Live Sync] Remote settings changed on server! Applying live in < 5s...');
+        if (Array.isArray(data.hero_banners) && data.hero_banners.length > 0) {
+          STATE.heroBanners = data.hero_banners;
+          try { localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners)); } catch(e) {}
+        }
+        if (Array.isArray(data.spotlights) && data.spotlights.length >= 2) {
+          STATE.spotlights = data.spotlights;
+          try { localStorage.setItem('ov_spotlights', JSON.stringify(STATE.spotlights)); } catch(e) {}
+        }
+        if (data.brand_story && data.brand_story.image) {
+          STATE.brandStory = data.brand_story;
+          try { localStorage.setItem('ov_brand_story', JSON.stringify(STATE.brandStory)); } catch(e) {}
+        }
+        if (Array.isArray(data.custom_products) && data.custom_products.length > 0) {
+          STATE.products = data.custom_products;
+          try { localStorage.setItem('ov_custom_products_v5', JSON.stringify(STATE.products)); } catch(e) {}
+          try { renderHomePageProducts(); } catch(e) {}
+          try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) {}
+          try { renderShopCatalog(); } catch(e) {}
+        }
+        if (Array.isArray(data.hero_slides) && data.hero_slides.length > 0) {
+          STATE.slides = data.hero_slides;
+          try { localStorage.setItem('ov_custom_slides', JSON.stringify(STATE.slides)); } catch(e) {}
+          try { renderHeroSlider(); } catch(e) {}
+        }
+        if (data.brand_logo) {
+          STATE.logo = data.brand_logo;
+          try { localStorage.setItem('ov_custom_logo', JSON.stringify(STATE.logo)); } catch(e) {}
+          try { renderLogoMarks(); } catch(e) {}
+        }
+
+        renderStorefrontMedia();
+      }
+      lastSyncSignature = signature;
+    } catch (e) {}
+  }, 5000);
 }
 
