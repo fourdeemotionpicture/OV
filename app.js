@@ -372,6 +372,24 @@ document.addEventListener('DOMContentLoaded', () => {
             try { renderStorefrontMedia(); } catch(e) {}
           }
         }
+        // Sync custom spotlights from remote server if present
+        if (Array.isArray(res.data.spotlights) && res.data.spotlights.length >= 2) {
+          const hasLocalSpotlights = !!localStorage.getItem('ov_spotlights');
+          if (!hasLocalSpotlights || res.data.custom_spotlights_saved) {
+            STATE.spotlights = res.data.spotlights;
+            try { localStorage.setItem('ov_spotlights', JSON.stringify(STATE.spotlights)); } catch(e) {}
+            try { renderStorefrontMedia(); } catch(e) {}
+          }
+        }
+        // Sync custom brand story from remote server if present
+        if (res.data.brand_story && res.data.brand_story.image) {
+          const hasLocalBrandStory = !!localStorage.getItem('ov_brand_story');
+          if (!hasLocalBrandStory || res.data.custom_brand_story_saved) {
+            STATE.brandStory = res.data.brand_story;
+            try { localStorage.setItem('ov_brand_story', JSON.stringify(STATE.brandStory)); } catch(e) {}
+            try { renderStorefrontMedia(); } catch(e) {}
+          }
+        }
       }
     })
     .catch(() => {});
@@ -4183,57 +4201,111 @@ function renderAdminDashboard() {
   });
 }
 
-function handleFileAsBase64(input, previewId, hiddenInputId) {
-  handleFileAsCompressedBase64(input, previewId, hiddenInputId);
+// ==============================================================================
+// UNIVERSAL IMAGE UPLOAD & SERVER PERSISTENCE ENGINE
+// ==============================================================================
+async function uploadImageToServer(dataUrl, filename) {
+  if (!dataUrl || typeof dataUrl !== 'string') return '';
+  // If already a relative static path, return as is
+  if (!dataUrl.startsWith('data:image/')) return dataUrl;
+
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAdminAuthHeader()
+      },
+      body: JSON.stringify({
+        image: dataUrl,
+        filename: filename || 'asset.jpg'
+      })
+    });
+    const result = await res.json();
+    if (result && result.success && result.data && result.data.url) {
+      return result.data.url;
+    }
+  } catch (err) {
+    console.warn('[Image Upload] Server upload failed, using local data URL:', err);
+  }
+  return dataUrl;
 }
 
-function handleFileAsCompressedBase64(input, previewId, hiddenInputId, urlInputId, maxWidth = 1600, maxHeight = 1600, quality = 0.82) {
-  const file = input.files[0];
+function readFileAndCompress(file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+
+        if (w > maxWidth || h > maxHeight) {
+          if (w / h > maxWidth / maxHeight) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          } else {
+            w = Math.round((w * maxHeight) / h);
+            h = maxHeight;
+          }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const format = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
+        resolve(canvas.toDataURL(format, quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleFileAsBase64(input, previewId, hiddenInputId, urlInputId) {
+  handleFileAsCompressedBase64(input, previewId, hiddenInputId, urlInputId);
+}
+
+async function handleFileAsCompressedBase64(input, previewId, hiddenInputId, urlInputId, maxWidth = 1600, maxHeight = 1600, quality = 0.85) {
+  const file = input.files && input.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      let w = img.width;
-      let h = img.height;
+  showNotification('UPLOADING IMAGE TO SERVER...');
 
-      if (w > maxWidth || h > maxHeight) {
-        if (w / h > maxWidth / maxHeight) {
-          h = Math.round((h * maxWidth) / w);
-          w = maxWidth;
-        } else {
-          w = Math.round((w * maxHeight) / h);
-          h = maxHeight;
-        }
+  try {
+    const compressedDataUrl = await readFileAndCompress(file, maxWidth, maxHeight, quality);
+    const serverUrl = await uploadImageToServer(compressedDataUrl, file.name);
+
+    const preview = previewId ? document.getElementById(previewId) : null;
+    const hidden = hiddenInputId ? document.getElementById(hiddenInputId) : null;
+    const urlInput = urlInputId ? document.getElementById(urlInputId) : null;
+
+    if (preview) {
+      if (preview.tagName === 'IMG') {
+        preview.src = serverUrl;
+      } else {
+        preview.style.backgroundImage = `url("${serverUrl}")`;
       }
+      preview.style.display = 'block';
+    }
 
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
+    if (hidden) {
+      hidden.value = serverUrl;
+    }
 
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+    if (urlInput) {
+      urlInput.value = serverUrl; // <-- AUTOMATICALLY POPULATE THE REAL SERVER URL!
+    }
 
-      const preview = document.getElementById(previewId);
-      const hidden = document.getElementById(hiddenInputId);
-      const urlInput = urlInputId ? document.getElementById(urlInputId) : null;
-
-      if (preview) {
-        preview.src = compressedDataUrl;
-        preview.style.display = 'block';
-      }
-      if (hidden) {
-        hidden.value = compressedDataUrl;
-      }
-      if (urlInput) {
-        urlInput.value = ''; // clear text URL if uploaded custom file
-      }
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+    showNotification('✓ IMAGE UPLOADED! AUTOMATIC URL GENERATED: ' + serverUrl);
+  } catch (err) {
+    console.error('File upload error:', err);
+    showNotification('UPLOAD FAILED, PLEASE RETRY');
+  }
 }
 
 function updateSlidePreviewFromUrl(url) {
@@ -4255,73 +4327,9 @@ function setSlideImagePreset(presetUrl) {
 }
 
 // ==============================================================================
-// PRODUCT MULTI-IMAGE GALLERY MANAGER & STATIC SERVER UPLOADER (ADMIN)
+// PRODUCT MULTI-IMAGE GALLERY MANAGER (ADMIN)
 // ==============================================================================
 let currentProductGallery = [];
-
-async function uploadImageToServer(dataUrl, filename) {
-  if (!dataUrl || typeof dataUrl !== 'string') return '';
-  // If already a relative static path, return as is
-  if (!dataUrl.startsWith('data:image/')) return dataUrl;
-
-  try {
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAdminAuthHeader()
-      },
-      body: JSON.stringify({
-        image: dataUrl,
-        filename: filename || 'product.jpg'
-      })
-    });
-    const result = await res.json();
-    if (result && result.success && result.data && result.data.url) {
-      return result.data.url;
-    }
-  } catch (err) {
-    console.warn('[Image Upload] Server upload failed, using local data URL:', err);
-  }
-  return dataUrl;
-}
-
-function readFileAndCompress(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const maxWidth = 1200;
-        const maxHeight = 1200;
-        let w = img.width;
-        let h = img.height;
-
-        if (w > maxWidth || h > maxHeight) {
-          if (w / h > maxWidth / maxHeight) {
-            h = Math.round((h * maxWidth) / w);
-            w = maxWidth;
-          } else {
-            w = Math.round((w * maxHeight) / h);
-            h = maxHeight;
-          }
-        }
-
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        const format = (file.type === 'image/png') ? 'image/png' : 'image/jpeg';
-        resolve(canvas.toDataURL(format, 0.85));
-      };
-      img.onerror = () => resolve(e.target.result);
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve('');
-    reader.readAsDataURL(file);
-  });
-}
 
 async function handleProductGalleryUpload(input) {
   if (!input.files || input.files.length === 0) return;
@@ -5354,38 +5362,60 @@ function quickSetBannerPosition(posStr) {
 }
 
 function saveSpotlightsFromAdmin() {
-  const img1 = document.getElementById('admin-spotlight-img-1').value.trim();
+  let img1 = document.getElementById('admin-spotlight-img-1').value.trim();
   const title1 = document.getElementById('admin-spotlight-title-1').value.trim();
   const price1 = document.getElementById('admin-spotlight-price-1').value.trim();
 
-  const img2 = document.getElementById('admin-spotlight-img-2').value.trim();
+  let img2 = document.getElementById('admin-spotlight-img-2').value.trim();
   const title2 = document.getElementById('admin-spotlight-title-2').value.trim();
   const price2 = document.getElementById('admin-spotlight-price-2').value.trim();
 
+  if (!img1 && STATE.spotlights && STATE.spotlights[0]) img1 = STATE.spotlights[0].image;
+  if (!img2 && STATE.spotlights && STATE.spotlights[1]) img2 = STATE.spotlights[1].image;
+
   STATE.spotlights = [
-    { id: 1, image: img1, title: title1, price: price1 },
-    { id: 2, image: img2, title: title2, price: price2 }
+    { id: 1, image: img1 || 'images/product_beige_front_model.jpg', title: title1 || 'OVERSIZED "GRACE" DUNE BEIGE', price: price1 || '₹999' },
+    { id: 2, image: img2 || 'images/antigravity_tshirts_float.jpg', title: title2 || 'BOXY "NOIR" WASHED BLACK', price: price2 || '₹1,199' }
   ];
 
   try {
     localStorage.setItem('ov_spotlights', JSON.stringify(STATE.spotlights));
   } catch(e) {}
   renderStorefrontMedia();
-  showNotification('SPOTLIGHT BANNERS SAVED');
+  showNotification('SPOTLIGHT BANNERS SAVED WITH NEW IMAGES!');
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ spotlights: STATE.spotlights, custom_spotlights_saved: true })
+  }).catch(() => {});
 }
 
 function saveBrandStoryFromAdmin() {
-  const img = document.getElementById('admin-brand-story-img-url').value.trim();
+  let img = document.getElementById('admin-brand-story-img-url').value.trim();
   const badge = document.getElementById('admin-brand-story-badge').value.trim();
   const title = document.getElementById('admin-brand-story-title').value.trim();
   const desc = document.getElementById('admin-brand-story-desc').value.trim();
 
-  STATE.brandStory = { image: img, badge, title, desc };
+  if (!img && STATE.brandStory) img = STATE.brandStory.image;
+
+  STATE.brandStory = { 
+    image: img || 'images/antigravity_showcase.jpg', 
+    badge: badge || 'BORN IN TIRUPUR · 100% COMBED COTTON', 
+    title: title || 'STREETWEAR WITH ARCHITECTURAL SUBSTANCE', 
+    desc: desc || '' 
+  };
   try {
     localStorage.setItem('ov_brand_story', JSON.stringify(STATE.brandStory));
   } catch(e) {}
   renderStorefrontMedia();
-  showNotification('BRAND STORY ASSET SAVED');
+  showNotification('BRAND STORY ASSET SAVED!');
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ brand_story: STATE.brandStory, custom_brand_story_saved: true })
+  }).catch(() => {});
 }
 
 function renderStorefrontMedia() {
