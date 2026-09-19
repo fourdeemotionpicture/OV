@@ -142,6 +142,19 @@
         </div>
       </div>
 
+      <!-- Hero Banner Carousel Navigation Arrows -->
+      <button type="button" class="hero-banner-arrow hero-arrow-prev" onclick="prevHeroBannerSlide()" aria-label="Previous Banner Slide">
+        ‹
+      </button>
+      <button type="button" class="hero-banner-arrow hero-arrow-next" onclick="nextHeroBannerSlide()" aria-label="Next Banner Slide">
+        ›
+      </button>
+
+      <!-- Hero Banner Pagination Indicators -->
+      <div class="hero-banner-indicators" id="hero-banner-indicators">
+        <!-- Rendered dynamically -->
+      </div>
+
       <!-- Quick Edit Floating Button for Admin -->
       <button class="admin-banner-floating-edit-btn" id="admin-hero-quick-edit-btn" onclick="openHeroBannerDragModal()" title="Adjust Banner Position & Image">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
@@ -1662,6 +1675,27 @@
             <span style="font-size: 1.2rem;">👆</span>
             <div>
               <strong>Drag Anywhere on the Image:</strong> Click and drag on the preview below to set where the banner image should center and focus (e.g. adjust so the model's head/face is never cut off!).
+            </div>
+          </div>
+
+          <!-- Multi-Banner Switcher & Slide Manager Bar -->
+          <div class="banner-slide-switcher-bar" style="background:#f4f4f7; border:1px solid var(--border-color); border-radius:8px; padding:12px 18px; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#111;">
+                ACTIVE BANNER:
+              </span>
+              <div id="banner-slide-tabs-container" style="display:flex; gap:6px; flex-wrap:wrap;">
+                <!-- Generated dynamically: [BANNER 1 (Active)] [BANNER 2] -->
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button type="button" class="admin-stepper-btn" onclick="addNewHeroBannerSlide()" style="width:auto; padding:7px 16px; font-size:0.72rem; font-weight:700; background:#000; color:#fff; border-color:#000; display:inline-flex; align-items:center; gap:6px;">
+                <span>+ ADD ANOTHER BANNER</span>
+              </button>
+              <button type="button" id="delete-current-banner-btn" class="admin-stepper-btn" onclick="deleteCurrentHeroBannerSlide()" style="width:auto; padding:7px 12px; font-size:0.72rem; color:#d9383a; border-color:#f5c2c2;" title="Delete this banner slide">
+                🗑️ DELETE BANNER
+              </button>
             </div>
           </div>
 

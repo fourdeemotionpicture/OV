@@ -187,22 +187,52 @@ const STATE = {
       address: '24, Khader Nawaz Khan Road, Nungambakkam, Chennai - 600006'
     }
   ],
-  heroBanner: (() => {
+  heroBanners: (() => {
     try {
-      const saved = localStorage.getItem('ov_hero_banner');
-      if (saved) return JSON.parse(saved);
+      const saved = localStorage.getItem('ov_hero_banners_v2') || localStorage.getItem('ov_hero_banners');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch(e) {}
-    return {
+    
+    // Check legacy single hero banner
+    let legacyBanner = null;
+    try {
+      const legacy = localStorage.getItem('ov_hero_banner');
+      if (legacy) legacyBanner = JSON.parse(legacy);
+    } catch(e) {}
+
+    const firstBanner = (legacyBanner && legacyBanner.image) ? legacyBanner : {
+      id: 'banner-grace-drop',
       image: 'images/product_beige_front_model.jpg',
       posX: 50,
       posY: 10,
       tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
       title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
       desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
-      btn1Text: 'SHOP ALL PIECES',
-      btn2Text: 'VIEW BESTSELLERS'
+      btn1Text: 'SHOP ALL PIECES →',
+      btn2Text: 'VIEW BESTSELLERS ↓'
     };
+
+    return [
+      firstBanner,
+      {
+        id: 'banner-noir-drop',
+        image: 'images/antigravity_tshirts_float.jpg',
+        posX: 50,
+        posY: 25,
+        tag: 'DROP 02 // BLACK LABEL EDITION',
+        title: 'ARCHITECTURAL BOXY FIT 280 GSM',
+        desc: 'Extreme heavyweight interlock structure with vintage mineral enzyme wash and zero-bacon bound collar.',
+        btn1Text: 'EXPLORE DROP 02 →',
+        btn2Text: 'VIEW THE LOOKBOOK ↓'
+      }
+    ];
   })(),
+  get heroBanner() {
+    return (this.heroBanners && this.heroBanners.length > 0) ? this.heroBanners[0] : null;
+  },
   spotlights: (() => {
     try {
       const saved = localStorage.getItem('ov_spotlights');
@@ -331,6 +361,15 @@ document.addEventListener('DOMContentLoaded', () => {
             try { renderShopCatalog(); } catch(e) {}
             try { renderFeaturedGrid('featured-products-grid', STATE.products); } catch(e) {}
             try { renderAdminDashboard(); } catch(e) {}
+          }
+        }
+        // Sync custom hero banners from remote server if present
+        if (Array.isArray(res.data.hero_banners) && res.data.hero_banners.length > 0) {
+          const hasLocalBanners = !!localStorage.getItem('ov_hero_banners_v2');
+          if (!hasLocalBanners || res.data.custom_hero_banners_saved) {
+            STATE.heroBanners = res.data.hero_banners;
+            try { localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners)); } catch(e) {}
+            try { renderStorefrontMedia(); } catch(e) {}
           }
         }
       }
@@ -4840,22 +4879,240 @@ function handleBannerFileUpload(input) {
   reader.readAsDataURL(file);
 }
 
-function openHeroBannerDragModal() {
+let activeHeroBannerSlideIndex = 0;
+let heroBannerAutoplayTimer = null;
+let studioEditingBannerIndex = 0;
+
+function renderHeroBannerSlide(index) {
+  if (!Array.isArray(STATE.heroBanners) || STATE.heroBanners.length === 0) return;
+  if (index < 0) index = STATE.heroBanners.length - 1;
+  if (index >= STATE.heroBanners.length) index = 0;
+  activeHeroBannerSlideIndex = index;
+
+  const hb = STATE.heroBanners[index];
+  if (!hb) return;
+
+  const heroBg = document.getElementById('hero-banner-bg');
+  const heroTag = document.getElementById('hero-banner-tag');
+  const heroTitle = document.getElementById('hero-banner-title');
+  const heroDesc = document.getElementById('hero-banner-desc');
+  const heroBtn1 = document.getElementById('hero-banner-btn1');
+  const heroBtn2 = document.getElementById('hero-banner-btn2');
+  const heroContent = document.querySelector('.ecommerce-hero-content');
+
+  if (heroBg) {
+    heroBg.style.opacity = '0.7';
+    setTimeout(() => {
+      if (hb.image) heroBg.style.backgroundImage = `url("${hb.image}")`;
+      const posX = hb.posX !== undefined ? hb.posX : 50;
+      const posY = hb.posY !== undefined ? hb.posY : 10;
+      heroBg.style.backgroundPosition = `${posX}% ${posY}%`;
+      heroBg.style.opacity = '1';
+    }, 120);
+  }
+
+  if (heroTag && hb.tag) heroTag.textContent = hb.tag;
+  if (heroTitle && hb.title) heroTitle.textContent = hb.title;
+  if (heroDesc && hb.desc) heroDesc.textContent = hb.desc;
+  if (heroBtn1 && hb.btn1Text) {
+    const b1 = hb.btn1Text.replace(/[→\->]/g, '').trim();
+    heroBtn1.innerHTML = `${b1} <span style="margin-left: 8px;">→</span>`;
+  }
+  if (heroBtn2 && hb.btn2Text) {
+    const b2 = hb.btn2Text.replace(/[↓v]/g, '').trim();
+    heroBtn2.innerHTML = `${b2} <span style="margin-left: 8px;">↓</span>`;
+  }
+
+  // Smooth fade-in refresh
+  if (heroContent) {
+    heroContent.style.animation = 'none';
+    void heroContent.offsetWidth;
+    heroContent.style.animation = 'heroFadeInUp 0.6s var(--ease-premium)';
+  }
+
+  // Update indicators
+  renderHeroBannerIndicators();
+}
+
+function setupHeroBannerCarouselInteractions() {
+  const heroSection = document.getElementById('hero-banner');
+  if (!heroSection || heroSection.dataset.carouselEventsBound) return;
+  heroSection.dataset.carouselEventsBound = 'true';
+
+  // Hover Pause & Resume
+  heroSection.addEventListener('mouseenter', () => {
+    stopHeroBannerAutoplay();
+  });
+  heroSection.addEventListener('mouseleave', () => {
+    startHeroBannerAutoplay();
+  });
+
+  // Mobile Touch Swipe Navigation
+  let touchStartX = 0;
+  let touchStartY = 0;
+  heroSection.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length > 0) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  heroSection.addEventListener('touchend', (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        if (diffX < 0) {
+          nextHeroBannerSlide();
+        } else {
+          prevHeroBannerSlide();
+        }
+      }
+    }
+  }, { passive: true });
+}
+
+function renderHeroBannerIndicators() {
+  const container = document.getElementById('hero-banner-indicators');
+  const prevBtn = document.querySelector('.hero-arrow-prev');
+  const nextBtn = document.querySelector('.hero-arrow-next');
+  if (!container) return;
+
+  const total = (Array.isArray(STATE.heroBanners)) ? STATE.heroBanners.length : 1;
+
+  if (total <= 1) {
+    container.innerHTML = '';
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
+    return;
+  }
+
+  if (prevBtn) prevBtn.style.display = 'flex';
+  if (nextBtn) nextBtn.style.display = 'flex';
+
+  container.innerHTML = STATE.heroBanners.map((_, idx) => `
+    <div class="hero-indicator-dot ${idx === activeHeroBannerSlideIndex ? 'active' : ''}" 
+         onclick="goToHeroBannerSlide(${idx})" 
+         title="Go to Banner ${idx + 1}">
+    </div>
+  `).join('');
+}
+
+function nextHeroBannerSlide() {
+  renderHeroBannerSlide(activeHeroBannerSlideIndex + 1);
+  resetHeroBannerAutoplay();
+}
+
+function prevHeroBannerSlide() {
+  renderHeroBannerSlide(activeHeroBannerSlideIndex - 1);
+  resetHeroBannerAutoplay();
+}
+
+function goToHeroBannerSlide(idx) {
+  renderHeroBannerSlide(idx);
+  resetHeroBannerAutoplay();
+}
+
+function startHeroBannerAutoplay() {
+  stopHeroBannerAutoplay();
+  if (!Array.isArray(STATE.heroBanners) || STATE.heroBanners.length <= 1) return;
+  heroBannerAutoplayTimer = setInterval(() => {
+    renderHeroBannerSlide(activeHeroBannerSlideIndex + 1);
+  }, 6000);
+}
+
+function stopHeroBannerAutoplay() {
+  if (heroBannerAutoplayTimer) {
+    clearInterval(heroBannerAutoplayTimer);
+    heroBannerAutoplayTimer = null;
+  }
+}
+
+function resetHeroBannerAutoplay() {
+  stopHeroBannerAutoplay();
+  startHeroBannerAutoplay();
+}
+
+function openHeroBannerDragModal(targetIndex = 0) {
   const modal = document.getElementById('admin-banner-drag-modal');
   if (!modal) return;
 
-  const current = STATE.heroBanner || {
-    image: 'images/product_beige_front_model.jpg',
-    posX: 50,
-    posY: 10,
-    tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
-    title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
-    desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
-    btn1Text: 'SHOP ALL PIECES →',
-    btn2Text: 'VIEW BESTSELLERS ↓'
-  };
+  if (!Array.isArray(STATE.heroBanners) || STATE.heroBanners.length === 0) {
+    STATE.heroBanners = [
+      {
+        id: 'banner-grace-drop',
+        image: 'images/product_beige_front_model.jpg',
+        posX: 50,
+        posY: 10,
+        tag: 'NEW SEASON 2026 // LUXURY STREETWEAR',
+        title: 'OVERSIZED HEAVYWEIGHT ESSENTIALS',
+        desc: 'Engineered in 240 & 280 GSM combed compact cotton. Designed for an immaculate architectural boxy drape that never collapses.',
+        btn1Text: 'SHOP ALL PIECES →',
+        btn2Text: 'VIEW BESTSELLERS ↓'
+      }
+    ];
+  }
 
-  setBannerSourceImage(current.image);
+  studioEditingBannerIndex = Math.max(0, Math.min(targetIndex, STATE.heroBanners.length - 1));
+  renderStudioBannerTabs();
+  loadBannerIntoStudio(studioEditingBannerIndex);
+  openAdminModal('admin-banner-drag-modal');
+}
+
+function renderStudioBannerTabs() {
+  const container = document.getElementById('banner-slide-tabs-container');
+  const deleteBtn = document.getElementById('delete-current-banner-btn');
+  if (!container) return;
+
+  if (deleteBtn) {
+    deleteBtn.style.display = (STATE.heroBanners.length > 1) ? 'inline-flex' : 'none';
+  }
+
+  container.innerHTML = STATE.heroBanners.map((b, idx) => {
+    const isActive = idx === studioEditingBannerIndex;
+    const label = `BANNER ${idx + 1}${isActive ? ' ★' : ''}`;
+    return `
+      <button type="button" class="banner-tab-btn ${isActive ? 'active' : ''}" onclick="switchStudioBannerTab(${idx})">
+        ${label}
+      </button>
+    `;
+  }).join('');
+}
+
+function switchStudioBannerTab(index) {
+  syncStudioFormToMemory();
+  studioEditingBannerIndex = index;
+  renderStudioBannerTabs();
+  loadBannerIntoStudio(index);
+}
+
+function syncStudioFormToMemory() {
+  if (!Array.isArray(STATE.heroBanners) || !STATE.heroBanners[studioEditingBannerIndex]) return;
+  const b = STATE.heroBanners[studioEditingBannerIndex];
+  const imgInput = document.getElementById('banner-form-image-url');
+  const posXInput = document.getElementById('banner-form-pos-x');
+  const posYInput = document.getElementById('banner-form-pos-y');
+  const tagInput = document.getElementById('banner-form-tag');
+  const titleInput = document.getElementById('banner-form-title');
+  const descInput = document.getElementById('banner-form-desc');
+  const btn1Input = document.getElementById('banner-form-btn1-text');
+  const btn2Input = document.getElementById('banner-form-btn2-text');
+
+  if (imgInput && imgInput.value.trim()) b.image = imgInput.value.trim();
+  if (posXInput) b.posX = parseInt(posXInput.value, 10) || 50;
+  if (posYInput) b.posY = parseInt(posYInput.value, 10) || 10;
+  if (tagInput) b.tag = tagInput.value.trim();
+  if (titleInput) b.title = titleInput.value.trim();
+  if (descInput) b.desc = descInput.value.trim();
+  if (btn1Input) b.btn1Text = btn1Input.value.trim();
+  if (btn2Input) b.btn2Text = btn2Input.value.trim();
+}
+
+function loadBannerIntoStudio(index) {
+  const current = STATE.heroBanners[index] || STATE.heroBanners[0];
+  if (!current) return;
+
+  setBannerSourceImage(current.image || 'images/product_beige_front_model.jpg');
   setFocalCoords(current.posX || 50, current.posY || 10);
 
   const tagInput = document.getElementById('banner-form-tag');
@@ -4876,47 +5133,96 @@ function openHeroBannerDragModal() {
   if (miniTag) miniTag.textContent = current.tag || '';
   if (miniTitle) miniTitle.textContent = current.title || '';
   if (miniDesc) miniDesc.textContent = current.desc || '';
+}
 
-  openAdminModal('admin-banner-drag-modal');
+function addNewHeroBannerSlide() {
+  syncStudioFormToMemory();
+  const nextNum = STATE.heroBanners.length + 1;
+  const presets = [
+    {
+      image: 'images/antigravity_tshirts_float.jpg',
+      tag: `DROP 02 // EDITION ${nextNum}`,
+      title: 'ARCHITECTURAL BOXY FIT 280 GSM',
+      desc: 'Double combed Tirupur cotton cut in an intentional boxy drop shoulder silhouette.',
+      btn1Text: 'EXPLORE DROP 02 →',
+      btn2Text: 'VIEW LOOKBOOK ↓'
+    },
+    {
+      image: 'images/product_beige_back_model.jpg',
+      tag: `SPECIAL DROP // CAPSULE ${nextNum}`,
+      title: 'EMPOWERING FLORAL MUSE EDITION',
+      desc: 'Quiet. Unbreakable. Limitless. Back graphic architectural luxury tee.',
+      btn1Text: 'DISCOVER PIECE →',
+      btn2Text: 'SHOP COLLECTION ↓'
+    },
+    {
+      image: 'images/model_runway.jpg',
+      tag: 'NEW ATELIER RELEASE',
+      title: 'FRENCH TERRY HIGH-DENSITY SWEATS',
+      desc: 'Engineered for statement layering and intentional wardrobes.',
+      btn1Text: 'SHOP NOW →',
+      btn2Text: 'VIEW BESTSELLERS ↓'
+    }
+  ];
+  const preset = presets[(nextNum - 2) % presets.length];
+
+  const newBanner = {
+    id: 'banner-' + Date.now(),
+    image: preset.image,
+    posX: 50,
+    posY: 20,
+    tag: preset.tag,
+    title: preset.title,
+    desc: preset.desc,
+    btn1Text: preset.btn1Text,
+    btn2Text: preset.btn2Text
+  };
+
+  STATE.heroBanners.push(newBanner);
+  studioEditingBannerIndex = STATE.heroBanners.length - 1;
+  renderStudioBannerTabs();
+  loadBannerIntoStudio(studioEditingBannerIndex);
+  showNotification(`NEW BANNER ${nextNum} ADDED! CUSTOMIZE & CLICK SAVE.`);
+}
+
+function deleteCurrentHeroBannerSlide() {
+  if (STATE.heroBanners.length <= 1) {
+    showNotification('AT LEAST ONE BANNER IS REQUIRED');
+    return;
+  }
+  if (confirm(`Are you sure you want to delete BANNER ${studioEditingBannerIndex + 1}?`)) {
+    STATE.heroBanners.splice(studioEditingBannerIndex, 1);
+    studioEditingBannerIndex = Math.max(0, studioEditingBannerIndex - 1);
+    renderStudioBannerTabs();
+    loadBannerIntoStudio(studioEditingBannerIndex);
+    renderStorefrontMedia();
+    showNotification('BANNER SLIDE REMOVED');
+  }
 }
 
 function saveHeroBannerFromModal(event) {
   if (event) event.preventDefault();
 
-  const imageUrl = document.getElementById('banner-form-image-url').value.trim();
-  const posX = parseInt(document.getElementById('banner-form-pos-x').value, 10) || 50;
-  const posY = parseInt(document.getElementById('banner-form-pos-y').value, 10) || 10;
-  const tag = document.getElementById('banner-form-tag').value.trim();
-  const title = document.getElementById('banner-form-title').value.trim();
-  const desc = document.getElementById('banner-form-desc').value.trim();
-  const btn1Text = document.getElementById('banner-form-btn1-text').value.trim();
-  const btn2Text = document.getElementById('banner-form-btn2-text').value.trim();
-
-  STATE.heroBanner = {
-    image: imageUrl || 'images/product_beige_front_model.jpg',
-    posX: posX,
-    posY: posY,
-    tag: tag,
-    title: title,
-    desc: desc,
-    btn1Text: btn1Text,
-    btn2Text: btn2Text
-  };
+  syncStudioFormToMemory();
 
   try {
-    localStorage.setItem('ov_hero_banner', JSON.stringify(STATE.heroBanner));
+    localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners));
+    localStorage.setItem('ov_hero_banners', JSON.stringify(STATE.heroBanners));
+    if (STATE.heroBanners[0]) {
+      localStorage.setItem('ov_hero_banner', JSON.stringify(STATE.heroBanners[0]));
+    }
   } catch(e) {
     console.warn('LocalStorage save error:', e);
   }
 
   renderStorefrontMedia();
   closeAdminModal('admin-banner-drag-modal');
-  showNotification('HERO BANNER POSITION & VISUALS SAVED');
+  showNotification(`ALL ${STATE.heroBanners.length} HERO BANNERS SAVED & APPLIED TO HOMEPAGE!`);
 
   fetch('/api/admin/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
-    body: JSON.stringify({ hero_banner: STATE.heroBanner })
+    body: JSON.stringify({ hero_banners: STATE.heroBanners, hero_banner: STATE.heroBanners[0] })
   }).catch(() => {});
 }
 
@@ -4931,10 +5237,13 @@ function quickSetBannerPosition(posStr) {
     if (parts[1].includes('%')) y = parseInt(parts[1], 10);
   }
 
-  STATE.heroBanner.posX = x;
-  STATE.heroBanner.posY = y;
+  if (Array.isArray(STATE.heroBanners) && STATE.heroBanners[studioEditingBannerIndex]) {
+    STATE.heroBanners[studioEditingBannerIndex].posX = x;
+    STATE.heroBanners[studioEditingBannerIndex].posY = y;
+  }
+
   try {
-    localStorage.setItem('ov_hero_banner', JSON.stringify(STATE.heroBanner));
+    localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners));
   } catch(e) {}
   renderStorefrontMedia();
   showNotification(`FOCAL SET TO ${x}% ${y}%`);
@@ -4976,34 +5285,18 @@ function saveBrandStoryFromAdmin() {
 }
 
 function renderStorefrontMedia() {
-  const hb = STATE.heroBanner;
+  // Setup carousel interactions (hover pause & touch swipe)
+  setupHeroBannerCarouselInteractions();
+
+  // Render active hero banner slide & indicators
+  if (Array.isArray(STATE.heroBanners) && STATE.heroBanners.length > 0) {
+    renderHeroBannerSlide(activeHeroBannerSlideIndex);
+    startHeroBannerAutoplay();
+  }
+
+  // Also update Admin Panel representation
+  const hb = (Array.isArray(STATE.heroBanners) && STATE.heroBanners.length > 0) ? STATE.heroBanners[0] : null;
   if (hb) {
-    const heroBg = document.getElementById('hero-banner-bg');
-    const heroTag = document.getElementById('hero-banner-tag');
-    const heroTitle = document.getElementById('hero-banner-title');
-    const heroDesc = document.getElementById('hero-banner-desc');
-    const heroBtn1 = document.getElementById('hero-banner-btn1');
-    const heroBtn2 = document.getElementById('hero-banner-btn2');
-
-    if (heroBg) {
-      if (hb.image) heroBg.style.backgroundImage = `url("${hb.image}")`;
-      const posX = hb.posX !== undefined ? hb.posX : 50;
-      const posY = hb.posY !== undefined ? hb.posY : 10;
-      heroBg.style.backgroundPosition = `${posX}% ${posY}%`;
-    }
-    if (heroTag && hb.tag) heroTag.textContent = hb.tag;
-    if (heroTitle && hb.title) heroTitle.textContent = hb.title;
-    if (heroDesc && hb.desc) heroDesc.textContent = hb.desc;
-    if (heroBtn1 && hb.btn1Text) {
-      const b1 = hb.btn1Text.replace(/[→\->]/g, '').trim();
-      heroBtn1.innerHTML = `${b1} <span style="margin-left: 8px;">→</span>`;
-    }
-    if (heroBtn2 && hb.btn2Text) {
-      const b2 = hb.btn2Text.replace(/[↓v]/g, '').trim();
-      heroBtn2.innerHTML = `${b2} <span style="margin-left: 8px;">↓</span>`;
-    }
-
-    // Also update Admin Panel representation
     const adminThumbBg = document.getElementById('admin-hero-thumb-bg');
     const adminPosBadge = document.getElementById('admin-hero-pos-badge');
     const adminMetaTag = document.getElementById('admin-hero-meta-tag');
@@ -5015,7 +5308,8 @@ function renderStorefrontMedia() {
       adminThumbBg.style.backgroundPosition = `${hb.posX || 50}% ${hb.posY || 10}%`;
     }
     if (adminPosBadge) {
-      adminPosBadge.textContent = `FOCAL: ${hb.posX || 50}% ${hb.posY || 10}%`;
+      const bannerCount = STATE.heroBanners.length;
+      adminPosBadge.textContent = `${bannerCount} BANNER${bannerCount > 1 ? 'S' : ''} ACTIVE · FOCAL: ${hb.posX || 50}% ${hb.posY || 10}%`;
     }
     if (adminMetaTag && hb.tag) adminMetaTag.textContent = hb.tag;
     if (adminMetaTitle && hb.title) adminMetaTitle.textContent = hb.title;
