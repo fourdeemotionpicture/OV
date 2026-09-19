@@ -4583,11 +4583,11 @@ function deleteSlide(idx) {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
       body: JSON.stringify({ hero_slides: STATE.slides, custom_hero_slides_saved: true })
-    }).catch(() => {});
+    }).then(r => r.json()).then(d => console.log('✓ Slide removed from DB:', d)).catch(err => console.error(err));
   }
 }
 
-function saveSlideForm(event) {
+async function saveSlideForm(event) {
   event.preventDefault();
   const idx = document.getElementById('slide-form-index').value;
   const urlInput = document.getElementById('slide-form-image-url');
@@ -4596,6 +4596,12 @@ function saveSlideForm(event) {
   if (!imageData) {
     showNotification('PLEASE PROVIDE AN IMAGE URL OR UPLOAD A FILE');
     return;
+  }
+
+  if (imageData.startsWith('data:image/')) {
+    showNotification('UPLOADING BANNER SLIDE IMAGE...');
+    imageData = await uploadImageToServer(imageData, 'slide_hero.jpg');
+    if (urlInput) urlInput.value = imageData;
   }
 
   const posVal = document.getElementById('slide-form-position').value || 'right 20% center';
@@ -4642,7 +4648,7 @@ function saveSlideForm(event) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
     body: JSON.stringify({ hero_slides: STATE.slides, custom_hero_slides_saved: true })
-  }).catch(() => {});
+  }).then(r => r.json()).then(d => console.log('✓ Slide saved to DB:', d)).catch(err => console.error('Slide save error:', err));
 }
 
 function openNewProductForm() {
@@ -4740,11 +4746,11 @@ function deleteProduct(id) {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
       body: JSON.stringify({ custom_products: STATE.products, custom_products_saved: true })
-    }).catch(() => {});
+    }).then(r => r.json()).then(d => console.log('✓ Product deletion synced to DB:', d)).catch(err => console.error(err));
   }
 }
 
-function saveProductForm(event) {
+async function saveProductForm(event) {
   event.preventDefault();
   const id = document.getElementById('product-form-id').value;
 
@@ -4764,7 +4770,19 @@ function saveProductForm(event) {
     renderProductGalleryManager();
   }
 
-  const finalGallery = [...currentProductGallery];
+  // Ensure all gallery images are static server paths (upload any base64 to server)
+  const finalGallery = [];
+  for (let i = 0; i < currentProductGallery.length; i++) {
+    let img = currentProductGallery[i];
+    if (img && img.startsWith('data:image/')) {
+      showNotification(`UPLOADING PHOTO ${i + 1} TO SERVER...`);
+      img = await uploadImageToServer(img, `product_photo_${i + 1}.jpg`);
+    }
+    finalGallery.push(img);
+  }
+  currentProductGallery = [...finalGallery];
+  renderProductGalleryManager();
+
   const primaryImage = finalGallery[0];
 
   // Get selected sizes
@@ -4846,7 +4864,7 @@ function saveProductForm(event) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
     body: JSON.stringify({ custom_products: STATE.products, custom_products_saved: true })
-  }).catch(() => {});
+  }).then(r => r.json()).then(d => console.log('✓ Products saved to DB:', d)).catch(err => console.error('Product save error:', err));
 }
 
 function removeUploadedLogoImage() {
@@ -4856,14 +4874,20 @@ function removeUploadedLogoImage() {
   document.getElementById('admin-logo-remove-img-btn').style.display = 'none';
 }
 
-function saveAdminLogo() {
+async function saveAdminLogo() {
   const letters = document.getElementById('admin-logo-letters-input').value.trim();
   const subtext = document.getElementById('admin-logo-subtext-input').value.trim();
-  const imageData = document.getElementById('admin-logo-image-data').value;
+  let imageData = document.getElementById('admin-logo-image-data').value;
 
   if (!letters && !imageData) {
     alert('Please input logo letters or upload a transparent PNG logo image.');
     return;
+  }
+
+  if (imageData && imageData.startsWith('data:image/')) {
+    showNotification('UPLOADING BRAND LOGO TO SERVER...');
+    imageData = await uploadImageToServer(imageData, 'brand_logo.png');
+    document.getElementById('admin-logo-image-data').value = imageData;
   }
 
   STATE.logo = {
@@ -4879,8 +4903,8 @@ function saveAdminLogo() {
   fetch('/api/admin/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
-    body: JSON.stringify({ brand_logo: STATE.logo })
-  }).catch(() => {});
+    body: JSON.stringify({ brand_logo: STATE.logo, custom_brand_logo_saved: true })
+  }).then(r => r.json()).then(d => console.log('✓ Brand logo saved to DB:', d)).catch(err => console.error('Logo save error:', err));
 }
 
 /* ==========================================================================
@@ -5317,6 +5341,14 @@ function saveHeroBannerFromModal(event) {
 
   syncStudioFormToMemory();
 
+  // Ensure all hero banner images are uploaded static server paths
+  for (let i = 0; i < STATE.heroBanners.length; i++) {
+    if (STATE.heroBanners[i].image && STATE.heroBanners[i].image.startsWith('data:image/')) {
+      showNotification(`UPLOADING HERO BANNER #${i + 1} TO SERVER...`);
+      STATE.heroBanners[i].image = await uploadImageToServer(STATE.heroBanners[i].image, `hero_banner_${i + 1}.jpg`);
+    }
+  }
+
   try {
     localStorage.setItem('ov_hero_banners_v2', JSON.stringify(STATE.heroBanners));
     localStorage.setItem('ov_hero_banners', JSON.stringify(STATE.heroBanners));
@@ -5334,8 +5366,8 @@ function saveHeroBannerFromModal(event) {
   fetch('/api/admin/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
-    body: JSON.stringify({ hero_banners: STATE.heroBanners, hero_banner: STATE.heroBanners[0] })
-  }).catch(() => {});
+    body: JSON.stringify({ hero_banners: STATE.heroBanners, hero_banner: STATE.heroBanners[0], custom_hero_banners_saved: true })
+  }).then(r => r.json()).then(d => console.log('✓ Hero banners saved to DB:', d)).catch(err => console.error('Hero banners save error:', err));
 }
 
 function quickSetBannerPosition(posStr) {
@@ -5359,9 +5391,15 @@ function quickSetBannerPosition(posStr) {
   } catch(e) {}
   renderStorefrontMedia();
   showNotification(`FOCAL SET TO ${x}% ${y}%`);
+
+  fetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+    body: JSON.stringify({ hero_banners: STATE.heroBanners, hero_banner: STATE.heroBanners[0], custom_hero_banners_saved: true })
+  }).catch(() => {});
 }
 
-function saveSpotlightsFromAdmin() {
+async function saveSpotlightsFromAdmin() {
   let img1 = document.getElementById('admin-spotlight-img-1').value.trim();
   const title1 = document.getElementById('admin-spotlight-title-1').value.trim();
   const price1 = document.getElementById('admin-spotlight-price-1').value.trim();
@@ -5372,6 +5410,17 @@ function saveSpotlightsFromAdmin() {
 
   if (!img1 && STATE.spotlights && STATE.spotlights[0]) img1 = STATE.spotlights[0].image;
   if (!img2 && STATE.spotlights && STATE.spotlights[1]) img2 = STATE.spotlights[1].image;
+
+  if (img1 && img1.startsWith('data:image/')) {
+    showNotification('UPLOADING SPOTLIGHT 1 IMAGE...');
+    img1 = await uploadImageToServer(img1, 'spotlight_1.jpg');
+    document.getElementById('admin-spotlight-img-1').value = img1;
+  }
+  if (img2 && img2.startsWith('data:image/')) {
+    showNotification('UPLOADING SPOTLIGHT 2 IMAGE...');
+    img2 = await uploadImageToServer(img2, 'spotlight_2.jpg');
+    document.getElementById('admin-spotlight-img-2').value = img2;
+  }
 
   STATE.spotlights = [
     { id: 1, image: img1 || 'images/product_beige_front_model.jpg', title: title1 || 'OVERSIZED "GRACE" DUNE BEIGE', price: price1 || '₹999' },
@@ -5388,16 +5437,22 @@ function saveSpotlightsFromAdmin() {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
     body: JSON.stringify({ spotlights: STATE.spotlights, custom_spotlights_saved: true })
-  }).catch(() => {});
+  }).then(r => r.json()).then(d => console.log('✓ Spotlights saved to DB:', d)).catch(err => console.error('Spotlights save error:', err));
 }
 
-function saveBrandStoryFromAdmin() {
+async function saveBrandStoryFromAdmin() {
   let img = document.getElementById('admin-brand-story-img-url').value.trim();
   const badge = document.getElementById('admin-brand-story-badge').value.trim();
   const title = document.getElementById('admin-brand-story-title').value.trim();
   const desc = document.getElementById('admin-brand-story-desc').value.trim();
 
   if (!img && STATE.brandStory) img = STATE.brandStory.image;
+
+  if (img && img.startsWith('data:image/')) {
+    showNotification('UPLOADING BRAND STORY IMAGE...');
+    img = await uploadImageToServer(img, 'brand_story.jpg');
+    document.getElementById('admin-brand-story-img-url').value = img;
+  }
 
   STATE.brandStory = { 
     image: img || 'images/antigravity_showcase.jpg', 
@@ -5415,7 +5470,7 @@ function saveBrandStoryFromAdmin() {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
     body: JSON.stringify({ brand_story: STATE.brandStory, custom_brand_story_saved: true })
-  }).catch(() => {});
+  }).then(r => r.json()).then(d => console.log('✓ Brand story saved to DB:', d)).catch(err => console.error('Brand story save error:', err));
 }
 
 function renderStorefrontMedia() {
